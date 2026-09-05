@@ -1,0 +1,20 @@
+# Variables de entorno locales - NUNCA subir al repositorio
+.env
+
+# Artefactos del modelo ML
+ml_service/model.joblib
+ml_service/feature_names.json
+
+# Compilados Java
+backend-spring/target/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
+*.iml

@@ -1,0 +1,61 @@
+server:
+  port: 8090
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: serana-backend
+  datasource:
+    # Issue 2: Las credenciales se inyectan siempre desde variables de entorno.
+    # Para desarrollo local, definir en un archivo .env (ver .env.example en la raiz).
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      # Issue 11: En desarrollo se mantiene 'update' para facilitar el prototipo.
+      # Para produccion real cambiar a 'validate' e introducir Flyway/Liquibase
+      # para gestion declarativa y auditada de migraciones de esquema.
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Configuracion de JWT y Seguridad
+# Issue 1: El secreto JWT NO tiene valor hardcodeado por defecto.
+# Debe definirse obligatoriamente como variable de entorno JWT_SECRET
+# con un minimo de 64 caracteres aleatorios (ej: openssl rand -hex 64).
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION_MS:86400000} # Default: 24 horas
+
+# Integracion HTTP REST con Microservicio Python de ML
+ml-service:
+  url: ${ML_SERVICE_URL:http://localhost:8001/api/v1}
+  timeout-seconds: ${ML_SERVICE_TIMEOUT_SECONDS:4}
+
+logging:
+  level:
+    com.upc.serana: DEBUG
+    org.springframework.security: INFO
+
+# Issue 3: Orígenes CORS configurables por entorno (ver .env.example)
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+
+# Issue 12: Credenciales de usuarios de prueba para DataInitializer
+serana:
+  student:
+    email: ${SERANA_STUDENT_EMAIL:u20201f737@upc.edu.pe}
+    password: ${SERANA_STUDENT_PASSWORD}
+  bienestar:
+    email: ${SERANA_BIENESTAR_EMAIL:bienestar@upc.edu.pe}
+    password: ${SERANA_BIENESTAR_PASSWORD}
+  admin:
+    email: ${SERANA_ADMIN_EMAIL:admin@serana.upc.edu.pe}
+    password: ${SERANA_ADMIN_PASSWORD}
+

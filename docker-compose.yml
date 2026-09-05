@@ -1,0 +1,78 @@
+version: '3.8'
+
+# Issue 2: Las credenciales y secretos se cargan desde el archivo .env local.
+# Copiar .env.example como .env y completar los valores antes de ejecutar.
+# El archivo .env NUNCA debe subirse al repositorio (está en .gitignore).
+
+services:
+  # Base de Datos Relacional PostgreSQL 15 con cumplimiento ACID y soporte JSONB
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: serana-postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Microservicio de Machine Learning Hibrido (Python / FastAPI / Random Forest)
+  ml-service:
+    build:
+      context: ./ml_service
+      dockerfile: Dockerfile
+    container_name: serana-ml-service
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+    depends_on:
+      - postgres-db
+
+  # Core Backend Transaccional (Spring Boot 3 / Java 21)
+  backend-spring:
+    build:
+      context: ./backend-spring
+      dockerfile: Dockerfile
+    container_name: serana-backend-spring
+    restart: always
+    ports:
+      - "8090:8090"
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
+      ML_SERVICE_URL: ${ML_SERVICE_URL}
+      ML_SERVICE_TIMEOUT_SECONDS: ${ML_SERVICE_TIMEOUT_SECONDS}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      SERANA_STUDENT_EMAIL: ${SERANA_STUDENT_EMAIL}
+      SERANA_STUDENT_PASSWORD: ${SERANA_STUDENT_PASSWORD}
+      SERANA_BIENESTAR_EMAIL: ${SERANA_BIENESTAR_EMAIL}
+      SERANA_BIENESTAR_PASSWORD: ${SERANA_BIENESTAR_PASSWORD}
+      SERANA_ADMIN_EMAIL: ${SERANA_ADMIN_EMAIL}
+      SERANA_ADMIN_PASSWORD: ${SERANA_ADMIN_PASSWORD}
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      ml-service:
+        condition: service_started
+
+volumes:
+  pgdata:
+    driver: local
+
