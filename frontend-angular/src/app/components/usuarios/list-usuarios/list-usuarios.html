@@ -1,0 +1,46 @@
+<div>
+    <h2>Lista de Usuarios</h2>
+</div>
+
+<mat-form-field>
+  <mat-label>Filtro</mat-label>
+  <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
+</mat-form-field>
+&nbsp;&nbsp;&nbsp;
+<button matButton="filled" routerLink="/usuarios/add-usuarios">Agregar</button>
+
+
+<table mat-table [dataSource]="dsListaUsuarios" class="mat-elevation-z8">
+
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef> Id </th>
+    <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="city">
+    <th mat-header-cell *matHeaderCellDef> correo </th>
+    <td mat-cell *matCellDef="let element"> {{element.correo}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="gameDate">
+    <th mat-header-cell *matHeaderCellDef> Fecha de Registro</th>
+    <td mat-cell *matCellDef="let element"> {{element.fechaRegistro}} </td>
+  </ng-container>
+  
+  <ng-container matColumnDef="opciones">
+    <th mat-header-cell *matHeaderCellDef> Opciones </th>
+    <td mat-cell *matCellDef="let element"> 
+        <a style="cursor: pointer;" (click)="Eliminar(element.id)"> <mat-icon>delete</mat-icon> </a>
+    </td>
+  </ng-container>
+  
+
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+ </table>
+ <mat-paginator [pageSizeOptions]="[3, 6, 9]"
+               showFirstLastButtons
+               aria-label="Seleccionar página de partidos">
+</mat-paginator>

@@ -1,0 +1,175 @@
+/* You can add global styles to this file, and also import other style files */
+
+body.dark-mode {
+  background-color: #121212 !important;
+  color: #e2e8f0 !important;
+}
+
+/* Page containers overrides */
+body.dark-mode .comunidad-page-container,
+body.dark-mode .dash-prof-page-container,
+body.dark-mode .config-page-container {
+  background-color: #121212 !important;
+  color: #e2e8f0 !important;
+}
+
+/* Card overrides */
+body.dark-mode .create-post-card,
+body.dark-mode .post-card,
+body.dark-mode .sidebar-right-card,
+body.dark-mode .dash-card,
+body.dark-mode .specialist-card,
+body.dark-mode .right-card,
+body.dark-mode .config-card {
+  background-color: #1e1e1e !important;
+  color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Sub-inputs and textareas */
+body.dark-mode .create-post-textarea,
+body.dark-mode .post-category-select,
+body.dark-mode .mood-select,
+body.dark-mode .idioma-select,
+body.dark-mode .header-search-wrapper {
+  background-color: #2d2d2d !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Headings and labels */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode .post-author-name,
+body.dark-mode .setting-label,
+body.dark-mode .indicator-number,
+body.dark-mode .specialist-name,
+body.dark-mode .session-patient,
+body.dark-mode .patient-name,
+body.dark-mode .resource-name,
+body.dark-mode .sidebar-brand-title {
+  color: #ffffff !important;
+}
+
+body.dark-mode .post-time,
+body.dark-mode .post-card-content,
+body.dark-mode .sidebar-brand-subtitle,
+body.dark-mode .indicator-label,
+body.dark-mode .specialist-role,
+body.dark-mode .specialist-location,
+body.dark-mode .session-time,
+body.dark-mode .patient-last-seen,
+body.dark-mode .rules-intro-text,
+body.dark-mode .right-card-subtitle,
+body.dark-mode .rs-links a,
+body.dark-mode .rs-copyright {
+  color: #cbd5e0 !important;
+}
+
+/* Sidebar overrides */
+body.dark-mode .sidebar-nav-item {
+  color: #a0aec0 !important;
+}
+
+body.dark-mode .sidebar-nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode .sidebar-nav-item.active {
+  background-color: #d6ec5a !important;
+  color: #121212 !important;
+  box-shadow: 0 4px 12px rgba(214, 236, 90, 0.2) !important;
+}
+
+body.dark-mode .sidebar-nav-item.active .sidebar-nav-icon {
+  color: #121212 !important;
+}
+
+/* Header & Footer overrides */
+body.dark-mode .dash-prof-header,
+body.dark-mode .config-header,
+body.dark-mode .main-footer {
+  background-color: #1b2605 !important; /* dark olive/yellow */
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .header-search-input {
+  color: #ffffff !important;
+}
+
+body.dark-mode .header-action-btn {
+  color: #ffffff !important;
+}
+
+body.dark-mode .header-action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .main-footer h3,
+body.dark-mode .main-footer a,
+body.dark-mode .main-footer p,
+body.dark-mode .main-footer span,
+body.dark-mode .main-footer .brand-slogan {
+  color: #e2e8f0 !important;
+}
+
+body.dark-mode .main-footer a:hover {
+  color: #ffffff !important;
+  text-decoration: underline;
+}
+
+body.dark-mode .footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .made-with-love {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* Buttons overrides */
+body.dark-mode .btn-spec-view {
+  background-color: #2d3748 !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode .btn-spec-view:hover {
+  background-color: #4a5568 !important;
+}
+
+body.dark-mode .quick-btn {
+  background-color: #2d2d2d !important;
+}
+
+body.dark-mode .quick-btn:hover {
+  background-color: #3d3d3d !important;
+}
+
+body.dark-mode .quick-btn span,
+body.dark-mode .quick-icon {
+  color: #ffffff !important;
+}
+
+body.dark-mode .calendar-grid-table th {
+  color: #cbd5e0 !important;
+}
+
+body.dark-mode .calendar-grid-table td {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .cell-time {
+  background-color: #1e1e1e !important;
+  color: #718096 !important;
+}
+
+body.dark-mode .divider-v {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .rule-item span {
+  color: #e2e8f0 !important;
+}

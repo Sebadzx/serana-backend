@@ -1,0 +1,258 @@
+<div class="eval-page-container">
+
+  <!-- Contenedor Principal con Barra de Progreso -->
+  <main class="eval-main">
+    
+    <!-- Stepper Visual -->
+    <div class="stepper-indicator">
+      <div class="step-item" [class.active]="pasoActual === 1" [class.completed]="pasoActual > 1">
+        <div class="step-circle">1</div>
+        <span class="step-label">Psicometría</span>
+      </div>
+      <div class="step-line" [class.completed]="pasoActual > 1"></div>
+
+      <div class="step-item" [class.active]="pasoActual === 2" [class.completed]="pasoActual > 2">
+        <div class="step-circle">2</div>
+        <span class="step-label">Hábitos Digitales</span>
+      </div>
+      <div class="step-line" [class.completed]="pasoActual > 2"></div>
+
+      <div class="step-item" [class.active]="pasoActual === 3" [class.completed]="pasoActual > 3">
+        <div class="step-circle">3</div>
+        <span class="step-label">Texto Libre</span>
+      </div>
+      <div class="step-line" [class.completed]="pasoActual > 3"></div>
+
+      <div class="step-item" [class.active]="pasoActual === 4">
+        <div class="step-circle">4</div>
+        <span class="step-label">Diagnóstico IA</span>
+      </div>
+    </div>
+
+    <!-- Banner de Progreso Recuperado (US-06) -->
+    <div class="resume-banner" *ngIf="progresoRecuperado && pasoActual < 4">
+      <div class="resume-info">
+        <mat-icon class="resume-icon">history_edu</mat-icon>
+        <div>
+          <strong>Evaluación en curso recuperada (US-06)</strong>
+          <span class="resume-sub">Se han restaurado tus respuestas previas para que continúes sin perder datos. Estás en el Paso {{ pasoActual }}.</span>
+        </div>
+      </div>
+      <div class="resume-actions">
+        <button type="button" mat-stroked-button color="warn" (click)="descartarProgreso()" class="btn-descartar">
+          <mat-icon>delete_sweep</mat-icon> Descartar y empezar desde cero
+        </button>
+      </div>
+    </div>
+
+    <!-- PASO 1: Cuestionario Psicométrico (US-04 & US-06) -->
+    <div class="eval-card animate-fade-in" *ngIf="pasoActual === 1">
+      <div class="card-header">
+        <mat-icon class="header-icon">psychology</mat-icon>
+        <div>
+          <h2 class="card-title">Paso 1: Cuestionario Psicométrico</h2>
+          <p class="card-subtitle">Escalas validadas de Tecnoestrés (TS4US) y Ansiedad por IA (ASAIDAS)</p>
+        </div>
+      </div>
+
+      <p class="likert-legend">
+        Escala: <strong>1: Totalmente en desacuerdo</strong> | <strong>3: Neutral</strong> | <strong>5: Totalmente de acuerdo</strong>
+      </p>
+
+      <form [formGroup]="formPaso1" (ngSubmit)="guardarPaso1()">
+        
+        <h3 class="section-divider">Escala TS4US (Tecnoestrés Universitario)</h3>
+        <div class="question-row" *ngFor="let q of preguntasTS4US; let idx = index">
+          <div class="question-text">{{ idx + 1 }}. {{ q.texto }}</div>
+          <div class="options-container">
+            <label class="radio-label" *ngFor="let val of [1, 2, 3, 4, 5]">
+              <input type="radio" [formControlName]="'p' + (idx + 1)" [value]="val">
+              <span>{{ val }}</span>
+            </label>
+          </div>
+        </div>
+
+        <h3 class="section-divider" style="margin-top: 28px;">Escala ASAIDAS (Ansiedad e Inteligencia Artificial)</h3>
+        <div class="question-row" *ngFor="let q of preguntasASAIDAS; let idx = index">
+          <div class="question-text">{{ idx + 6 }}. {{ q.texto }}</div>
+          <div class="options-container">
+            <label class="radio-label" *ngFor="let val of [1, 2, 3, 4, 5]">
+              <input type="radio" [formControlName]="'p' + (idx + 6)" [value]="val">
+              <span>{{ val }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="action-footer">
+          <button type="button" mat-stroked-button class="btn-guardar-salir" (click)="guardarYSalir()">
+            <mat-icon>bookmark_border</mat-icon> Guardar y salir (US-06)
+          </button>
+          <button mat-raised-button color="primary" class="btn-primary" type="submit" [disabled]="formPaso1.invalid || cargando">
+            {{ cargando ? 'Guardando progreso...' : 'Guardar y Continuar a Hábitos Digitales' }}
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- PASO 2: Hábitos Digitales (US-05 & US-06) -->
+    <div class="eval-card animate-fade-in" *ngIf="pasoActual === 2">
+      <div class="card-header">
+        <mat-icon class="header-icon">devices</mat-icon>
+        <div>
+          <h2 class="card-title">Paso 2: Hábitos de Uso Digital</h2>
+          <p class="card-subtitle">Evaluación de exposición frente a pantallas y descanso (US-05)</p>
+        </div>
+      </div>
+
+      <form [formGroup]="formPaso2" (ngSubmit)="guardarPaso2()">
+        
+        <div class="habit-field-box">
+          <label class="habit-label">
+            <mat-icon>screen_search_desktop</mat-icon>
+            <span>Horas diarias promedio frente a pantallas (Laptop, Celular, Tablet):</span>
+          </label>
+          <div class="slider-val-display">
+            <strong>{{ formPaso2.get('tiempoPantallaHoras')?.value }}</strong> horas / día
+          </div>
+          <input type="range" formControlName="tiempoPantallaHoras" min="1" max="18" step="0.5" class="custom-range-slider">
+        </div>
+
+        <div class="habit-field-box" style="margin-top: 24px;">
+          <label class="habit-label">
+            <mat-icon>bedtime</mat-icon>
+            <span>Horas promedio de sueño y descanso nocturno:</span>
+          </label>
+          <div class="slider-val-display">
+            <strong>{{ formPaso2.get('habitoSuenoHoras')?.value }}</strong> horas / noche
+          </div>
+          <input type="range" formControlName="habitoSuenoHoras" min="3" max="12" step="0.5" class="custom-range-slider">
+        </div>
+
+        <div class="action-footer">
+          <button type="button" mat-stroked-button class="btn-guardar-salir" (click)="guardarYSalir()">
+            <mat-icon>bookmark_border</mat-icon> Guardar y salir (US-06)
+          </button>
+          <button mat-raised-button color="primary" class="btn-primary" type="submit" [disabled]="formPaso2.invalid || cargando">
+            {{ cargando ? 'Guardando hábitos...' : 'Continuar al Análisis de Expresión Libre' }}
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- PASO 3: Texto Libre y NLP (US-07) -->
+    <div class="eval-card animate-fade-in" *ngIf="pasoActual === 3">
+      <div class="card-header">
+        <mat-icon class="header-icon">sentiment_dissatisfied</mat-icon>
+        <div>
+          <h2 class="card-title">Paso 3: Expresión Emocional Libre</h2>
+          <p class="card-subtitle">El procesador de Lenguaje Natural (NLP) analizará estresores y tono afectivo (US-07)</p>
+        </div>
+      </div>
+
+      <form [formGroup]="formPaso3" (ngSubmit)="finalizarEvaluacion()">
+        
+        <div class="textarea-box">
+          <label class="textarea-label">
+            Cuéntanos con tus propias palabras cómo te has sentido en estos últimos días con tus cursos, tareas virtuales, exámenes o el uso continuo de la computadora:
+          </label>
+          <textarea 
+            formControlName="textoLibre" 
+            rows="5" 
+            class="custom-textarea"
+            placeholder="Ejemplo: Paro recontra quemado frente a la pantalla todo el día, no doy más con los parciales y tengo miedo de jalar mis cursos por estar tan saturado..."></textarea>
+          <div class="char-counter">
+            {{ formPaso3.get('textoLibre')?.value?.length || 0 }} caracteres ingresados
+          </div>
+        </div>
+
+        <div class="action-footer">
+          <button type="button" mat-stroked-button class="btn-guardar-salir" (click)="guardarYSalir()">
+            <mat-icon>bookmark_border</mat-icon> Guardar y salir (US-06)
+          </button>
+          <button mat-raised-button color="accent" class="btn-primary btn-ia-trigger" type="submit" [disabled]="formPaso3.invalid || cargando">
+            <mat-icon>smart_toy</mat-icon>
+            {{ cargando ? 'Ejecutando Modelo Random Forest & NLP...' : 'Finalizar y Procesar con Inteligencia Artificial' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- PASO 4: Resultados y Recomendaciones iCBT (US-10 a US-13) -->
+    <div class="eval-card animate-fade-in result-card" *ngIf="pasoActual === 4 && resultadoFinal">
+      
+      <!-- Banner de Diagnóstico -->
+      <div class="result-banner" [ngClass]="resultadoFinal.nivelAnsiedadPredicho.toLowerCase()">
+        <div class="banner-top">
+          <span class="badge-eval-id">Evaluación #{{ resultadoFinal.idEvaluacion }}</span>
+          <span class="badge-alerta" *ngIf="resultadoFinal.esCasoCritico">
+            <mat-icon>warning</mat-icon> CASO CRÍTICO DETECTADO
+          </span>
+        </div>
+        
+        <div class="score-display">
+          <h1 class="ansiedad-level">NIVEL DE ANSIEDAD: {{ resultadoFinal.nivelAnsiedadPredicho }}</h1>
+          <p class="probabilidad-text">
+            Confianza del Modelo Predictivo: <strong>{{ (resultadoFinal.scoreProbabilidad * 100) | number:'1.1-1' }}%</strong>
+          </p>
+        </div>
+      </div>
+
+      <!-- Resumen NLP & Reglas Clínicas -->
+      <div class="nlp-summary-box">
+        <div class="summary-col">
+          <span class="col-label">Estresores Detectados (NLP):</span>
+          <strong class="col-val">{{ resultadoFinal.estresoresDetectados || 'Sobrecarga académica y fatiga' }}</strong>
+        </div>
+        <div class="summary-col">
+          <span class="col-label">Polaridad Afectiva del Discurso:</span>
+          <strong class="col-val" [class.negative]="resultadoFinal.polaridadSentimiento < 0">
+            {{ resultadoFinal.polaridadSentimiento | number:'1.2-2' }} (Tono emocional)
+          </strong>
+        </div>
+      </div>
+
+      <!-- Justificación Clínica de Explicabilidad (XAI - US-12) -->
+      <div class="justificacion-box">
+        <h4><mat-icon>info</mat-icon> Justificación Clínica Algorítmica:</h4>
+        <p>{{ resultadoFinal.justificacionCli }}</p>
+      </div>
+
+      <!-- Plan de Intervención Digital (Módulos iCBT - US-13) -->
+      <div class="icbt-modules-container">
+        <h3 class="icbt-title">
+          <mat-icon>health_and_safety</mat-icon> 
+          Plan de Intervención Terapéutica Digital (TCC / iCBT):
+        </h3>
+
+        <div class="module-card" *ngFor="let rec of resultadoFinal.recomendacionesICBT">
+          <div class="module-header">
+            <span class="module-tag">{{ rec.moduloICBT }}</span>
+            <span class="module-status">Módulo Recomendado</span>
+          </div>
+          <h4 class="module-title">{{ rec.titulo }}</h4>
+          <p class="module-desc">{{ rec.descripcion }}</p>
+        </div>
+      </div>
+
+      <!-- Acciones Finales -->
+      <div class="result-actions-footer">
+        <button mat-raised-button color="primary" class="btn-action" (click)="irAHistorial()">
+          <mat-icon>history</mat-icon> Ver Mi Historial Longitudinal
+        </button>
+        <button mat-stroked-button class="btn-action" (click)="reiniciarEvaluacion()">
+          <mat-icon>refresh</mat-icon> Realizar Nueva Evaluación
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="eval-footer">
+    <p>SERANA © 2026 - Plataforma de IA para la Detección de Ansiedad Digital (TP1 / Grupo 4).</p>
+  </footer>
+
+</div>

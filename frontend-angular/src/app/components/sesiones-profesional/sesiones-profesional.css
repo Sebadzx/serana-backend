@@ -1,0 +1,206 @@
+.sesiones-prof-page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f7faf0;
+  font-family: 'Outfit', 'Inter', 'Roboto', sans-serif;
+  color: #2d3748;
+}
+
+.sesiones-prof-main-layout {
+  display: flex;
+  gap: 32px;
+  padding: 40px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+/* Sidebar (mismo patrón que el resto de páginas) */
+.sesiones-prof-sidebar {
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sidebar-branding {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+}
+
+.sidebar-logo-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1a202c;
+  line-height: 1.1;
+}
+
+.sidebar-brand-subtitle {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #718096;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  color: #4a5568;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sidebar-nav-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: #000;
+}
+
+.sidebar-nav-item.active {
+  background-color: #1a3e68;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(26, 62, 104, 0.2);
+}
+
+.sidebar-nav-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+/* Contenido principal */
+.sesiones-prof-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.sesiones-prof-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 8px 0 0 0;
+}
+
+.dash-card {
+  background-color: #ffffff;
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+
+.dash-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0 0 24px 0;
+}
+
+.sin-horarios-msg {
+  color: #a0aec0;
+  font-size: 0.9rem;
+}
+
+/* Tabla de Sesiones */
+.sesiones-table-container {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.sesiones-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.sesiones-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #718096;
+  background-color: #fbfdf9;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.sesiones-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  font-size: 0.9rem;
+  color: #2d3748;
+}
+
+.sesiones-table tr:last-child td {
+  border-bottom: none;
+}
+
+.badge-horario {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 50px;
+  display: inline-block;
+}
+
+.badge-disponible {
+  background-color: #edf5cf;
+  color: #5a7a1a;
+}
+
+/* Responsividad */
+@media (max-width: 1200px) {
+  .sesiones-prof-main-layout {
+    flex-wrap: wrap;
+    padding: 24px;
+  }
+  .sesiones-prof-sidebar {
+    flex: 0 0 100%;
+  }
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .sidebar-nav-item {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+}

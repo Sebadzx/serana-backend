@@ -1,0 +1,932 @@
+.dash-prof-page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f7faf0;
+  font-family: 'Outfit', 'Inter', 'Roboto', sans-serif;
+  color: #2d3748;
+}
+
+/* Header superior */
+.dash-prof-header {
+  background-color: #d6ec5a;
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+}
+
+.header-search-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #f3f7d8;
+  padding: 10px 20px;
+  border-radius: 50px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.search-icon {
+  color: #718096;
+  margin-right: 8px;
+}
+
+.header-search-input {
+  border: none;
+  background: none;
+  font-size: 0.95rem;
+  color: #2d3748;
+  outline: none;
+  width: 100%;
+  font-weight: 500;
+}
+
+.header-search-input::placeholder {
+  color: #a0aec0;
+}
+
+.header-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-action-btn {
+  background: none;
+  border: none;
+  color: #1a202c;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.header-action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.header-user-avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.header-user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 3-Column Layout */
+.dash-prof-main-layout {
+  display: flex;
+  gap: 32px;
+  padding: 40px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+/* COLUMNA 1: Sidebar de Navegación Izquierda */
+.dash-prof-sidebar {
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sidebar-branding {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+}
+
+.sidebar-logo-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1a202c;
+  line-height: 1.1;
+}
+
+.sidebar-brand-subtitle {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #718096;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  color: #4a5568;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sidebar-nav-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: #000;
+}
+
+.sidebar-nav-item.active {
+  background-color: #1a3e68;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(26, 62, 104, 0.2);
+}
+
+.sidebar-nav-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+/* COLUMNA 2: Secciones Principales (Centro) */
+.dash-prof-center-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 740px;
+  min-width: 0;
+}
+
+.dash-card {
+  background-color: #ffffff;
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+
+.dash-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0 0 24px 0;
+}
+
+/* Resumen de Hoy */
+.summary-indicators-row {
+  display: flex;
+  gap: 60px;
+  justify-content: flex-start;
+  padding: 8px 12px;
+}
+
+.indicator-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.indicator-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.circle-blue {
+  border: 5px solid #1a3e68;
+}
+
+.circle-green {
+  border: 5px solid #d6ec5a;
+}
+
+.indicator-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a202c;
+}
+
+.indicator-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #4a5568;
+  text-align: center;
+}
+
+/* Calendario Semanal */
+.calendar-grid-container {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.calendar-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+
+.calendar-grid-table th {
+  padding: 12px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #718096;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.col-time-header {
+  width: 50px;
+}
+
+.calendar-grid-table td {
+  border: 1px solid rgba(0,0,0,0.05);
+  height: 48px;
+  text-align: center;
+  padding: 4px;
+}
+
+.cell-time {
+  font-weight: 700;
+  color: #a0aec0;
+  font-size: 0.85rem;
+  text-align: center;
+  background-color: #fbfdf9;
+  border-left: none !important;
+}
+
+.cal-block {
+  height: 100%;
+  min-height: 36px;
+  border-radius: 8px;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.cal-block:hover {
+  transform: scale(1.02);
+}
+
+.block-green {
+  background-color: #edf5cf;
+  border-left: 4px solid #b2cc35;
+}
+
+.block-red {
+  background-color: #fed7d7;
+  border-left: 4px solid #e53e3e;
+}
+
+.block-blue {
+  background-color: #ebf8ff;
+  border-left: 4px solid #3182ce;
+}
+
+/* Especialistas Destacados */
+.featured-specialists-row {
+  display: flex;
+  gap: 20px;
+}
+
+.specialist-card {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.specialist-avatar-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+.specialist-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.specialist-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 4px 0;
+}
+
+.specialist-role {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #718096;
+  margin-bottom: 2px;
+}
+
+.specialist-location {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.specialist-actions-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.btn-spec-view {
+  flex: 1;
+  background-color: #d6ec5a;
+  color: #1a202c;
+  border: none;
+  padding: 10px 0;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-spec-view:hover {
+  background-color: #c0d84c;
+}
+
+.btn-spec-book {
+  flex: 1.3;
+  background-color: #1a3e68;
+  color: #ffffff;
+  border: none;
+  padding: 10px 0;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-spec-book:hover {
+  background-color: #112d4e;
+}
+
+/* COLUMNA 3: Sidebar Derecho */
+.dash-prof-sidebar-right {
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.right-card {
+  background-color: #ffffff;
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+
+.right-card-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0 0 20px 0;
+}
+
+/* Próximas Sesiones */
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.session-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.session-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.session-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.session-time {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #1a202c;
+}
+
+.session-patient {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.btn-join-call {
+  background-color: #1a3e68;
+  color: white;
+  border: none;
+  padding: 10px 0;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(26, 62, 104, 0.15);
+}
+
+.btn-join-call:hover {
+  background-color: #112d4e;
+}
+
+/* Pacientes Recientes */
+.patients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.patient-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.patient-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.patient-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.patient-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.patient-last-seen {
+  font-size: 0.78rem;
+  color: #718096;
+}
+
+/* Accesos Rápidos */
+.quick-buttons-grid {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.quick-btn {
+  flex: 1;
+  background-color: #eef2db;
+  border: none;
+  border-radius: 16px;
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-btn:hover {
+  background-color: #e2e8c5;
+  transform: translateY(-1px);
+}
+
+.quick-icon {
+  color: #1a202c;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.quick-btn span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1a202c;
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* Recursos Compartidos */
+.resources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.resource-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.resource-item:hover {
+  background-color: rgba(0,0,0,0.02);
+}
+
+.resource-icon {
+  color: #718096;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.resource-icon.pdf-icon {
+  color: #e53e3e;
+}
+
+.resource-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.resource-item:hover .resource-name {
+  text-decoration: underline;
+}
+
+/* Logo de Cabecera */
+.header-logo-wrapper {
+  margin-right: 20px;
+}
+
+.header-logo-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.header-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Footer Compartido del Dashboard */
+.main-footer {
+  background-color: #d6ec5a;
+  padding: 48px 40px;
+  box-sizing: border-box;
+  margin-top: 40px;
+}
+
+.footer-grid {
+  max-width: 1200px;
+  margin: 0 auto 32px auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.logo-img-footer {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.brand-slogan {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #4a5568;
+  margin: 0;
+  max-width: 250px;
+}
+
+.footer-grid h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  color: #1a202c;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 10px;
+}
+
+.footer-links a {
+  color: #4a5568;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: #000;
+}
+
+.footer-contacts p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: #4a5568;
+  margin: 0 0 12px 0;
+}
+
+.contact-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #2d3748;
+}
+
+.social-icons {
+  display: flex;
+  gap: 12px;
+}
+
+.social-circle {
+  background-color: #2d3748;
+  color: #cde054;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.social-circle:hover {
+  background-color: #1a202c;
+  transform: translateY(-2px);
+}
+
+.social-circle mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.made-with-love {
+  background-color: rgba(255, 255, 255, 0.4);
+  padding: 6px 16px;
+  border-radius: 50px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+/* Punto 2 y 3: Establecer Horario */
+.horario-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field-wide {
+  grid-column: span 2;
+}
+
+.form-field-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.form-input {
+  padding: 10px 14px;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  background-color: #f7faf0;
+  font-size: 0.9rem;
+  color: #2d3748;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.form-input:focus {
+  border-color: #1a3e68;
+}
+
+.btn-guardar-horario {
+  grid-column: span 2;
+  background-color: #1a3e68;
+  color: #ffffff;
+  border: none;
+  padding: 12px 0;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-guardar-horario:hover {
+  background-color: #112d4e;
+}
+
+.btn-guardar-horario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mis-horarios-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0 0 16px 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.sin-horarios-msg {
+  color: #a0aec0;
+  font-size: 0.9rem;
+}
+
+.mis-horarios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.horario-registrado-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #f7faf0;
+  border-radius: 14px;
+}
+
+.horario-fecha {
+  font-weight: 700;
+  color: #1a202c;
+  font-size: 0.9rem;
+}
+
+.horario-rango {
+  color: #4a5568;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.badge-horario {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 50px;
+}
+
+.badge-disponible {
+  background-color: #edf5cf;
+  color: #5a7a1a;
+}
+
+.badge-ocupado {
+  background-color: #fed7d7;
+  color: #9b2c2c;
+}
+
+/* Responsividad */
+@media (max-width: 1200px) {
+  .dash-prof-main-layout {
+    flex-wrap: wrap;
+    padding: 24px;
+  }
+  .dash-prof-sidebar {
+    flex: 0 0 100%;
+  }
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .sidebar-nav-item {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-prof-main-layout {
+    gap: 20px;
+  }
+  .dash-prof-sidebar-right {
+    flex: 0 0 100%;
+  }
+  .featured-specialists-row {
+    flex-direction: column;
+  }
+  .horario-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-field-wide,
+  .btn-guardar-horario {
+    grid-column: span 1;
+  }
+}

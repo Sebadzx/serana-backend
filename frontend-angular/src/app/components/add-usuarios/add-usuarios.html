@@ -1,0 +1,129 @@
+<div class="register-page-container">
+  
+  <!-- Header de Navegación -->
+  <header class="main-header">
+    <div class="header-logo" routerLink="/home" style="cursor: pointer;" title="Ir al Inicio">
+      <img src="logo-Serana.png" alt="Serana Logo" class="logo-img-header">
+      <div class="brand-text-header">
+        <span class="brand-title">SERANA</span>
+        <span class="brand-sub">Salud Emocional UPC</span>
+      </div>
+    </div>
+    
+    <nav class="header-nav">
+      <a routerLink="/home" [queryParams]="{tab: 'que-es'}">¿Qué es?</a>
+      <a routerLink="/home" [queryParams]="{tab: 'sobre-nosotros'}">Sobre Nosotros</a>
+      <a routerLink="/home" [queryParams]="{tab: 'comunidad'}">Comunidad</a>
+    </nav>
+    
+    <div class="header-auth">
+      <button class="btn-text-login" routerLink="/login">Iniciar sesión</button>
+      <button class="btn-primary-register active" routerLink="/usuarios/add-usuarios">Registrarse</button>
+    </div>
+  </header>
+
+  <!-- Contenido Central de Registro -->
+  <main class="register-main">
+    <div class="register-card">
+      <h1 class="register-title">Registro de Estudiante</h1>
+      <p class="register-subtitle" style="text-align: center; color: #64748b; font-size: 0.95rem; margin-bottom: 24px;">
+        Plataforma SERANA - Detección y Apoyo ante la Ansiedad Digital (TP1 / Grupo 4)
+      </p>
+
+      <!-- Formulario de Registro Estudiantil (US-01) -->
+      <form [formGroup]="saveForm" (ngSubmit)="grabar()" class="register-form">
+        
+        <div class="form-row">
+          <div class="form-group half">
+            <label class="form-label">Código Universitario</label>
+            <input type="text" formControlName="codigoUniversitario" class="form-input" placeholder="ej. u20261001">
+            <div class="error-msg" *ngIf="saveForm.get('codigoUniversitario')?.touched && saveForm.get('codigoUniversitario')?.hasError('required')">
+              El código universitario es obligatorio.
+            </div>
+            <div class="error-msg" *ngIf="saveForm.get('codigoUniversitario')?.touched && saveForm.get('codigoUniversitario')?.hasError('pattern')">
+              Formato inválido (ej. u20261001).
+            </div>
+          </div>
+          
+          <div class="form-group half">
+            <label class="form-label">Nombre Completo</label>
+            <input type="text" formControlName="nombreCompleto" class="form-input" placeholder="ej. Juan Pérez">
+            <div class="error-msg" *ngIf="saveForm.get('nombreCompleto')?.touched && saveForm.get('nombreCompleto')?.hasError('required')">
+              El nombre completo es obligatorio.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label class="form-label">Correo Electrónico Institucional</label>
+          <input type="email" formControlName="email" class="form-input" placeholder="estudiante@upc.edu.pe">
+          <div class="error-msg" *ngIf="saveForm.get('email')?.touched && saveForm.get('email')?.hasError('required')">
+            El correo institucional es obligatorio.
+          </div>
+          <div class="error-msg" *ngIf="saveForm.get('email')?.touched && saveForm.get('email')?.hasError('email')">
+            Ingresa un correo electrónico válido.
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label class="form-label">Contraseña</label>
+            <input type="password" formControlName="password" class="form-input" placeholder="••••••••">
+            <div class="error-msg" *ngIf="saveForm.get('password')?.touched && saveForm.get('password')?.hasError('required')">
+              La contraseña es requerida.
+            </div>
+            <div class="error-msg" *ngIf="saveForm.get('password')?.touched && saveForm.get('password')?.hasError('minlength')">
+              Mínimo 6 caracteres.
+            </div>
+          </div>
+          
+          <div class="form-group half">
+            <label class="form-label">Confirmar contraseña</label>
+            <input type="password" formControlName="confirmarPassword" class="form-input" placeholder="••••••••">
+            <div class="error-msg" *ngIf="saveForm.get('confirmarPassword')?.touched && saveForm.get('confirmarPassword')?.hasError('required')">
+              Confirmación requerida.
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkbox de Consentimiento Informado (US-03 / Ley 29733) -->
+        <div style="margin: 18px 0; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; color: #334155; cursor: pointer;">
+            <input type="checkbox" formControlName="aceptoConsentimiento" style="margin-top: 3px; cursor: pointer;">
+            <span>
+              He leído y acepto los términos del <strong>Consentimiento Informado</strong> para el tratamiento confidencial de mis datos y respuestas psicométricas, en estricto cumplimiento con la <strong>Ley N° 29733</strong> de Protección de Datos Personales del Perú.
+            </span>
+          </label>
+          <div class="error-msg" *ngIf="saveForm.get('aceptoConsentimiento')?.touched && saveForm.get('aceptoConsentimiento')?.hasError('required')">
+            Debes aceptar el consentimiento informado para registrarte.
+          </div>
+        </div>
+
+        <!-- Botón Crear Cuenta -->
+        <div class="submit-row">
+          <button type="submit" class="btn-submit" [disabled]="saveForm.invalid || cargando" style="width: 100%; padding: 12px; background: #1e3a8a; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+            {{ cargando ? 'Registrando en SERANA...' : 'Completar Registro Institucional' }}
+          </button>
+        </div>
+
+        <p style="text-align: center; margin-top: 16px; font-size: 0.9rem; color: #64748b;">
+          ¿Ya tienes una cuenta institucional? <a routerLink="/login" style="color: #2563eb; font-weight: 600; text-decoration: none;">Iniciar sesión</a>
+        </p>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer Compartido de la Página de Registro -->
+  <footer class="register-footer">
+    <div class="footer-bottom">
+      <p>© 2026 SERANA · Plataforma de Bienestar Digital Estudiantil UPC. Todos los derechos reservados.</p>
+      <div class="footer-right-links">
+        <a routerLink="/home" [queryParams]="{tab: 'sobre-nosotros'}">Privacidad</a>
+        <a routerLink="/home" [queryParams]="{tab: 'sobre-nosotros'}">Términos</a>
+        <a routerLink="/home" [queryParams]="{tab: 'sobre-nosotros'}">Investigación TP1</a>
+      </div>
+    </div>
+  </footer>
+
+</div>

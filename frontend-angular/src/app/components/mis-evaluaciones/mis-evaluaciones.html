@@ -1,0 +1,295 @@
+<div class="history-page-container">
+
+  <!-- Main Content -->
+  <main class="history-main">
+    <div class="history-card">
+      <div class="card-title-row">
+        <div class="title-meta">
+          <h1 class="page-title">Mi Historial de Evaluaciones</h1>
+          <p class="page-subtitle">Seguimiento longitudinal de tecnoestrés y ansiedad digital (US-14)</p>
+        </div>
+        <div class="card-actions">
+          <button mat-button class="btn-recargar" (click)="cargarEvaluaciones()" [disabled]="cargando">
+            <mat-icon [class.spin-icon]="cargando">sync</mat-icon> Actualizar
+          </button>
+          <button mat-raised-button class="btn-export-excel-historial" (click)="exportarHistorialExcel()" [disabled]="cargando || evaluaciones.length === 0">
+            <mat-icon>file_download</mat-icon> Exportar a Excel (.csv)
+          </button>
+          <button mat-raised-button color="primary" class="btn-export-pdf-historial" (click)="exportarHistorialPDF()" [disabled]="cargando || evaluaciones.length === 0">
+            <mat-icon>picture_as_pdf</mat-icon> Imprimir / Guardar PDF
+          </button>
+          <button mat-stroked-button class="btn-arco" (click)="abrirModalARCO()">
+            <mat-icon>security</mat-icon> Derechos ARCO (Ley 29733)
+          </button>
+          <button mat-raised-button color="primary" class="btn-nueva-eval" (click)="nuevaEvaluacion()">
+            <mat-icon>add_circle</mat-icon> Nueva Evaluación
+          </button>
+        </div>
+      </div>
+
+      <!-- Spinner / Cargando -->
+      <div class="loading-box" *ngIf="cargando">
+        <mat-icon class="spin-icon">sync</mat-icon>
+        <span>Cargando tus evaluaciones registradas...</span>
+      </div>
+
+      <!-- Error al cargar -->
+      <div class="error-state-box" *ngIf="!cargando && errorCarga">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h3>No se pudo cargar el historial</h3>
+        <p>{{ errorCarga }}</p>
+        <div class="error-actions">
+          <button mat-raised-button color="primary" (click)="cargarEvaluaciones()">
+            <mat-icon>refresh</mat-icon> Reintentar
+          </button>
+          <button mat-stroked-button routerLink="/login">
+            <mat-icon>login</mat-icon> Iniciar Sesión
+          </button>
+        </div>
+      </div>
+
+      <!-- Sin evaluaciones -->
+      <div class="empty-state-box" *ngIf="!cargando && !errorCarga && evaluaciones.length === 0">
+        <mat-icon class="empty-icon">assignment_late</mat-icon>
+        <h3>Aún no has registrado ninguna evaluación</h3>
+        <p>Realiza tu primer test psicométrico para conocer tu nivel de tecnoestrés y recibir pautas de apoyo.</p>
+        <button mat-raised-button color="primary" (click)="nuevaEvaluacion()">Comenzar mi primer test</button>
+      </div>
+
+      <!-- Tabla de Evaluaciones -->
+      <div class="table-container" *ngIf="!cargando && !errorCarga && evaluaciones.length > 0">
+        <table mat-table [dataSource]="evaluaciones" class="mat-elevation-z1 custom-table">
+
+          <!-- Columna ID -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let ev"> #{{ ev.idEvaluacion }} </td>
+          </ng-container>
+
+          <!-- Columna Fecha -->
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef> Fecha & Hora </th>
+            <td mat-cell *matCellDef="let ev"> {{ ev.fechaEvaluacion | date:'dd/MM/yyyy HH:mm' }} </td>
+          </ng-container>
+
+          <!-- Columna Nivel -->
+          <ng-container matColumnDef="nivel">
+            <th mat-header-cell *matHeaderCellDef> Nivel de Ansiedad </th>
+            <td mat-cell *matCellDef="let ev">
+              <span class="level-chip" [ngClass]="(ev.nivelAnsiedadPredicho || 'bajo').toLowerCase()">
+                {{ ev.nivelAnsiedadPredicho || 'No clasificado' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Columna Probabilidad -->
+          <ng-container matColumnDef="probabilidad">
+            <th mat-header-cell *matHeaderCellDef> Confianza IA </th>
+            <td mat-cell *matCellDef="let ev"> {{ ((ev.scoreProbabilidad || 0) * 100) | number:'1.0-0' }}% </td>
+          </ng-container>
+
+          <!-- Columna Alerta Crítica -->
+          <ng-container matColumnDef="alerta">
+            <th mat-header-cell *matHeaderCellDef> Caso Crítico </th>
+            <td mat-cell *matCellDef="let ev">
+              <span class="badge-critico" *ngIf="ev.esCasoCritico">
+                <mat-icon>warning</mat-icon> SÍ
+              </span>
+              <span class="badge-normal" *ngIf="!ev.esCasoCritico">NO</span>
+            </td>
+          </ng-container>
+
+          <!-- Columna Estresores -->
+          <ng-container matColumnDef="estresores">
+            <th mat-header-cell *matHeaderCellDef> Estresores Detectados </th>
+            <td mat-cell *matCellDef="let ev"> {{ ev.estresoresDetectados || 'Sobrecarga virtual' }} </td>
+          </ng-container>
+
+          <!-- Columna Acciones / Recomendaciones (US-14) -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef> Informe & iCBT </th>
+            <td mat-cell *matCellDef="let ev">
+              <div class="row-actions-box">
+                <button mat-flat-button color="primary" class="btn-ver-informe" (click)="verInforme(ev)">
+                  <mat-icon>assessment</mat-icon> Ver Informe (US-14)
+                </button>
+                <button mat-stroked-button class="btn-export-row-excel" (click)="exportarInformeExcel(ev)" title="Exportar a Excel (.csv)">
+                  <mat-icon>file_download</mat-icon> Excel
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columnasMostradas"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasMostradas;"></tr>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL INFORME PERSONALIZADO (US-14) -->
+  <div class="informe-modal-backdrop" *ngIf="mostrarModalInforme && evaluacionSeleccionada" (click)="cerrarModalInforme()">
+    <div class="informe-modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <mat-icon class="modal-icon" style="color: #1e3a8a;">psychology</mat-icon>
+          <div>
+            <h2>Informe de Ansiedad Digital y Salud Emocional (US-14)</h2>
+            <span class="sub-informe">Evaluación #{{ evaluacionSeleccionada.idEvaluacion }} · {{ evaluacionSeleccionada.fechaEvaluacion | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+        <button mat-icon-button (click)="cerrarModalInforme()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- Diagnóstico Predictivo (US-11) -->
+        <div class="diagnostico-banner" [ngClass]="(evaluacionSeleccionada.nivelAnsiedadPredicho || 'bajo').toLowerCase()">
+          <div class="diag-icon-box">
+            <mat-icon *ngIf="evaluacionSeleccionada.nivelAnsiedadPredicho === 'Alto'">crisis_alert</mat-icon>
+            <mat-icon *ngIf="evaluacionSeleccionada.nivelAnsiedadPredicho === 'Moderado'">warning_amber</mat-icon>
+            <mat-icon *ngIf="evaluacionSeleccionada.nivelAnsiedadPredicho === 'Bajo'">check_circle</mat-icon>
+          </div>
+          <div class="diag-details">
+            <span class="diag-label">Nivel de Ansiedad Digital Clasificado por IA:</span>
+            <span class="diag-value">{{ evaluacionSeleccionada.nivelAnsiedadPredicho }}</span>
+            <p class="diag-confianza">
+              Confianza del ensamble Random Forest: <strong>{{ ((evaluacionSeleccionada.scoreProbabilidad || 0) * 100) | number:'1.0-1' }}%</strong>
+              <span *ngIf="evaluacionSeleccionada.esCasoCritico" class="alerta-critica-tag">⚠️ Alerta Clínica Temprana</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Factores Determinantes / Feature Importance (US-13 & US-14) -->
+        <div class="seccion-informe">
+          <h3 class="seccion-title">
+            <mat-icon class="sec-icon">troubleshoot</mat-icon> Factores de Mayor Influencia Detectados (Feature Importance)
+          </h3>
+          <div class="estresores-box">
+            <p class="estresores-text">{{ evaluacionSeleccionada.estresoresDetectados || 'Sobrecarga de conexión virtual y exposición prolongada a pantallas.' }}</p>
+            <p class="estresores-justif" *ngIf="evaluacionSeleccionada.justificacionCli">
+              <em>Criterio clínico experto: {{ evaluacionSeleccionada.justificacionCli }}</em>
+            </p>
+          </div>
+        </div>
+
+        <!-- Análisis Lingüístico y Sentimiento (US-08 & US-09) -->
+        <div class="seccion-informe" *ngIf="evaluacionSeleccionada.polaridadSentimiento !== null && evaluacionSeleccionada.polaridadSentimiento !== undefined">
+          <h3 class="seccion-title">
+            <mat-icon class="sec-icon">sentiment_satisfied_alt</mat-icon> Análisis de Sentimientos en Texto Libre (PLN)
+          </h3>
+          <p class="sentiment-desc">
+            Polaridad emocional del discurso analizado:
+            <strong [style.color]="evaluacionSeleccionada.polaridadSentimiento < 0 ? '#dc2626' : '#16a34a'">
+              {{ evaluacionSeleccionada.polaridadSentimiento < 0 ? 'Tono emocional negativo / agotamiento' : 'Tono emocional neutro o adaptativo' }}
+              ({{ evaluacionSeleccionada.polaridadSentimiento | number:'1.2-2' }})
+            </strong>
+          </p>
+        </div>
+
+        <!-- Recomendaciones de Hábitos Saludables y Módulos iCBT (US-14) -->
+        <div class="seccion-informe">
+          <h3 class="seccion-title">
+            <mat-icon class="sec-icon">lightbulb</mat-icon> Recomendaciones de Hábitos y Módulos Psicoeducativos iCBT
+          </h3>
+
+          <div *ngIf="!evaluacionSeleccionada.recomendacionesICBT || evaluacionSeleccionada.recomendacionesICBT.length === 0" class="empty-recom">
+            <p>No se registraron módulos específicos para esta evaluación o su nivel es óptimo.</p>
+          </div>
+
+          <div *ngIf="evaluacionSeleccionada.recomendacionesICBT && evaluacionSeleccionada.recomendacionesICBT.length > 0" class="recom-list">
+            <div *ngFor="let rec of evaluacionSeleccionada.recomendacionesICBT" class="recom-card">
+              <div class="recom-header">
+                <span class="recom-modulo">{{ rec.moduloICBT }}</span>
+                <span class="recom-status" [class.completada]="rec.completada">
+                  {{ rec.completada ? 'Completado' : 'Pendiente' }}
+                </span>
+              </div>
+              <h4 class="recom-title">{{ rec.titulo }}</h4>
+              <p class="recom-desc">{{ rec.descripcion }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button mat-button (click)="cerrarModalInforme()">Cerrar</button>
+        <button mat-raised-button class="btn-export-excel-modal" (click)="exportarInformeExcel()">
+          <mat-icon>file_download</mat-icon> Exportar a Excel (.csv)
+        </button>
+        <button mat-raised-button color="primary" (click)="imprimirInforme()">
+          <mat-icon>print</mat-icon> Imprimir / Guardar PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DERECHOS ARCO (US-18) -->
+  <div class="arco-modal-backdrop" *ngIf="mostrarModalARCO" (click)="cerrarModalARCO()">
+    <div class="arco-modal-card" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <mat-icon class="modal-icon">shield</mat-icon>
+          <h2>Solicitud de Derechos ARCO (Ley N° 29733)</h2>
+        </div>
+        <button mat-icon-button (click)="cerrarModalARCO()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <p class="modal-desc">
+        En cumplimiento de la Ley de Protección de Datos Personales del Perú (Ley N° 29733), puedes solicitar la eliminación definitiva, supresión u oposición sobre tus registros de salud mental y evaluaciones de ansiedad digital.
+      </p>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Tipo de Derecho a Ejercer:</label>
+          <select [(ngModel)]="tipoSolicitudARCO" class="custom-select">
+            <option value="CANCELACION">CANCELACIÓN (Eliminación / Supresión de datos y evaluaciones)</option>
+            <option value="OPOSICION">OPOSICIÓN (Suspender el tratamiento de mis datos)</option>
+            <option value="ACCESO">ACCESO (Consultar todos los datos recopilados)</option>
+            <option value="RECTIFICACION">RECTIFICACIÓN (Corregir información desactualizada)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Fundamento / Detalle de la Solicitud:</label>
+          <textarea [(ngModel)]="detalleSolicitudARCO" rows="4" class="custom-textarea" placeholder="Explica brevemente el motivo de tu solicitud..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button mat-stroked-button (click)="cerrarModalARCO()" [disabled]="enviandoARCO">Cancelar</button>
+          <button mat-raised-button color="warn" (click)="enviarSolicitudARCO()" [disabled]="enviandoARCO">
+            <mat-icon>send</mat-icon> {{ enviandoARCO ? 'Enviando...' : 'Enviar Solicitud Formal' }}
+          </button>
+        </div>
+
+        <!-- Mis Solicitudes Anteriores -->
+        <div class="solicitudes-previas" *ngIf="misSolicitudesARCO.length > 0">
+          <h4>Mis Solicitudes Anteriores</h4>
+          <div class="solicitud-prev-item" *ngFor="let s of misSolicitudesARCO">
+            <div>
+              <strong>#{{ s.id }} - {{ s.tipoSolicitud }}</strong> ({{ s.fechaSolicitud | date:'dd/MM/yyyy' }})
+              <p class="solicitud-detalle-p">{{ s.detalleSolicitud }}</p>
+              <p class="solicitud-admin-resp" *ngIf="s.respuestaAdmin"><em>Respuesta Bienestar: {{ s.respuestaAdmin }}</em></p>
+            </div>
+            <span class="badge-estado" [ngClass]="s.estado === 'ATENDIDO' || s.estado === 'APROBADA' ? 'estado-aprobado' : 'estado-pendiente'">
+              {{ s.estado }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="history-footer">
+    <p>SERANA © 2026 - Universidad Peruana de Ciencias Aplicadas (UPC).</p>
+  </footer>
+
+</div>

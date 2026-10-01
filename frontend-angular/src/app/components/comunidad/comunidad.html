@@ -1,0 +1,295 @@
+<div class="comunidad-page-container">
+  
+  <div class="comunidad-main-layout">
+    
+    <!-- COLUMNA 1: Sidebar de Navegación Izquierda -->
+    <aside class="comunidad-sidebar">
+      
+      <div class="sidebar-branding">
+        <div class="sidebar-logo-circle">
+          <img src="logo-Serana.png" alt="Serana Logo" class="sidebar-logo-img">
+        </div>
+        <div class="sidebar-brand-info">
+          <span class="sidebar-brand-title">Serana</span>
+          <span class="sidebar-brand-subtitle">{{langService.translate('brand.subtitle')}}</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a [routerLink]="getInicioUrl()" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">home</mat-icon>
+          <span>{{langService.translate('nav.inicio')}}</span>
+        </a>
+        <a routerLink="/comunidad" class="sidebar-nav-item active">
+          <mat-icon class="sidebar-nav-icon">people</mat-icon>
+          <span>{{langService.translate('nav.comunidad')}}</span>
+        </a>
+        <a [routerLink]="getSesionesUrl()" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">calendar_today</mat-icon>
+          <span>{{langService.translate('nav.sesiones')}}</span>
+        </a>
+        <a routerLink="/recursos-educativos/list-recursos-educativos" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">menu_book</mat-icon>
+          <span>{{langService.translate('nav.recursos')}}</span>
+        </a>
+        <a routerLink="/usuarios/list-usuarios" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">person</mat-icon>
+          <span>{{langService.translate('nav.perfil')}}</span>
+        </a>
+        <a routerLink="/configuracion" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">settings</mat-icon>
+          <span>{{langService.translate('nav.configuracion')}}</span>
+        </a>
+      </nav>
+      
+    </aside>
+
+    <!-- COLUMNA 2: Feed de Comunidad (Centro) -->
+    <section class="comunidad-feed">
+      
+      <!-- Card para redactar posts -->
+      <div class="create-post-card">
+        <div class="create-post-header">
+          <img [src]="getCreatorAvatarUrl()" alt="Usuario" class="create-post-avatar">
+          <div class="create-post-input-wrapper">
+            <h2 class="create-post-title">{{langService.translate('comunidad.textarea_placeholder').split('?')[0] + '?'}}</h2>
+            <textarea 
+              [(ngModel)]="newPostContent" 
+              [placeholder]="langService.translate('comunidad.textarea_placeholder').split('?')[1] || langService.translate('comunidad.textarea_placeholder')"
+              class="create-post-textarea"
+              rows="3"
+            ></textarea>
+          </div>
+        </div>
+        
+        <div class="create-post-actions-row">
+          <div class="create-post-options-left">
+            <button type="button" class="post-opt-btn" title="Subir Imagen">
+              <mat-icon>image</mat-icon>
+            </button>
+            <button type="button" class="post-opt-btn" title="Añadir Emoticon">
+              <mat-icon>sentiment_satisfied</mat-icon>
+            </button>
+            <button type="button" class="post-opt-btn" title="Adjuntar Enlace">
+              <mat-icon>link</mat-icon>
+            </button>
+            
+            <span class="divider-v"></span>
+            
+            <!-- Selector de categoría/tema -->
+            <select [(ngModel)]="newPostTema" class="post-category-select">
+              <option value="Ansiedad">Ansiedad</option>
+              <option value="Gratitud">Gratitud</option>
+              <option value="Progreso">Progreso</option>
+              <option value="Mindfulness">Mindfulness</option>
+            </select>
+            
+            <span class="divider-v"></span>
+            
+            <!-- Checkbox Anónimo -->
+            <label class="anon-toggle">
+              <input type="checkbox" [(ngModel)]="modoAnonimo">
+              <span>Modo Anónimo</span>
+            </label>
+          </div>
+          
+          <button (click)="crearPublicacion()" class="btn-create-post">
+            {{langService.translate('comunidad.post_btn')}}
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros de categorías -->
+      <div class="categories-filter-row">
+        <button 
+          (click)="setCategory('Todos')" 
+          class="category-pill" 
+          [class.active]="selectedCategory === 'Todos'"
+        >Todos</button>
+        <button 
+          (click)="setCategory('Ansiedad')" 
+          class="category-pill" 
+          [class.active]="selectedCategory === 'Ansiedad'"
+        >Ansiedad</button>
+        <button 
+          (click)="setCategory('Gratitud')" 
+          class="category-pill" 
+          [class.active]="selectedCategory === 'Gratitud'"
+        >Gratitud</button>
+        <button 
+          (click)="setCategory('Progreso')" 
+          class="category-pill" 
+          [class.active]="selectedCategory === 'Progreso'"
+        >Progreso</button>
+        <button 
+          (click)="setCategory('Mindfulness')" 
+          class="category-pill" 
+          [class.active]="selectedCategory === 'Mindfulness'"
+        >Mindfulness</button>
+      </div>
+
+      <!-- Feed de Publicaciones -->
+      <div class="posts-list-container">
+        
+        <div class="post-card animate-fade-in" *ngFor="let post of filteredPosts">
+          
+          <div class="post-card-header">
+            
+            <div class="post-author-info">
+              <!-- Avatar iniciales o imagen -->
+              <div class="post-avatar-circle" *ngIf="post.modoAnonimo || !post.avatarUrl">
+                <span class="post-avatar-initials">{{post.autorInitials}}</span>
+              </div>
+              <img [src]="post.avatarUrl" *ngIf="!post.modoAnonimo && post.avatarUrl" class="post-avatar-image" alt="Autor">
+              
+              <div class="post-author-details">
+                <span class="post-author-name">{{post.autorNombre}}</span>
+                <span class="post-time">Hace {{ post.modoAnonimo ? '2 horas' : '5 horas' }}</span>
+              </div>
+            </div>
+            
+            <span class="post-tag-pill" [attr.data-tag]="post.tema">{{post.tema}}</span>
+          </div>
+
+          <div class="post-card-content">
+            <p>{{post.contenido}}</p>
+          </div>
+
+          <div class="post-card-actions">
+            <div class="post-actions-left">
+              <button class="post-action-btn" title="Me gusta">
+                <mat-icon class="action-icon liked">favorite</mat-icon>
+                <span>{{post.likesCount}}</span>
+              </button>
+              
+              <button class="post-action-btn" title="Comentarios">
+                <mat-icon class="action-icon">chat_bubble_outline</mat-icon>
+                <span>{{post.commentsCount}} Comentarios</span>
+              </button>
+            </div>
+            
+            <button class="post-action-btn-right" title="Guardar">
+              <mat-icon>share</mat-icon>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- COLUMNA 3: Sidebar Derecho -->
+    <aside class="comunidad-sidebar-right">
+      
+      <!-- Caja de Check-in Diario -->
+      <div class="sidebar-right-card">
+        <h3 class="right-card-title">Check-in Diario</h3>
+        <p class="right-card-subtitle">¿Cómo te sientes en este momento?</p>
+        
+        <div class="mood-selector-container">
+          <select [(ngModel)]="selectedMood" class="mood-select">
+            <option value="" disabled selected>Selecciona tu estado</option>
+            <option value="Feliz">😊 Feliz y en paz</option>
+            <option value="Ansioso">😔 Ansioso / Nervioso</option>
+            <option value="Triste">😢 Triste / Agobiado</option>
+            <option value="Neutral">😐 Conforme / Neutral</option>
+            <option value="Estresado">😡 Estresado / Agotado</option>
+          </select>
+        </div>
+        
+        <button (click)="registrarAnimo()" class="btn-register-mood">
+          Registrar ánimo
+        </button>
+      </div>
+
+      <!-- Caja de Normas del Santuario -->
+      <div class="sidebar-right-card rules-card">
+        <h3 class="right-card-title">{{langService.translate('comunidad.rules_title')}}</h3>
+        <p class="rules-intro-text">
+          {{langService.translate('comunidad.rules_intro')}}
+        </p>
+        
+        <ul class="rules-list">
+          <li class="rule-item">
+            <mat-icon class="rule-check-icon">check</mat-icon>
+            <span>{{langService.translate('comunidad.rule_1')}}</span>
+          </li>
+          <li class="rule-item">
+            <mat-icon class="rule-check-icon">check</mat-icon>
+            <span>{{langService.translate('comunidad.rule_2')}}</span>
+          </li>
+          <li class="rule-item">
+            <mat-icon class="rule-check-icon">check</mat-icon>
+            <span>{{langService.translate('comunidad.rule_3')}}</span>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- Links de pie del sidebar -->
+      <div class="right-sidebar-footer-links">
+        <div class="rs-links">
+          <a href="#">{{langService.translate('footer.privacy')}}</a>
+          <a href="#">{{langService.translate('footer.terms')}}</a>
+          <a href="#">{{langService.translate('footer.help')}}</a>
+        </div>
+        <div class="rs-copyright">
+          {{langService.translate('footer.copyright')}}
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- Footer Compartido de la Comunidad -->
+  <footer class="main-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="logo-Serana.png" alt="Serana Logo" class="logo-img-footer">
+        </div>
+        <p class="brand-slogan">
+          {{langService.translate('footer.slogan')}}
+        </p>
+      </div>
+      
+      <div class="footer-links">
+        <h3>{{langService.translate('footer.explore')}}</h3>
+        <ul>
+          <li><a href="#">{{langService.translate('footer.privacy')}}</a></li>
+          <li><a href="#">{{langService.translate('footer.terms')}}</a></li>
+          <li><a href="#">{{langService.translate('footer.help')}}</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-contacts">
+        <h3>{{langService.translate('footer.contact')}}</h3>
+        <p>
+          <mat-icon class="contact-icon">email</mat-icon>
+          hola@serana.pe
+        </p>
+        <p>
+          <mat-icon class="contact-icon">phone</mat-icon>
+          +51 999 999 999
+        </p>
+      </div>
+      
+      <div class="footer-social">
+        <h3>{{langService.translate('footer.follow')}}</h3>
+        <div class="social-icons">
+          <a href="#" class="social-circle"><mat-icon>public</mat-icon></a>
+          <a href="#" class="social-circle"><mat-icon>camera</mat-icon></a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>{{langService.translate('footer.copyright')}}</p>
+      <div class="made-with-love">
+        <span>{{langService.translate('footer.made_with_love')}}</span>
+      </div>
+    </div>
+  </footer>
+
+</div>

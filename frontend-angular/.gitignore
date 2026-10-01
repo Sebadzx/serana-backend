@@ -1,0 +1,10 @@
+# Angular
+/dist
+/node_modules
+
+# Spring Boot
+/target
+
+# Archivos grandes o sensibles
+*.csv
+*.log

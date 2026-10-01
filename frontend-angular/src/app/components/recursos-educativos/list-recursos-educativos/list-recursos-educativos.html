@@ -1,0 +1,77 @@
+<div class="biblioteca-container">
+  
+  <div class="biblioteca-header">
+    <div class="header-left">
+      <h1>Biblioteca de Bienestar</h1>
+    </div>
+    <div class="header-right">
+      <button class="btn-agregar" routerLink="/recursos-educativos/add-recurso-educativo">
+        <mat-icon>add</mat-icon> Agregar recurso
+      </button>
+    </div>
+  </div>
+
+  <div class="search-container">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input type="text" 
+           (input)="applyFilter($event)" 
+           placeholder="Buscar recursos, temas..." 
+           [value]="searchQuery">
+  </div>
+
+  <div class="chips-container">
+    <button *ngFor="let chip of chips" 
+            [class.active]="selectedChip === chip" 
+            class="filter-chip"
+            (click)="selectChip(chip)">
+      {{ chip }}
+    </button>
+  </div>
+
+  <section class="section-recursos" *ngIf="getVideos().length > 0">
+    <h2>Videos destacados</h2>
+    <div class="cards-grid videos-grid">
+      <div *ngFor="let video of getVideos()" class="video-card">
+        <div class="video-thumbnail-container" [style.background-image]="'url(' + getImagen(video) + ')'">
+          <a [href]="video.link" target="_blank" class="play-button-overlay">
+            <mat-icon class="play-icon">play_circle</mat-icon>
+          </a>
+          <span class="video-duration">{{ getDuration(video) }}</span>
+          <button class="delete-btn-overlay" (click)="Eliminar(video.id)" title="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+        <h3 class="video-title">{{ video.titulo }}</h3>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-recursos" *ngIf="getArticulos().length > 0">
+    <h2>Artículos recientes</h2>
+    <div class="cards-grid articles-grid">
+      <div *ngFor="let article of getArticulos()" class="article-card">
+        <div class="article-image-container">
+          <img [src]="getImagen(article)" [alt]="article.titulo">
+          <button class="delete-btn-overlay" (click)="Eliminar(article.id)" title="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+        <div class="article-content">
+          <a [href]="article.link" target="_blank" class="article-title-link">
+            <h3 class="article-title">{{ article.titulo }}</h3>
+          </a>
+          <div class="article-meta">
+            <mat-icon class="meta-icon">schedule</mat-icon>
+            <span>{{ getReadingTime(article) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="empty-state" *ngIf="filteredRecursos.length === 0">
+    <mat-icon>sentiment_dissatisfied</mat-icon>
+    <p>No se encontraron recursos educativos que coincidan con la búsqueda.</p>
+  </div>
+
+</div>

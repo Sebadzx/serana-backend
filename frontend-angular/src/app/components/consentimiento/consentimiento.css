@@ -1,0 +1,538 @@
+.consent-page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #eff6ff 100%);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #1e293b;
+}
+
+.consent-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.consent-card {
+  background: #ffffff;
+  max-width: 820px;
+  width: 100%;
+  border-radius: 18px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  padding: 36px 40px;
+  border: 1px solid #e2e8f0;
+  box-sizing: border-box;
+}
+
+/* Tabs Header */
+.tabs-header {
+  display: flex;
+  gap: 12px;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 28px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: #1e3a8a;
+}
+
+.tab-btn.active {
+  color: #1e3a8a;
+  border-bottom-color: #1e3a8a;
+  font-weight: 700;
+}
+
+.consent-header-badge {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.badge-tag {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.badge-tag.arco-tag {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.consent-icon-container {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.shield-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.consent-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  margin: 0 0 6px 0;
+}
+
+.consent-subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.95rem;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+/* Banner de firmado */
+.signed-banner {
+  background: #ecfdf5;
+  border: 1.5px solid #a7f3d0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.signed-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #059669;
+  flex-shrink: 0;
+}
+
+.signed-text {
+  flex: 1;
+}
+
+.signed-text strong {
+  color: #065f46;
+  font-size: 0.95rem;
+  display: block;
+}
+
+.signed-text p {
+  margin: 2px 0 0 0;
+  font-size: 0.85rem;
+  color: #047857;
+}
+
+.btn-ir-evaluacion {
+  background-color: #1e3a8a !important;
+  color: white !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+
+/* Scrollbox legal */
+.legal-scroll-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 20px 24px;
+  max-height: 280px;
+  overflow-y: auto;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #334155;
+  margin-bottom: 24px;
+}
+
+.legal-scroll-box h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+
+.legal-scroll-box h3:first-child {
+  margin-top: 0;
+}
+
+.legal-scroll-box ul {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.legal-scroll-box li {
+  margin-bottom: 6px;
+}
+
+/* Checkbox */
+.consent-agreement-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.agreement-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.consent-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.btn-firmar {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 10px;
+  background-color: #1e3a8a !important;
+}
+
+.legal-note {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ================= SECCIÓN DERECHOS ARCO ================= */
+.arco-form-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.form-section-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.form-section-desc {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 18px 0;
+}
+
+.arco-types-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.type-option {
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.type-option:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.type-option.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.type-option input {
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.option-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #0f172a;
+  font-size: 0.92rem;
+}
+
+.opt-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.opt-icon.delete { color: #ef4444; }
+.opt-icon.info { color: #3b82f6; }
+.opt-icon.edit { color: #f59e0b; }
+.opt-icon.block { color: #8b5cf6; }
+
+.form-group-arco {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.arco-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.arco-textarea {
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  resize: vertical;
+  outline: none;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.arco-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.arco-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-enviar-arco {
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+}
+
+.btn-enviar-arco:hover:not(:disabled) {
+  background: #1e40af;
+  transform: translateY(-1px);
+}
+
+.btn-enviar-arco:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Historial ARCO */
+.arco-history-card {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 24px;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.history-header h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.btn-refresh {
+  background: none;
+  border: 1px solid #cbd5e1;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.btn-refresh:hover {
+  color: #1e3a8a;
+  border-color: #1e3a8a;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: #94a3b8;
+}
+
+.empty-state mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+}
+
+.solicitudes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.solicitud-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+}
+
+.item-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.solicitud-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.solicitud-badge.cancelacion { background: #fee2e2; color: #b91c1c; }
+.solicitud-badge.acceso { background: #e0f2fe; color: #0369a1; }
+.solicitud-badge.rectificacion { background: #fef3c7; color: #b45309; }
+.solicitud-badge.oposicion { background: #ede9fe; color: #6d28d9; }
+
+.status-pill {
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.status-pill.pendiente { background: #fef9c3; color: #854d0e; }
+.status-pill.atendido { background: #dcfce7; color: #15803d; }
+.status-pill.rechazado { background: #fee2e2; color: #991b1b; }
+
+.solicitud-date {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.solicitud-detalle {
+  font-size: 0.88rem;
+  color: #334155;
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+}
+
+.solicitud-respuesta {
+  background: #f0fdf4;
+  border-left: 3px solid #16a34a;
+  padding: 10px 14px;
+  border-radius: 4px;
+  display: flex;
+  gap: 10px;
+  font-size: 0.84rem;
+  color: #14532d;
+}
+
+.solicitud-respuesta .resp-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #16a34a;
+}
+
+.solicitud-respuesta p {
+  margin: 2px 0 4px 0;
+}
+
+.solicitud-respuesta small {
+  color: #15803d;
+  font-size: 0.74rem;
+}
+
+.consent-footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+@media (max-width: 640px) {
+  .consent-card {
+    padding: 24px 16px;
+  }
+  .arco-types-grid {
+    grid-template-columns: 1fr;
+  }
+  .tabs-header {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

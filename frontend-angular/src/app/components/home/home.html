@@ -1,0 +1,317 @@
+<div class="home-container">
+  
+  <!-- Header de Navegación -->
+  <header class="main-header">
+    <div class="header-logo" routerLink="/home" style="cursor: pointer;" title="Ir al Inicio">
+      <img src="logo-Serana.png" alt="Serana Logo" class="logo-img-header">
+      <div class="brand-text-header">
+        <span class="brand-title">SERANA</span>
+        <span class="brand-sub">Salud Emocional UPC</span>
+      </div>
+    </div>
+    
+    <nav class="header-nav">
+      <a [class.active]="activeTab === 'que-es'" (click)="setTab('que-es')">¿Qué es?</a>
+      <a [class.active]="activeTab === 'sobre-nosotros'" (click)="setTab('sobre-nosotros')">Sobre Nosotros</a>
+      <a [class.active]="activeTab === 'comunidad'" (click)="setTab('comunidad')">Comunidad</a>
+    </nav>
+    
+    <div class="header-auth">
+      <button class="btn-text-login" routerLink="/login">Iniciar sesión</button>
+      <button class="btn-primary-register" routerLink="/usuarios/add-usuarios">Registrarse</button>
+    </div>
+  </header>
+
+  <!-- Contenido Principal -->
+  <main class="main-content">
+    
+    <!-- SECCIÓN 1: ¿Qué es? -->
+    @if (activeTab === 'que-es') {
+      <div class="section-hero animate-fade-in">
+        <div class="hero-left">
+          <div class="hero-badge-tag">
+            <mat-icon class="badge-icon">school</mat-icon>
+            <span>Proyecto de Tesis TP1 · Grupo 4 · UPC</span>
+          </div>
+          <h1 class="hero-title">Tu bienestar digital y salud emocional en la universidad</h1>
+          <p class="hero-description">
+            SERANA es una plataforma de acompañamiento psicopedagógico asistida por <strong>Inteligencia Artificial Híbrida (Machine Learning y PLN en argot universitario limeño)</strong>, diseñada para la detección temprana del tecnoestrés, la sobrecarga digital y el fomento de hábitos académicos saludables.
+          </p>
+          <div class="hero-actions">
+            <button class="btn-hero-primary" routerLink="/login">
+              <mat-icon>assignment</mat-icon> Iniciar Evaluación
+            </button>
+            <button class="btn-hero-secondary" (click)="setTab('sobre-nosotros')">
+              <mat-icon>biotech</mat-icon> Metodología TP1
+            </button>
+          </div>
+          
+          <div class="hero-kpis-row">
+            <div class="kpi-item">
+              <span class="kpi-number">+1,000</span>
+              <span class="kpi-label">Registros calibrados</span>
+            </div>
+            <div class="kpi-divider"></div>
+            <div class="kpi-item">
+              <span class="kpi-number">92%+</span>
+              <span class="kpi-label">Precisión predictiva</span>
+            </div>
+            <div class="kpi-divider"></div>
+            <div class="kpi-item">
+              <span class="kpi-number">Ley 29733</span>
+              <span class="kpi-label">Derechos ARCO</span>
+            </div>
+            <div class="kpi-divider"></div>
+            <div class="kpi-item">
+              <span class="kpi-number">TCC-I</span>
+              <span class="kpi-label">Pautas digitales</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="hero-right">
+          <div class="hero-image-wrapper">
+            <img src="support_group.jpg" alt="Acompañamiento universitario Serana" class="hero-image">
+            <div class="image-badge">
+              <mat-icon class="badge-icon">verified_user</mat-icon>
+              <span>Espacio Seguro & Confidencial UPC</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- SECCIÓN 2: Sobre Nosotros -->
+    @if (activeTab === 'sobre-nosotros') {
+      <div class="section-benefits animate-fade-in">
+        <span class="benefits-subtitle">INVESTIGACIÓN APLICADA & ARQUITECTURA TP1</span>
+        <h2 class="benefits-title">Modelo Híbrido Multimodal para Estudiantes Universitarios</h2>
+        <p class="benefits-desc">
+          Investigación de tesis enfocada en la detección proactiva de la ansiedad digital provocada por la interacción académica virtual, amanecidas frente al computador y sobrecarga tecnológica en Lima Metropolitana.
+        </p>
+        
+        <div class="benefits-grid">
+          
+          <!-- Card 1: Factores Multidimensionales -->
+          <div class="benefit-card">
+            <div class="card-header">
+              <div class="benefit-icon-wrapper">
+                <mat-icon>devices</mat-icon>
+              </div>
+            </div>
+            <h3 class="benefit-card-title">Hábitos Digitales & Sueño</h3>
+            <p class="benefit-card-text">
+              Monitoreo objetivo de horas de pantalla diarias, hábitos de descanso, tiempo de estudio virtual y niveles de estrés percibido.
+            </p>
+            <div class="card-footer">
+              <mat-icon class="check-icon">check_circle</mat-icon>
+              <span>Escalas TS4US, ASAIDAS, GAD-7, PSS-10</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Inteligencia Artificial Híbrida -->
+          <div class="benefit-card card-blue">
+            <div class="card-header">
+              <div class="benefit-icon-wrapper icon-blue">
+                <mat-icon>psychology</mat-icon>
+              </div>
+            </div>
+            <h3 class="benefit-card-title">IA Híbrida & PLN Argot Limeño</h3>
+            <p class="benefit-card-text">
+              Clasificación predictiva con Random Forest combinada con Procesamiento de Lenguaje Natural capaz de interpretar expresiones y modismos universitarios («quemado», «jalar», «desvelo»).
+            </p>
+            <div class="card-footer">
+              <mat-icon class="check-icon icon-blue-check">insights</mat-icon>
+              <span>Explicabilidad (Feature Importance)</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Intervenciones TCC-I -->
+          <div class="benefit-card card-olive">
+            <div class="card-header">
+              <div class="benefit-icon-wrapper icon-olive">
+                <mat-icon>self_improvement</mat-icon>
+              </div>
+            </div>
+            <h3 class="benefit-card-title">Módulos Psicoeducativos TCC-I</h3>
+            <p class="benefit-card-text">
+              Pautas digitales de Terapia Cognitivo-Conductual para el insomnio y la fatiga digital: higiene del sueño, reestructuración cognitiva y pausas activas de mindfulness.
+            </p>
+            <div class="card-footer">
+              <mat-icon class="check-icon icon-olive-check">menu_book</mat-icon>
+              <span>Biblioteca de Bienestar</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Protección de Datos ARCO -->
+          <div class="benefit-card card-chat">
+            <div class="card-header">
+              <div class="benefit-icon-wrapper icon-purple">
+                <mat-icon>security</mat-icon>
+              </div>
+            </div>
+            <div class="chat-flex-container">
+              <div class="chat-text-side">
+                <h3 class="benefit-card-title">Derechos ARCO (Ley 29733)</h3>
+                <p class="benefit-card-text">
+                  Garantía de privacidad por diseño: consentimiento informado, anonimización irreversible de evaluaciones y canal de Acceso, Rectificación, Cancelación y Oposición.
+                </p>
+              </div>
+              <div class="chat-preview-bubble">
+                <p>"Datos 100% protegidos por Ley 29733"</p>
+              </div>
+            </div>
+            <div class="card-footer">
+              <mat-icon class="check-icon icon-purple-check">verified</mat-icon>
+              <span>Articulado con Bienestar UPC</span>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    }
+
+    <!-- SECCIÓN 3: Comunidad -->
+    @if (activeTab === 'comunidad') {
+      <div class="section-community animate-fade-in">
+        
+        <!-- Cómo funciona -->
+        <div class="how-it-works">
+          <h2 class="section-title-center">Flujo Integral del Estudiante en SERANA</h2>
+          <p class="section-subtitle-center">Tres etapas estructuradas para el acompañamiento y prevención de la ansiedad digital:</p>
+          
+          <div class="steps-container">
+            <div class="step-item">
+              <div class="step-number num-yellow">1</div>
+              <h3 class="step-title">Consentimiento & Cuestionario</h3>
+              <p class="step-text">Aceptación informada bajo la Ley 29733 y evaluación breve de hábitos digitales, psicometría y texto libre emocional.</p>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item">
+              <div class="step-number num-blue">2</div>
+              <h3 class="step-title">Diagnóstico Asistido por IA</h3>
+              <p class="step-text">El microservicio híbrido procesa tus indicadores en milisegundos, evaluando nivel de tecnoestrés y factores desencadenantes.</p>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item">
+              <div class="step-number num-purple">3</div>
+              <h3 class="step-title">Plan de Bienestar & Derivación</h3>
+              <p class="step-text">Recepción de pautas TCC personalizadas, acceso a recursos educativos y canal directo con Bienestar Universitario ante alertas críticas.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Voces de nuestra comunidad -->
+        <div class="testimonials-block">
+          <h2 class="section-title-center">Experiencias de la Comunidad Universitaria</h2>
+          <p class="section-subtitle-center">Testimonios del impacto de la plataforma en la vida académica de estudiantes UPC:</p>
+          
+          <div class="testimonials-grid">
+            <!-- Testimonio 1 -->
+            <div class="testimonial-card">
+              <p class="testimonial-quote">
+                "Las semanas de parciales y entregas simultáneas de proyectos me generaban insomnio y fatiga visual extrema. El informe de SERANA me ayudó a regular mis horas de pantalla y aplicar higiene del sueño efectiva."
+              </p>
+              <div class="testimonial-user">
+                <span class="user-dot dot-yellow"></span>
+                <div>
+                  <span class="user-name">Estudiante de Ingeniería de Sistemas</span>
+                  <span class="user-role-sub">6° Ciclo · Campus Monterrico</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Testimonio 2 -->
+            <div class="testimonial-card">
+              <p class="testimonial-quote">
+                "Poder escribir en texto libre cómo me sentía y que el sistema comprenda el agobio de las amanecidas con argot universitario hizo que el informe se sintiera cercano y verdaderamente acertado."
+              </p>
+              <div class="testimonial-user">
+                <span class="user-dot dot-blue"></span>
+                <div>
+                  <span class="user-name">Estudiante de Ingeniería de Software</span>
+                  <span class="user-role-sub">5° Ciclo · Campus San Miguel</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Testimonio 3 -->
+            <div class="testimonial-card">
+              <p class="testimonial-quote">
+                "Saber que mis datos están protegidos por la Ley 29733 me dio la confianza para evaluar mi tecnoestrés y acceder al canal de acompañamiento de Bienestar Universitario sin temor al estigma."
+              </p>
+              <div class="testimonial-user">
+                <span class="user-dot dot-purple"></span>
+                <div>
+                  <span class="user-name">Estudiante de Ciencias de la Computación</span>
+                  <span class="user-role-sub">7° Ciclo · Campus San Isidro</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    }
+  </main>
+
+  <!-- Footer Compartido -->
+  <footer class="main-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="logo-Serana.png" alt="Serana Logo" class="logo-img-footer">
+          <span class="footer-brand-title">SERANA</span>
+        </div>
+        <p class="brand-slogan">
+          Plataforma Web para la Detección de Ansiedad Digital y Acompañamiento Psicoeducativo mediante Inteligencia Artificial Híbrida.
+        </p>
+        <p class="brand-sub-thesis">
+          Proyecto de Tesis · Taller de Proyectos 1 (TP1) · Universidad Peruana de Ciencias Aplicadas (UPC).
+        </p>
+      </div>
+      
+      <div class="footer-links">
+        <h3>Marco Académico</h3>
+        <ul>
+          <li><a (click)="setTab('sobre-nosotros')">Modelo Híbrido ML + PLN</a></li>
+          <li><a (click)="setTab('sobre-nosotros')">Escalas TS4US & ASAIDAS</a></li>
+          <li><a (click)="setTab('sobre-nosotros')">Pautas TCC-I</a></li>
+          <li><a (click)="setTab('sobre-nosotros')">Derechos ARCO (Ley 29733)</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-contacts">
+        <h3>Investigadores</h3>
+        <p>
+          <mat-icon class="contact-icon">person</mat-icon>
+          Darwin Karl Salazar Gutiérrez
+        </p>
+        <p>
+          <mat-icon class="contact-icon">person</mat-icon>
+          Sebastian Andre Nuñez Alvarez
+        </p>
+        <p>
+          <mat-icon class="contact-icon">school</mat-icon>
+          Asesor: Dr. José Luis Santisteban Pazos
+        </p>
+      </div>
+      
+      <div class="footer-social">
+        <h3>Institución</h3>
+        <p class="institution-text">Carrera de Ingeniería de Sistemas de Información & Ingeniería de Software · UPC</p>
+        <div class="social-icons">
+          <span class="badge-upc">UPC 2026</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>© 2026 SERANA · Plataforma de Bienestar Digital Estudiantil. Todos los derechos reservados.</p>
+      <div class="made-with-love">
+        <span>Desarrollado para la salud mental universitaria</span>
+      </div>
+    </div>
+  </footer>
+
+</div>

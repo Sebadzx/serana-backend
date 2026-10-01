@@ -1,0 +1,90 @@
+<div class="login-page-container">
+  
+  <!-- Header de Navegación -->
+  <header class="main-header">
+    <div class="header-logo" routerLink="/home" style="cursor: pointer;" title="Ir al Inicio">
+      <img src="logo-Serana.png" alt="Serana Logo" class="logo-img-header">
+      <div class="brand-text-header">
+        <span class="brand-title">SERANA</span>
+        <span class="brand-sub">Salud Emocional UPC</span>
+      </div>
+    </div>
+    
+    <nav class="header-nav">
+      <a routerLink="/home" [queryParams]="{tab: 'que-es'}">¿Qué es?</a>
+      <a routerLink="/home" [queryParams]="{tab: 'sobre-nosotros'}">Sobre Nosotros</a>
+      <a routerLink="/home" [queryParams]="{tab: 'comunidad'}">Comunidad</a>
+    </nav>
+    
+    <div class="header-auth">
+      <button class="btn-text-login active-route">Iniciar sesión</button>
+      <button class="btn-primary-register" routerLink="/usuarios/add-usuarios">Registrarse</button>
+    </div>
+  </header>
+
+  <!-- Cuerpo Principal (Login Card) -->
+  <main class="login-main">
+    <div class="login-card">
+      <div class="login-logo-container">
+        <img src="logo-Serana.png" alt="Serana" class="login-logo-img">
+      </div>
+      
+      <h2 class="login-title">Bienvenido a Serana</h2>
+      <p class="login-subtitle">Estamos aquí para ti.</p>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="login()" class="login-form">
+        
+        <!-- Campo: Correo -->
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <div class="input-wrapper">
+            <mat-icon class="input-icon">email</mat-icon>
+            <input type="email" 
+                   formControlName="correo" 
+                   placeholder="tu@correo.com" 
+                   class="custom-input">
+          </div>
+        </div>
+
+        <!-- Campo: Contraseña -->
+        <div class="form-group">
+          <div class="label-row">
+            <label class="form-label">Contraseña</label>
+            <a href="#" class="forgot-password-link">¿Olvidaste tu contraseña?</a>
+          </div>
+          <div class="input-wrapper">
+            <mat-icon class="input-icon">lock</mat-icon>
+            <input type="password" 
+                   formControlName="contrasenia" 
+                   placeholder="••••••••" 
+                   class="custom-input">
+          </div>
+        </div>
+
+        <!-- Botón Iniciar Sesión -->
+        <button type="submit" class="btn-login-submit" [disabled]="loginForm.invalid">
+          Iniciar sesión
+        </button>
+
+      </form>
+
+      <!-- Enlace Registrarse -->
+      <p class="register-prompt">
+        ¿No tienes una cuenta? <a routerLink="/usuarios/add-usuarios" class="register-link">Regístrate</a>
+      </p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-bottom">
+      <p>© 2026 SERANA · Plataforma de Bienestar Digital Estudiantil UPC. Todos los derechos reservados.</p>
+      <div class="footer-right-links">
+        <a routerLink="/home" [queryParams]="{tab: 'sobre-nosotros'}">Privacidad</a>
+        <a routerLink="/home" [queryParams]="{tab: 'sobre-nosotros'}">Términos</a>
+        <a routerLink="/home" [queryParams]="{tab: 'sobre-nosotros'}">Investigación TP1</a>
+      </div>
+    </div>
+  </footer>
+
+</div>

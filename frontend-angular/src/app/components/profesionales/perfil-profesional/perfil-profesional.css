@@ -1,0 +1,315 @@
+.perfil-profesional-page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f7faf0;
+  font-family: 'Outfit', 'Inter', 'Roboto', sans-serif;
+  color: #2d3748;
+}
+
+.perfil-profesional-main-layout {
+  display: flex;
+  gap: 32px;
+  padding: 40px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+/* Sidebar (mismo patrón que list-profesionales / comunidad / dashboard-profesional) */
+.perfil-profesional-sidebar {
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sidebar-branding {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+}
+
+.sidebar-logo-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1a202c;
+  line-height: 1.1;
+}
+
+.sidebar-brand-subtitle {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #718096;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  color: #4a5568;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sidebar-nav-item:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: #000;
+}
+
+.sidebar-nav-item.active {
+  background-color: #1a3e68;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(26, 62, 104, 0.2);
+}
+
+.sidebar-nav-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+/* Contenido principal */
+.perfil-profesional-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.profesionales-status-msg {
+  text-align: center;
+  color: #718096;
+  font-weight: 500;
+  padding: 40px 0;
+}
+
+.btn-volver {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #1a3e68;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 8px 4px;
+  font-family: inherit;
+}
+
+.btn-volver:hover {
+  text-decoration: underline;
+}
+
+/* Grid superior: Foto + Calendario */
+.perfil-top-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.dash-card {
+  background-color: #ffffff;
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+
+.dash-card-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0 0 16px 0;
+}
+
+/* Card de foto/info */
+.perfil-info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.perfil-foto-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+.perfil-foto-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.perfil-nombre-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0 0 4px 0;
+}
+
+.specialist-role {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #718096;
+  margin-bottom: 2px;
+}
+
+.specialist-location {
+  font-size: 0.85rem;
+  color: #a0aec0;
+}
+
+/* Card de calendario */
+.perfil-calendario-card {
+  min-width: 0;
+}
+
+.tiempo-disponible-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 20px 0 12px 0;
+}
+
+.sin-horarios-msg {
+  color: #a0aec0;
+  font-size: 0.9rem;
+  margin: 0 0 20px 0;
+}
+
+.horarios-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.horario-pill {
+  background-color: #f7faf0;
+  color: #2d3748;
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.horario-pill:hover {
+  background-color: #edf5cf;
+}
+
+.horario-pill.active {
+  background-color: #1a3e68;
+  color: #ffffff;
+  border-color: #1a3e68;
+}
+
+.btn-reservar-sesion {
+  width: 100%;
+  background-color: #1a3e68;
+  color: #ffffff;
+  border: none;
+  padding: 14px 0;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-reservar-sesion:hover {
+  background-color: #112d4e;
+}
+
+/* Resaltado de días disponibles en mat-calendar */
+::ng-deep .dia-disponible .mat-calendar-body-cell-content {
+  background-color: #d6ec5a !important;
+  color: #1a202c !important;
+  font-weight: 700;
+}
+
+/* Card de biografía */
+.perfil-biografia-card {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.perfil-biografia-text {
+  color: #4a5568;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Responsividad */
+@media (max-width: 1200px) {
+  .perfil-profesional-main-layout {
+    flex-wrap: wrap;
+    padding: 24px;
+  }
+  .perfil-profesional-sidebar {
+    flex: 0 0 100%;
+  }
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .sidebar-nav-item {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+  .perfil-top-grid {
+    grid-template-columns: 1fr;
+  }
+  .perfil-foto-wrapper {
+    max-width: 280px;
+    margin: 0 auto 16px auto;
+  }
+}

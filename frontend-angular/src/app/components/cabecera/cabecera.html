@@ -1,0 +1,90 @@
+<header class="app-cabecera-container">
+  
+  <!-- Lado Izquierdo: Branding Institucional SERANA -->
+  <div class="cabecera-brand" (click)="navegarInicio()" style="cursor: pointer;" title="Ir al Inicio">
+    <img src="logo-Serana.png" alt="Serana Logo" class="cabecera-logo-img">
+    <div class="brand-text-box">
+      <span class="brand-name">SERANA</span>
+      <span class="brand-sub">Salud Emocional UPC</span>
+    </div>
+  </div>
+
+  <!-- Centro: Navegación Principal Unificada (Alineada al Product Backlog SERANA) -->
+  <nav class="cabecera-nav">
+    <a *ngIf="!esBienestarOAdmin" routerLink="/evaluacion" routerLinkActive="active-nav" class="nav-link">
+      <mat-icon class="nav-icon">psychology</mat-icon>
+      <span>Nueva Evaluación</span>
+    </a>
+
+    <a *ngIf="!esBienestarOAdmin" routerLink="/mis-evaluaciones" routerLinkActive="active-nav" class="nav-link">
+      <mat-icon class="nav-icon">assignment_turned_in</mat-icon>
+      <span>Mis Evaluaciones e Informes</span>
+    </a>
+
+    <a *ngIf="!esBienestarOAdmin" routerLink="/consentimiento" routerLinkActive="active-nav" class="nav-link">
+      <mat-icon class="nav-icon">verified_user</mat-icon>
+      <span>Consentimiento & Privacidad</span>
+    </a>
+
+    <a *ngIf="esBienestarOAdmin" routerLink="/dashboard-profesional" routerLinkActive="active-nav" class="nav-link">
+      <mat-icon class="nav-icon">analytics</mat-icon>
+      <span>Dashboard Bienestar Universitario</span>
+    </a>
+  </nav>
+
+  <!-- Lado Derecho: Perfil de Usuario & Acciones -->
+  <div class="cabecera-right">
+    <span class="cabecera-divider"></span>
+
+    <!-- Perfil / Dropdown -->
+    <div class="cabecera-profile-wrapper" (click)="toggleDropdown($event)" title="Perfil y Opciones">
+      <div class="avatar-circle">
+        <img [src]="getAvatarUrl()" alt="Avatar" class="avatar-img">
+      </div>
+      <div class="profile-meta">
+        <span class="profile-name">{{ nombreUsuario }}</span>
+        <span class="profile-role">{{ rolLabel }}</span>
+      </div>
+      <mat-icon class="dropdown-caret">expand_more</mat-icon>
+
+      <!-- Menú Desplegable -->
+      <div class="profile-dropdown-menu" *ngIf="isDropdownOpen" (click)="$event.stopPropagation()">
+        <div class="dropdown-header-info">
+          <div class="dropdown-name">{{ nombreUsuario }}</div>
+          <div class="dropdown-email">{{ emailUsuario }}</div>
+          <span class="dropdown-badge">{{ rolLabel }}</span>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <a routerLink="/mis-evaluaciones" class="dropdown-item" (click)="isDropdownOpen = false">
+          <mat-icon>assignment_turned_in</mat-icon>
+          <span>Mis Evaluaciones</span>
+        </a>
+
+        <a routerLink="/evaluacion" class="dropdown-item" (click)="isDropdownOpen = false">
+          <mat-icon>rate_review</mat-icon>
+          <span>Nueva Evaluación</span>
+        </a>
+
+        <a *ngIf="!esBienestarOAdmin" routerLink="/consentimiento" class="dropdown-item" (click)="isDropdownOpen = false">
+          <mat-icon>verified_user</mat-icon>
+          <span>Consentimiento & ARCO</span>
+        </a>
+
+        <a *ngIf="esBienestarOAdmin" routerLink="/dashboard-profesional" class="dropdown-item" (click)="isDropdownOpen = false">
+          <mat-icon>analytics</mat-icon>
+          <span>Dashboard Bienestar</span>
+        </a>
+
+        <div class="dropdown-divider"></div>
+
+        <a (click)="logout()" class="dropdown-item logout-item">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar Sesión</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</header>

@@ -1,0 +1,309 @@
+<div class="dash-prof-page-container">
+
+  <!-- BARRA DE BÚSQUEDA / CABECERA SUPERIOR DEL DASHBOARD -->
+  <header class="dash-prof-header">
+    <div class="header-logo-wrapper">
+      <div class="header-logo-circle">
+        <img src="logo-Serana.png" alt="Serana Logo" class="header-logo-img">
+      </div>
+    </div>
+    
+    <div class="header-search-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [placeholder]="langService.translate('header.search_professionals')" class="header-search-input">
+    </div>
+    
+    <div class="header-actions-right">
+      <button class="header-action-btn" title="Notificaciones">
+        <mat-icon>notifications_none</mat-icon>
+      </button>
+      <button class="header-action-btn" title="Mensajes">
+        <mat-icon>chat_bubble_outline</mat-icon>
+      </button>
+      <div class="header-user-avatar-circle">
+        <img src="avatar-paciente.jpg" alt="Paciente Avatar" class="header-user-avatar-img">
+      </div>
+    </div>
+  </header>
+
+  <div class="dash-prof-main-layout">
+    
+    <!-- COLUMNA 1: Sidebar de Navegación Izquierda -->
+    <aside class="dash-prof-sidebar">
+      
+      <div class="sidebar-branding">
+        <div class="sidebar-logo-circle">
+          <img src="logo-Serana.png" alt="Serana Logo" class="sidebar-logo-img">
+        </div>
+        <div class="sidebar-brand-info">
+          <span class="sidebar-brand-title">Serana</span>
+          <span class="sidebar-brand-subtitle">{{langService.translate('brand.subtitle')}}</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a routerLink="/dashboard-paciente" class="sidebar-nav-item active">
+          <mat-icon class="sidebar-nav-icon">home</mat-icon>
+          <span>{{langService.translate('nav.inicio')}}</span>
+        </a>
+        <a routerLink="/comunidad" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">people</mat-icon>
+          <span>{{langService.translate('nav.comunidad')}}</span>
+        </a>
+        <a routerLink="/profesionales" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">calendar_today</mat-icon>
+          <span>{{langService.translate('nav.sesiones')}}</span>
+        </a>
+        <a routerLink="/recursos-educativos/list-recursos-educativos" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">menu_book</mat-icon>
+          <span>{{langService.translate('nav.recursos')}}</span>
+        </a>
+        <a routerLink="/usuarios/list-usuarios" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">person</mat-icon>
+          <span>{{langService.translate('nav.perfil')}}</span>
+        </a>
+        <a routerLink="/configuracion" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">settings</mat-icon>
+          <span>{{langService.translate('nav.configuracion')}}</span>
+        </a>
+      </nav>
+      
+    </aside>
+
+    <!-- COLUMNA 2: Secciones Principales (Centro) -->
+    <section class="dash-prof-center-content">
+      
+      <!-- Card: Resumen de Hoy -->
+      <div class="dash-card summary-card">
+        <h2 class="dash-card-title">Resumen de Hoy</h2>
+        
+        <div class="summary-indicators-row">
+          
+          <div class="indicator-item">
+            <div class="indicator-circle circle-blue">
+              <span class="indicator-number">{{citasHoy}}</span>
+            </div>
+            <span class="indicator-label">Citas hoy</span>
+          </div>
+
+          <div class="indicator-item">
+            <div class="indicator-circle circle-green">
+              <span class="indicator-number">{{mensajesPendientes}}</span>
+            </div>
+            <span class="indicator-label">Mensajes pendientes</span>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- Card: Calendario Semanal -->
+      <div class="dash-card calendar-card">
+        <h2 class="dash-card-title">Calendario Semanal</h2>
+        
+        <div class="calendar-grid-container">
+          <table class="calendar-grid-table">
+            <thead>
+              <tr>
+                <th class="col-time-header"></th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+                <th>Sun</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="cell-time">00</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="cell-time">20</td>
+                <td><div class="cal-block block-green" title="Cita libre"></div></td>
+                <td></td>
+                <td><div class="cal-block block-green" title="Cita libre"></div></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="cell-time">24</td>
+                <td><div class="cal-block block-red" title="Sesión ocupada"></div></td>
+                <td><div class="cal-block block-red" title="Sesión ocupada"></div></td>
+                <td></td>
+                <td><div class="cal-block block-green" title="Cita libre"></div></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="cell-time">28</td>
+                <td></td>
+                <td></td>
+                <td><div class="cal-block block-blue" title="Reunión equipo"></div></td>
+                <td><div class="cal-block block-red" title="Sesión ocupada"></div></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Fila inferior: Tarjetas de Especialistas Destacados (Personal Médico real) -->
+      <div class="featured-specialists-row">
+        
+        <div class="specialist-card" *ngFor="let espec of profesionalesDestacados">
+          <div class="specialist-avatar-wrapper">
+            <img [src]="espec.avatar" [alt]="espec.nombre" class="specialist-avatar-img">
+          </div>
+          <h3 class="specialist-name">{{espec.nombre}}</h3>
+          <span class="specialist-role">{{espec.cargo}}</span>
+          <span class="specialist-location">{{espec.centro}}</span>
+          
+          <div class="specialist-actions-row">
+            <button (click)="verPerfilEspecialista(espec.id)" class="btn-spec-view">Ver perfil</button>
+            <button (click)="agendarSesionEspecialista(espec.id)" class="btn-spec-book">Agendar sesión</button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- COLUMNA 3: Sidebar Derecho -->
+    <aside class="dash-prof-sidebar-right">
+      
+      <!-- Próximas Sesiones -->
+      <div class="right-card sessions-card">
+        <h3 class="right-card-title">Próximas Sesiones</h3>
+        
+        <div class="sessions-list">
+          <div class="session-item" *ngFor="let sesion of proximasSesiones">
+            <div class="session-info">
+              <span class="session-time">{{sesion.hora}}</span>
+              <span class="session-patient">{{sesion.paciente}}</span>
+            </div>
+            <button (click)="unirseLlamada(sesion.paciente)" class="btn-join-call">
+              Unirse a videollamada
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pacientes Recientes -->
+      <div class="right-card patients-card">
+        <h3 class="right-card-title">{{langService.translate('dash.patients_title')}}</h3>
+        
+        <div class="patients-list">
+          <div class="patient-item" *ngFor="let pac of pacientesRecientes">
+            <img [src]="pac.avatar" [alt]="pac.nombre" class="patient-avatar">
+            <div class="patient-details">
+              <span class="patient-name">{{pac.nombre}}</span>
+              <span class="patient-last-seen">{{langService.translate('dash.patient_seen')}} {{pac.ultimaSesion}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accesos Rápidos -->
+      <div class="right-card quick-actions-card">
+        <h3 class="right-card-title">{{langService.translate('dash.quick_actions')}}</h3>
+        
+        <div class="quick-buttons-grid">
+          <button (click)="ejecutarAccion('Nueva Receta')" class="quick-btn">
+            <mat-icon class="quick-icon">assignment</mat-icon>
+            <span>Nueva Receta</span>
+          </button>
+          
+          <button (click)="ejecutarAccion('Subir Recurso')" class="quick-btn">
+            <mat-icon class="quick-icon">file_upload</mat-icon>
+            <span>{{langService.translate('dash.action_upload_resource')}}</span>
+          </button>
+          
+          <button (click)="ejecutarAccion('Ver Agenda')" class="quick-btn">
+            <mat-icon class="quick-icon">calendar_today</mat-icon>
+            <span>{{langService.translate('dash.action_view_agenda')}}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recursos Compartidos -->
+      <div class="right-card shared-resources-card">
+        <h3 class="right-card-title">{{langService.translate('dash.shared_resources')}}</h3>
+        
+        <div class="resources-list">
+          <div class="resource-item" *ngFor="let rec of recursosCompartidos" (click)="verRecurso(rec.nombre)">
+            <mat-icon class="resource-icon" [class.pdf-icon]="rec.tipo === 'pdf'">
+              {{ rec.tipo === 'pdf' ? 'picture_as_pdf' : 'description' }}
+            </mat-icon>
+            <span class="resource-name">{{rec.nombre}}</span>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- Footer Compartido del Dashboard -->
+  <footer class="main-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="logo-Serana.png" alt="Serana Logo" class="logo-img-footer">
+        </div>
+        <p class="brand-slogan">
+          {{langService.translate('footer.slogan')}}
+        </p>
+      </div>
+      
+      <div class="footer-links">
+        <h3>{{langService.translate('footer.explore')}}</h3>
+        <ul>
+          <li><a href="#">{{langService.translate('footer.privacy')}}</a></li>
+          <li><a href="#">{{langService.translate('footer.terms')}}</a></li>
+          <li><a href="#">{{langService.translate('footer.help')}}</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-contacts">
+        <h3>{{langService.translate('footer.contact')}}</h3>
+        <p>
+          <mat-icon class="contact-icon">email</mat-icon>
+          hola@serana.pe
+        </p>
+        <p>
+          <mat-icon class="contact-icon">phone</mat-icon>
+          +51 999 999 999
+        </p>
+      </div>
+      
+      <div class="footer-social">
+        <h3>{{langService.translate('footer.follow')}}</h3>
+        <div class="social-icons">
+          <a href="#" class="social-circle"><mat-icon>public</mat-icon></a>
+          <a href="#" class="social-circle"><mat-icon>camera</mat-icon></a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>{{langService.translate('footer.copyright')}}</p>
+      <div class="made-with-love">
+        <span>{{langService.translate('footer.made_with_love')}}</span>
+      </div>
+    </div>
+  </footer>
+
+</div>

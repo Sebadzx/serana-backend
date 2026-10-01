@@ -1,0 +1,122 @@
+<div class="perfil-profesional-page-container">
+
+  <div class="perfil-profesional-main-layout">
+
+    <!-- COLUMNA 1: Sidebar de Navegación Izquierda -->
+    <aside class="perfil-profesional-sidebar">
+
+      <div class="sidebar-branding">
+        <div class="sidebar-logo-circle">
+          <img src="logo-Serana.png" alt="Serana Logo" class="sidebar-logo-img">
+        </div>
+        <div class="sidebar-brand-info">
+          <span class="sidebar-brand-title">Serana</span>
+          <span class="sidebar-brand-subtitle">{{langService.translate('brand.subtitle')}}</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a [routerLink]="getInicioUrl()" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">home</mat-icon>
+          <span>{{langService.translate('nav.inicio')}}</span>
+        </a>
+        <a routerLink="/comunidad" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">people</mat-icon>
+          <span>{{langService.translate('nav.comunidad')}}</span>
+        </a>
+        <a [routerLink]="getSesionesUrl()" class="sidebar-nav-item active">
+          <mat-icon class="sidebar-nav-icon">calendar_today</mat-icon>
+          <span>{{langService.translate('nav.sesiones')}}</span>
+        </a>
+        <a routerLink="/recursos-educativos/list-recursos-educativos" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">menu_book</mat-icon>
+          <span>{{langService.translate('nav.recursos')}}</span>
+        </a>
+        <a routerLink="/usuarios/list-usuarios" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">person</mat-icon>
+          <span>{{langService.translate('nav.perfil')}}</span>
+        </a>
+        <a routerLink="/configuracion" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">settings</mat-icon>
+          <span>{{langService.translate('nav.configuracion')}}</span>
+        </a>
+      </nav>
+
+    </aside>
+
+    <!-- COLUMNA 2: Contenido Principal -->
+    <section class="perfil-profesional-content">
+
+      @if (cargando) {
+        <p class="profesionales-status-msg">{{langService.translate('prof.cargando')}}</p>
+      } @else if (!profesional) {
+        <p class="profesionales-status-msg">{{langService.translate('prof.no_encontrado')}}</p>
+      } @else {
+
+        <button type="button" class="btn-volver" routerLink="/profesionales">
+          <mat-icon>arrow_back</mat-icon>
+          {{langService.translate('prof.volver')}}
+        </button>
+
+        <div class="perfil-top-grid">
+
+          <!-- Card: Foto + Datos principales -->
+          <div class="dash-card perfil-info-card">
+            <div class="perfil-foto-wrapper">
+              <img [src]="getAvatar()" [alt]="nombreCompleto()" class="perfil-foto-img">
+            </div>
+            <h2 class="perfil-nombre-title">{{nombreCompleto()}}</h2>
+            <span class="specialist-role">{{profesional.especialidad}}</span>
+            <span class="specialist-location">{{profesional.lugarTrabajo}}</span>
+          </div>
+
+          <!-- Card: Calendario de disponibilidad -->
+          <div class="dash-card perfil-calendario-card">
+            <h2 class="dash-card-title">{{langService.translate('prof.calendario_title')}}</h2>
+
+            <mat-calendar
+              [(selected)]="selectedDate"
+              [dateClass]="dateClass"
+              (selectedChange)="onDateSelected($event)">
+            </mat-calendar>
+
+            <h3 class="tiempo-disponible-title">{{langService.translate('prof.tiempo_disponible')}}</h3>
+
+            @if (horariosDelDia.length === 0) {
+              <p class="sin-horarios-msg">{{langService.translate('prof.sin_horarios')}}</p>
+            } @else {
+              <div class="horarios-grid">
+                <button
+                  type="button"
+                  *ngFor="let horario of horariosDelDia"
+                  class="horario-pill"
+                  [class.active]="horarioSeleccionado?.id === horario.id"
+                  (click)="seleccionarHorario(horario)">
+                  {{formatHora(horario.horaInicio)}} - {{formatHora(horario.horaFin)}}
+                </button>
+              </div>
+            }
+
+            <button type="button" class="btn-reservar-sesion" [disabled]="reservando" (click)="reservarSesion()">
+              {{langService.translate('prof.btn_reservar')}}
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Card: Información profesional -->
+        <div class="dash-card perfil-biografia-card">
+          <h2 class="dash-card-title">{{langService.translate('prof.info_title')}}</h2>
+          <p class="perfil-biografia-text">
+            {{langService.translate('prof.info_especialidad')}}: {{profesional.especialidad}}<br>
+            {{langService.translate('prof.info_lugartrabajo')}}: {{profesional.lugarTrabajo}}
+          </p>
+        </div>
+
+      }
+
+    </section>
+
+  </div>
+
+</div>

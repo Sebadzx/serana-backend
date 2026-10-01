@@ -1,0 +1,106 @@
+<div class="profesionales-page-container">
+
+  <div class="profesionales-main-layout">
+
+    <!-- COLUMNA 1: Sidebar de Navegación Izquierda -->
+    <aside class="profesionales-sidebar">
+
+      <div class="sidebar-branding">
+        <div class="sidebar-logo-circle">
+          <img src="logo-Serana.png" alt="Serana Logo" class="sidebar-logo-img">
+        </div>
+        <div class="sidebar-brand-info">
+          <span class="sidebar-brand-title">Serana</span>
+          <span class="sidebar-brand-subtitle">{{langService.translate('brand.subtitle')}}</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a [routerLink]="getInicioUrl()" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">home</mat-icon>
+          <span>{{langService.translate('nav.inicio')}}</span>
+        </a>
+        <a routerLink="/comunidad" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">people</mat-icon>
+          <span>{{langService.translate('nav.comunidad')}}</span>
+        </a>
+        <a [routerLink]="getSesionesUrl()" class="sidebar-nav-item active">
+          <mat-icon class="sidebar-nav-icon">calendar_today</mat-icon>
+          <span>{{langService.translate('nav.sesiones')}}</span>
+        </a>
+        <a routerLink="/recursos-educativos/list-recursos-educativos" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">menu_book</mat-icon>
+          <span>{{langService.translate('nav.recursos')}}</span>
+        </a>
+        <a routerLink="/usuarios/list-usuarios" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">person</mat-icon>
+          <span>{{langService.translate('nav.perfil')}}</span>
+        </a>
+        <a routerLink="/configuracion" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">settings</mat-icon>
+          <span>{{langService.translate('nav.configuracion')}}</span>
+        </a>
+      </nav>
+
+    </aside>
+
+    <!-- COLUMNA 2: Contenido Principal -->
+    <section class="profesionales-content">
+
+      <h1 class="profesionales-title">{{langService.translate('prof.page_title')}} - Serana</h1>
+
+      <div class="profesionales-search-card">
+        <div class="profesionales-search-box">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            type="text"
+            [(ngModel)]="terminoBusqueda"
+            (input)="buscar()"
+            [placeholder]="langService.translate('prof.search_placeholder')"
+            class="profesionales-search-input">
+        </div>
+
+        <div class="categories-filter-row">
+          <button type="button" class="category-pill" (click)="filtroProximamente(langService.translate('prof.filter_especialidad'))">
+            {{langService.translate('prof.filter_especialidad')}}
+          </button>
+          <button type="button" class="category-pill" (click)="filtroProximamente(langService.translate('prof.filter_disponibilidad'))">
+            {{langService.translate('prof.filter_disponibilidad')}}
+          </button>
+          <button type="button" class="category-pill" (click)="filtroProximamente(langService.translate('prof.filter_lugartrabajo'))">
+            {{langService.translate('prof.filter_lugartrabajo')}}
+          </button>
+        </div>
+      </div>
+
+      @if (cargando) {
+        <p class="profesionales-status-msg">{{langService.translate('prof.cargando')}}</p>
+      } @else if (profesionalesFiltrados.length === 0) {
+        <p class="profesionales-status-msg">{{langService.translate('prof.no_results')}}</p>
+      } @else {
+        <div class="profesionales-grid">
+          <div class="specialist-card" *ngFor="let prof of profesionalesFiltrados">
+            <div class="specialist-avatar-wrapper">
+              <img [src]="getAvatar(prof.id)" [alt]="nombreCompleto(prof)" class="specialist-avatar-img">
+            </div>
+            <h3 class="specialist-name">{{nombreCompleto(prof)}}</h3>
+            <span class="specialist-role">{{prof.especialidad}}</span>
+            <span class="specialist-location">{{prof.lugarTrabajo}}</span>
+
+            <div class="specialist-actions-row">
+              <button type="button" (click)="verPerfil(prof.id)" class="btn-spec-view">
+                {{langService.translate('prof.btn_ver_perfil')}}
+              </button>
+              <button type="button" (click)="agendarSesion(prof.id)" class="btn-spec-book">
+                {{langService.translate('prof.btn_agendar')}}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+    </section>
+
+  </div>
+
+</div>

@@ -1,0 +1,93 @@
+<div class="sesiones-prof-page-container">
+
+  <div class="sesiones-prof-main-layout">
+
+    <!-- COLUMNA 1: Sidebar de Navegación Izquierda -->
+    <aside class="sesiones-prof-sidebar">
+
+      <div class="sidebar-branding">
+        <div class="sidebar-logo-circle">
+          <img src="logo-Serana.png" alt="Serana Logo" class="sidebar-logo-img">
+        </div>
+        <div class="sidebar-brand-info">
+          <span class="sidebar-brand-title">Serana</span>
+          <span class="sidebar-brand-subtitle">{{langService.translate('brand.subtitle')}}</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a [routerLink]="getInicioUrl()" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">home</mat-icon>
+          <span>{{langService.translate('nav.inicio')}}</span>
+        </a>
+        <a routerLink="/comunidad" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">people</mat-icon>
+          <span>{{langService.translate('nav.comunidad')}}</span>
+        </a>
+        <a routerLink="/sesiones" class="sidebar-nav-item active">
+          <mat-icon class="sidebar-nav-icon">calendar_today</mat-icon>
+          <span>{{langService.translate('nav.sesiones')}}</span>
+        </a>
+        <a routerLink="/recursos-educativos/list-recursos-educativos" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">menu_book</mat-icon>
+          <span>{{langService.translate('nav.recursos')}}</span>
+        </a>
+        <a routerLink="/usuarios/list-usuarios" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">person</mat-icon>
+          <span>{{langService.translate('nav.perfil')}}</span>
+        </a>
+        <a routerLink="/configuracion" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">settings</mat-icon>
+          <span>{{langService.translate('nav.configuracion')}}</span>
+        </a>
+      </nav>
+
+    </aside>
+
+    <!-- COLUMNA 2: Contenido Principal -->
+    <section class="sesiones-prof-content">
+
+      <h1 class="sesiones-prof-title">{{langService.translate('nav.sesiones')}}</h1>
+
+      <div class="dash-card">
+        <h2 class="dash-card-title">{{langService.translate('sesiones.mis_sesiones')}}</h2>
+
+        @if (cargando) {
+          <p class="sin-horarios-msg">{{langService.translate('prof.cargando')}}</p>
+        } @else if (sinPerfilProfesional) {
+          <p class="sin-horarios-msg">{{langService.translate('sesiones.sin_perfil')}}</p>
+        } @else if (sesiones.length === 0) {
+          <p class="sin-horarios-msg">{{langService.translate('sesiones.sin_sesiones')}}</p>
+        } @else {
+          <div class="sesiones-table-container">
+            <table class="sesiones-table">
+              <thead>
+                <tr>
+                  <th>{{langService.translate('sesiones.col_fecha')}}</th>
+                  <th>{{langService.translate('sesiones.col_hora')}}</th>
+                  <th>{{langService.translate('sesiones.col_tipo')}}</th>
+                  <th>{{langService.translate('sesiones.col_estado')}}</th>
+                  <th>{{langService.translate('sesiones.col_comentario')}}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sesion of sesiones">
+                  <td>{{sesion.fecha}}</td>
+                  <td>{{formatHora(sesion.hora)}}</td>
+                  <td>{{sesion.tipoSesion}}</td>
+                  <td>
+                    <span class="badge-horario badge-disponible">{{sesion.estadoSesion}}</span>
+                  </td>
+                  <td>{{sesion.comentario || '-'}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+    </section>
+
+  </div>
+
+</div>

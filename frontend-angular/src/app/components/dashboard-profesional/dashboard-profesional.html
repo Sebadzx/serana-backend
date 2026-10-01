@@ -1,0 +1,596 @@
+<div class="bienestar-page-container">
+
+  <!-- CABECERA INSTITUCIONAL -->
+  <header class="bienestar-header">
+    <div class="header-left">
+      <img src="logo-Serana.png" alt="Serana Logo" class="logo-bienestar">
+      <div class="header-title-box">
+        <span class="platform-name">SERANA</span>
+        <span class="platform-sub">Plataforma de Salud Mental Universitaria</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="user-badge">
+        <img [src]="avatarUrl" alt="Avatar" class="avatar-header-img">
+        <div class="user-info">
+          <span class="user-name">{{ nombreUsuario }}</span>
+          <span class="user-role">{{ rolLabel }}</span>
+        </div>
+      </div>
+      <button mat-stroked-button color="warn" (click)="logout()" class="btn-logout">
+        <mat-icon>logout</mat-icon> Salir
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="bienestar-main">
+
+    <!-- TÍTULO Y DESCRIPCIÓN INSTITUCIONAL -->
+    <div class="dashboard-banner">
+      <div class="banner-text">
+        <h1 class="main-title">Dashboard de Bienestar Universitario</h1>
+        <p class="main-subtitle">
+          Monitoreo epidemiológico del tecnoestrés, detección temprana de casos críticos y análisis de tendencias en estudiantes universitarios (US-15 y US-16).
+        </p>
+      </div>
+
+      <!-- BOTONES DE EXPORTACIÓN (US-16) -->
+      <div class="banner-actions" *ngIf="esBienestar">
+        <button mat-raised-button class="btn-export-excel" (click)="exportarExcel()" [disabled]="descargandoExcel || cargando">
+          <mat-icon>file_download</mat-icon> {{ descargandoExcel ? 'Generando...' : 'Exportar a Excel (.csv)' }}
+        </button>
+        <button mat-raised-button color="primary" class="btn-export-pdf" (click)="exportarPDF()">
+          <mat-icon>picture_as_pdf</mat-icon> Imprimir / Guardar PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- PESTAÑAS DE NAVEGACIÓN -->
+    <div class="dashboard-tabs-bar">
+      <button *ngIf="esBienestar" type="button" class="tab-btn" [class.tab-active]="seccionActiva === 'dashboard'" (click)="cambiarPestana('dashboard')">
+        <mat-icon>analytics</mat-icon> Monitor Poblacional de Ansiedad (US-15 y US-16)
+      </button>
+      <button type="button" class="tab-btn" [class.tab-active]="seccionActiva === 'arco'" (click)="cambiarPestana('arco')">
+        <mat-icon>security</mat-icon> Bandeja de Derechos ARCO - Ley 29733 (US-18)
+      </button>
+      <button *ngIf="esAdmin" type="button" class="tab-btn" [class.tab-active]="seccionActiva === 'mlops'" (click)="cambiarPestana('mlops')">
+        <mat-icon>model_training</mat-icon> Pipeline MLOps Reentrenamiento (US-19)
+      </button>
+    </div>
+
+
+    <!-- CONTENIDO PESTAÑA 1: MONITOR POBLACIONAL (US-15 y US-16) -->
+    <div *ngIf="seccionActiva === 'dashboard'">
+
+    <!-- SECCIÓN DE FILTROS POR COHORTE (US-15) -->
+    <div class="filter-card">
+      <div class="filter-header">
+        <mat-icon class="filter-icon">tune</mat-icon>
+        <h2 class="filter-title">Filtros de Población y Cohorte Estudiantil (US-15)</h2>
+      </div>
+
+      <form [formGroup]="filtroForm" class="filter-form-grid" (ngSubmit)="aplicarFiltros()">
+        
+        <!-- Filtro Carrera -->
+        <div class="filter-field">
+          <label class="field-label">Carrera Profesional</label>
+          <select formControlName="carrera" (change)="aplicarFiltros()" class="custom-select">
+            <option *ngFor="let c of carrerasDisponibles" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <!-- Filtro Ciclo -->
+        <div class="filter-field">
+          <label class="field-label">Ciclo Académico</label>
+          <select formControlName="ciclo" (change)="aplicarFiltros()" class="custom-select">
+            <option *ngFor="let c of ciclosDisponibles" [value]="c.valor">{{ c.etiqueta }}</option>
+          </select>
+        </div>
+
+        <!-- Filtro Fecha Desde -->
+        <div class="filter-field">
+          <label class="field-label">Fecha Desde</label>
+          <input type="date" formControlName="fechaInicio" (change)="aplicarFiltros()" class="custom-input">
+        </div>
+
+        <!-- Filtro Fecha Hasta -->
+        <div class="filter-field">
+          <label class="field-label">Fecha Hasta</label>
+          <input type="date" formControlName="fechaFin" (change)="aplicarFiltros()" class="custom-input">
+        </div>
+
+        <!-- Botones de Acción de Filtro -->
+        <div class="filter-actions">
+          <button type="button" mat-stroked-button class="btn-limpiar" (click)="limpiarFiltros()">
+            <mat-icon>clear_all</mat-icon> Limpiar
+          </button>
+          <button type="button" mat-button class="btn-recargar" (click)="cargarDatosDashboard()" [disabled]="cargando">
+            <mat-icon [class.spin-icon]="cargando">sync</mat-icon> Refrescar
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- TARJETAS DE INDICADORES CLAVE (KPIs US-15) -->
+    <div class="kpi-grid">
+      
+      <!-- Card 1: Total Evaluados -->
+      <div class="kpi-card">
+        <div class="kpi-icon-box bg-blue">
+          <mat-icon>groups</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-value">{{ totalEvaluados }}</span>
+          <span class="kpi-label">Estudiantes Evaluados</span>
+          <span class="kpi-desc">Total registros en cohorte</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Casos Críticos -->
+      <div class="kpi-card">
+        <div class="kpi-icon-box bg-red">
+          <mat-icon>warning_amber</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-value text-red">{{ casosCriticos }}</span>
+          <span class="kpi-label">Casos Críticos Detectados</span>
+          <span class="kpi-desc">Requieren intervención urgente</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Porcentaje en Riesgo -->
+      <div class="kpi-card">
+        <div class="kpi-icon-box bg-orange">
+          <mat-icon>analytics</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-value text-orange">{{ porcentajeRiesgo }}%</span>
+          <span class="kpi-label">Tasa de Población en Riesgo</span>
+          <span class="kpi-desc">Severidad clínica moderada/alta</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Distribución por Nivel -->
+      <div class="kpi-card">
+        <div class="kpi-icon-box bg-purple">
+          <mat-icon>pie_chart</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label" style="margin-bottom: 6px;">Distribución de Ansiedad</span>
+          <div class="kpi-distribution-bars">
+            <span class="dist-tag tag-alto">Alto: {{ casosAlto }}</span>
+            <span class="dist-tag tag-moderado">Mod: {{ casosModerado }}</span>
+            <span class="dist-tag tag-bajo">Bajo: {{ casosBajo }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SPINNER / CARGANDO -->
+    <div class="loading-state-box" *ngIf="cargando">
+      <mat-icon class="spin-icon">sync</mat-icon>
+      <span>Consultando registros consolidados de Bienestar Universitario...</span>
+    </div>
+
+    <!-- ESTADO VACÍO -->
+    <div class="empty-state-box" *ngIf="!cargando && evaluacionesFiltradas.length === 0">
+      <mat-icon class="empty-icon">filter_alt_off</mat-icon>
+      <h3>No se encontraron evaluaciones con los filtros seleccionados</h3>
+      <p>Prueba seleccionando "Todas las Carreras" o limpiando el rango de fechas.</p>
+      <button mat-raised-button color="primary" (click)="limpiarFiltros()">Limpiar Filtros</button>
+    </div>
+
+    <!-- TABLA DE EVALUACIONES CONSOLIDADAS -->
+    <div class="table-card" *ngIf="!cargando && evaluacionesFiltradas.length > 0">
+      <div class="table-card-header">
+        <div>
+          <h2 class="table-title">Registros de Evaluaciones y Diagnósticos por Inteligencia Artificial</h2>
+          <span class="table-subtitle">Mostrando {{ evaluacionesFiltradas.length }} registros filtrados</span>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table mat-table [dataSource]="evaluacionesFiltradas" class="mat-elevation-z1 consolidado-table">
+
+          <!-- Columna ID -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let ev"> #{{ ev.idEvaluacion }} </td>
+          </ng-container>
+
+          <!-- Columna Código Estudiante -->
+          <ng-container matColumnDef="estudiante">
+            <th mat-header-cell *matHeaderCellDef> Alumno </th>
+            <td mat-cell *matCellDef="let ev">
+              <span class="student-code">{{ ev.codigoEstudiante }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Columna Carrera -->
+          <ng-container matColumnDef="carrera">
+            <th mat-header-cell *matHeaderCellDef> Carrera </th>
+            <td mat-cell *matCellDef="let ev"> {{ ev.carrera }} </td>
+          </ng-container>
+
+          <!-- Columna Ciclo -->
+          <ng-container matColumnDef="ciclo">
+            <th mat-header-cell *matHeaderCellDef> Ciclo </th>
+            <td mat-cell *matCellDef="let ev"> Ciclo {{ ev.ciclo }} </td>
+          </ng-container>
+
+          <!-- Columna Fecha -->
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef> Fecha & Hora </th>
+            <td mat-cell *matCellDef="let ev"> {{ ev.fechaEvaluacion | date:'dd/MM/yyyy HH:mm' }} </td>
+          </ng-container>
+
+          <!-- Columna Nivel de Ansiedad -->
+          <ng-container matColumnDef="nivel">
+            <th mat-header-cell *matHeaderCellDef> Nivel Ansiedad </th>
+            <td mat-cell *matCellDef="let ev">
+              <span class="level-chip" [ngClass]="(ev.nivelAnsiedad || 'bajo').toLowerCase()">
+                {{ ev.nivelAnsiedad }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Columna Probabilidad -->
+          <ng-container matColumnDef="probabilidad">
+            <th mat-header-cell *matHeaderCellDef> Confianza IA </th>
+            <td mat-cell *matCellDef="let ev"> {{ ((ev.scoreProbabilidad || 0) * 100) | number:'1.0-0' }}% </td>
+          </ng-container>
+
+          <!-- Columna Caso Crítico -->
+          <ng-container matColumnDef="critico">
+            <th mat-header-cell *matHeaderCellDef> Caso Crítico </th>
+            <td mat-cell *matCellDef="let ev">
+              <span class="badge-critico" *ngIf="ev.esCasoCritico">
+                <mat-icon>warning</mat-icon> SÍ
+              </span>
+              <span class="badge-normal" *ngIf="!ev.esCasoCritico">NO</span>
+            </td>
+          </ng-container>
+
+          <!-- Columna GAD-7 -->
+          <ng-container matColumnDef="gad7">
+            <th mat-header-cell *matHeaderCellDef> GAD-7 </th>
+            <td mat-cell *matCellDef="let ev"> {{ ev.puntuacionGad7 }} pts </td>
+          </ng-container>
+
+          <!-- Columna PSS-10 -->
+          <ng-container matColumnDef="pss10">
+            <th mat-header-cell *matHeaderCellDef> PSS-10 </th>
+            <td mat-cell *matCellDef="let ev"> {{ ev.puntuacionPss10 }} pts </td>
+          </ng-container>
+
+          <!-- Columna Pantalla -->
+          <ng-container matColumnDef="pantalla">
+            <th mat-header-cell *matHeaderCellDef> Pantalla </th>
+            <td mat-cell *matCellDef="let ev"> {{ ev.tiempoPantallaHoras }} h </td>
+          </ng-container>
+
+          <!-- Columna Sueño -->
+          <ng-container matColumnDef="sueno">
+            <th mat-header-cell *matHeaderCellDef> Sueño </th>
+            <td mat-cell *matCellDef="let ev"> {{ ev.habitoSuenoHoras }} h </td>
+          </ng-container>
+
+          <!-- Columna Justificación -->
+          <ng-container matColumnDef="justificacion">
+            <th mat-header-cell *matHeaderCellDef> Justificación Diagnóstica </th>
+            <td mat-cell *matCellDef="let ev" class="cell-justificacion" [title]="ev.justificacion">
+              {{ ev.justificacion }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columnasTabla"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasTabla;"></tr>
+        </table>
+      </div>
+    </div>
+
+    </div> <!-- FIN TAB DASHBOARD -->
+
+    <!-- CONTENIDO PESTAÑA 2: BANDEJA DE DERECHOS ARCO - LEY 29733 (US-18) -->
+    <div *ngIf="seccionActiva === 'arco'" class="arco-panel-section">
+      <div class="table-card">
+        <div class="table-card-header">
+          <div>
+            <h2 class="table-title">Bandeja de Solicitudes de Supresión de Datos Personales (Derechos ARCO)</h2>
+            <span class="table-subtitle">Atención formal conforme a la Ley N° 29733 (Protección de Datos Personales en el Perú)</span>
+          </div>
+        </div>
+
+        <!-- Spinner ARCO -->
+        <div class="loading-state-box" *ngIf="cargandoARCO">
+          <mat-icon class="spin-icon">sync</mat-icon>
+          <span>Consultando solicitudes ARCO registradas...</span>
+        </div>
+
+        <!-- Vacío ARCO -->
+        <div class="empty-state-box" *ngIf="!cargandoARCO && solicitudesARCO.length === 0">
+          <mat-icon class="empty-icon">verified_user</mat-icon>
+          <h3>No hay solicitudes ARCO pendientes de atención</h3>
+          <p>Todas las peticiones de cancelación y olvido de datos personales han sido atendidas.</p>
+        </div>
+
+        <!-- Tabla ARCO -->
+        <div class="table-responsive" *ngIf="!cargandoARCO && solicitudesARCO.length > 0">
+          <table mat-table [dataSource]="solicitudesARCO" class="mat-elevation-z1 consolidado-table">
+
+            <!-- ID -->
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef> ID </th>
+              <td mat-cell *matCellDef="let s"> #{{ s.id }} </td>
+            </ng-container>
+
+            <!-- Estudiante -->
+            <ng-container matColumnDef="estudiante">
+              <th mat-header-cell *matHeaderCellDef> Estudiante </th>
+              <td mat-cell *matCellDef="let s">
+                <span class="student-code">{{ s.codigoUsuario }}</span>
+                <span style="margin-left: 6px; font-weight: 500;">{{ s.nombreUsuario }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Tipo -->
+            <ng-container matColumnDef="tipo">
+              <th mat-header-cell *matHeaderCellDef> Tipo Derecho </th>
+              <td mat-cell *matCellDef="let s">
+                <span class="dist-tag tag-moderado">{{ s.tipoSolicitud }}</span>
+              </td>
+            </ng-container>
+
+            <!-- Detalle -->
+            <ng-container matColumnDef="detalle">
+              <th mat-header-cell *matHeaderCellDef> Fundamento / Detalle </th>
+              <td mat-cell *matCellDef="let s" class="cell-justificacion" [title]="s.detalleSolicitud">
+                {{ s.detalleSolicitud }}
+              </td>
+            </ng-container>
+
+            <!-- Fecha -->
+            <ng-container matColumnDef="fecha">
+              <th mat-header-cell *matHeaderCellDef> Fecha Solicitud </th>
+              <td mat-cell *matCellDef="let s"> {{ s.fechaSolicitud | date:'dd/MM/yyyy HH:mm' }} </td>
+            </ng-container>
+
+            <!-- Estado -->
+            <ng-container matColumnDef="estado">
+              <th mat-header-cell *matHeaderCellDef> Estado </th>
+              <td mat-cell *matCellDef="let s">
+                <span class="dist-tag" [ngClass]="s.estado === 'ATENDIDO' || s.estado === 'APROBADA' ? 'tag-bajo' : 'tag-alto'">
+                  {{ s.estado }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Acciones -->
+            <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef> Acciones </th>
+              <td mat-cell *matCellDef="let s">
+                <div *ngIf="s.estado === 'PENDIENTE' && esAdmin" style="display: flex; gap: 6px;">
+                  <button mat-raised-button color="primary" style="font-size: 0.75rem;" (click)="atenderSolicitudARCO(s.id, 'APROBADA')">
+                    Aprobar & Suprimir
+                  </button>
+                  <button mat-stroked-button color="warn" style="font-size: 0.75rem;" (click)="atenderSolicitudARCO(s.id, 'RECHAZADA')">
+                    Rechazar
+                  </button>
+                </div>
+                <span *ngIf="s.estado === 'PENDIENTE' && !esAdmin" style="color: #d97706; font-size: 0.8rem; font-style: italic; font-weight: 500;">
+                  Pendiente de autorización por Administrador
+                </span>
+                <span *ngIf="s.estado !== 'PENDIENTE'" style="color: #64748b; font-size: 0.8rem; font-style: italic;">
+                  Atendida
+                </span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columnasARCO"></tr>
+            <tr mat-row *matRowDef="let row; columns: columnasARCO;"></tr>
+          </table>
+        </div>
+
+      </div>
+    </div> <!-- FIN TAB ARCO -->
+
+    <!-- CONTENIDO PESTAÑA 3: PIPELINE MLOPS REENTRENAMIENTO (US-19) -->
+    <div *ngIf="seccionActiva === 'mlops'" class="animate-fade-in">
+      
+      <!-- Banner de Pipeline MLOps -->
+      <div class="mlops-header-card">
+        <div class="mlops-title-group">
+          <div class="mlops-icon-box">
+            <mat-icon class="mlops-hero-icon">model_training</mat-icon>
+          </div>
+          <div>
+            <h2 class="mlops-main-title">Pipeline Automatizado de Reentrenamiento Continuo (US-19)</h2>
+            <p class="mlops-subtitle">
+              Configuración de reentrenamiento MLOps para el modelo <strong>Random Forest Multimodal</strong> cuando se acumula un nuevo lote de datos de estudiantes, garantizando la precisión diagnóstica del sistema (<strong>Meta: F1-Score Macro ≥ 85%</strong>).
+            </p>
+          </div>
+        </div>
+
+        <div class="mlops-header-actions">
+          <button mat-raised-button color="primary" class="btn-ejecutar-mlops" (click)="ejecutarPipelineMLOps()" [disabled]="reentrenandoML">
+            <mat-icon [class.spin-icon]="reentrenandoML">autorenew</mat-icon>
+            {{ reentrenandoML ? 'Ejecutando Pipeline K-Fold...' : 'Ejecutar Reentrenamiento de Lote (US-19)' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Arquitectura del Pipeline de Reentrenamiento (Etapas MLOps) -->
+      <div class="mlops-stages-card">
+        <h3 class="stages-card-title">
+          <mat-icon>schema</mat-icon> Flujo del Pipeline Automatizado (MLOps Lifecycle)
+        </h3>
+        
+        <div class="stages-grid">
+          <!-- Etapa 1 -->
+          <div class="stage-card">
+            <div class="stage-number">01</div>
+            <div class="stage-content">
+              <span class="stage-tag">Ingesta de Lote</span>
+              <h4 class="stage-name">Extracción de Nuevos Datos</h4>
+              <p class="stage-desc">Consolida evaluaciones de PostgreSQL (db_serana) con datos calibrados para enriquecimiento continuo.</p>
+            </div>
+          </div>
+
+          <!-- Etapa 2 -->
+          <div class="stage-card">
+            <div class="stage-number">02</div>
+            <div class="stage-content">
+              <span class="stage-tag">Vectorización PLN</span>
+              <h4 class="stage-name">Extracción Multimodal</h4>
+              <p class="stage-desc">Fusión de escalas TS4US/ASAIDAS con vectores TF-IDF adaptados al argot limeño (US-08 y US-09).</p>
+            </div>
+          </div>
+
+          <!-- Etapa 3 -->
+          <div class="stage-card">
+            <div class="stage-number">03</div>
+            <div class="stage-content">
+              <span class="stage-tag">Validación Cruzada</span>
+              <h4 class="stage-name">5-Fold Stratified K-Fold</h4>
+              <p class="stage-desc">Entrenamiento robusto con 100 árboles de decisión y profundidad máxima controlada (max_depth=8).</p>
+            </div>
+          </div>
+
+          <!-- Etapa 4 -->
+          <div class="stage-card">
+            <div class="stage-number">04</div>
+            <div class="stage-content">
+              <span class="stage-tag">Quality Gate</span>
+              <h4 class="stage-name">F1-Score ≥ 85%</h4>
+              <p class="stage-desc">Comprobación del criterio de aceptación US-19 antes de autorizar la promoción del nuevo artefacto.</p>
+            </div>
+          </div>
+
+          <!-- Etapa 5 -->
+          <div class="stage-card">
+            <div class="stage-number">05</div>
+            <div class="stage-content">
+              <span class="stage-tag">Despliegue</span>
+              <h4 class="stage-name">Hot-Reload en Memoria</h4>
+              <p class="stage-desc">Serialización en model.joblib y recarga en caliente en FastAPI sin interrupción del servicio.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Métricas Clave del Modelo Reentrenado -->
+      <div class="mlops-metrics-grid">
+        
+        <!-- F1 Score (Criterio de Aceptación US-19) -->
+        <div class="metric-ml-card primary-highlight">
+          <div class="metric-top">
+            <span class="metric-lbl">Macro F1-Score (US-19)</span>
+            <span class="badge-gate-pass">
+              <mat-icon>check_circle</mat-icon> Meta ≥ 85%
+            </span>
+          </div>
+          <div class="metric-big-val">{{ (metricasMLOps.f1ScoreMacro * 100) | number:'1.1-1' }}%</div>
+          <p class="metric-footnote">Promedio armónico entre precisión y exhaustividad en las 3 clases diagnósticas.</p>
+        </div>
+
+        <!-- Accuracy -->
+        <div class="metric-ml-card">
+          <div class="metric-top">
+            <span class="metric-lbl">Exactitud Global (Accuracy)</span>
+            <mat-icon class="card-mini-icon">verified</mat-icon>
+          </div>
+          <div class="metric-big-val">{{ (metricasMLOps.accuracy * 100) | number:'1.1-1' }}%</div>
+          <p class="metric-footnote">Porcentaje total de clasificaciones correctas sobre los 5 pliegues de validación.</p>
+        </div>
+
+        <!-- Macro Precision -->
+        <div class="metric-ml-card">
+          <div class="metric-top">
+            <span class="metric-lbl">Precisión Macro</span>
+            <mat-icon class="card-mini-icon">target</mat-icon>
+          </div>
+          <div class="metric-big-val">{{ (metricasMLOps.precisionMacro * 100) | number:'1.1-1' }}%</div>
+          <p class="metric-footnote">Confiabilidad de predicción por clase clínica (Bajo, Moderado y Alto).</p>
+        </div>
+
+        <!-- Macro Recall -->
+        <div class="metric-ml-card">
+          <div class="metric-top">
+            <span class="metric-lbl">Exhaustividad (Recall Macro)</span>
+            <mat-icon class="card-mini-icon">find_in_page</mat-icon>
+          </div>
+          <div class="metric-big-val">{{ (metricasMLOps.recallMacro * 100) | number:'1.1-1' }}%</div>
+          <p class="metric-footnote">Capacidad para identificar correctamente los estudiantes en riesgo de tecnoestrés.</p>
+        </div>
+
+        <!-- Tamaño de Lote -->
+        <div class="metric-ml-card">
+          <div class="metric-top">
+            <span class="metric-lbl">Muestras del Lote</span>
+            <mat-icon class="card-mini-icon">dataset</mat-icon>
+          </div>
+          <div class="metric-big-val">{{ metricasMLOps.totalMuestras }}</div>
+          <p class="metric-footnote">Registros procesados y balanceados en el último ciclo de reentrenamiento.</p>
+        </div>
+
+        <!-- Evaluaciones en Base de Datos -->
+        <div class="metric-ml-card">
+          <div class="metric-top">
+            <span class="metric-lbl">Evaluaciones en PostgreSQL</span>
+            <mat-icon class="card-mini-icon">storage</mat-icon>
+          </div>
+          <div class="metric-big-val">{{ metricasMLOps.evaluacionesEnBd }}</div>
+          <p class="metric-footnote">Registros acumulados en db_serana disponibles para futuros lotes de ajuste fino.</p>
+        </div>
+
+      </div>
+
+      <!-- Registro de Auditoría y Parámetros del Algoritmo -->
+      <div class="mlops-audit-card">
+        <div class="audit-header">
+          <mat-icon>terminal</mat-icon>
+          <h3 class="audit-title">Registro de Auditoría de MLOps y Parámetros del Modelo</h3>
+        </div>
+        
+        <div class="audit-details-grid">
+          <div class="audit-item">
+            <span class="audit-k">Algoritmo Predictivo:</span>
+            <span class="audit-v">RandomForestClassifier (scikit-learn 1.9.0)</span>
+          </div>
+          <div class="audit-item">
+            <span class="audit-k">Esquema de Validación:</span>
+            <span class="audit-v">5-Fold Stratified K-Fold Cross-Validation</span>
+          </div>
+          <div class="audit-item">
+            <span class="audit-k">Hiperparámetros Calibrados:</span>
+            <span class="audit-v">n_estimators=100, max_depth=8, min_samples_split=4, class_weight='balanced'</span>
+          </div>
+          <div class="audit-item">
+            <span class="audit-k">Estado del Microservicio:</span>
+            <span class="audit-v badge-status-online">En línea - Puerto 8001 (FastAPI Lifespan)</span>
+          </div>
+          <div class="audit-item">
+            <span class="audit-k">Última Ejecución del Pipeline:</span>
+            <span class="audit-v">{{ metricasMLOps.timestamp | date:'dd/MM/yyyy, HH:mm:ss' }}</span>
+          </div>
+          <div class="audit-item">
+            <span class="audit-k">Mensaje del Sistema:</span>
+            <span class="audit-v highlight-msg">{{ metricasMLOps.mensaje }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- FIN TAB MLOPS -->
+
+  </main>
+
+  <!-- PIE DE PÁGINA -->
+  <footer class="bienestar-footer">
+    <p>SERANA © 2026 - Dirección de Bienestar Universitario | Universidad Peruana de Ciencias Aplicadas (UPC)</p>
+  </footer>
+
+</div>

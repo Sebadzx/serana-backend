@@ -1,0 +1,244 @@
+<div class="config-page-container">
+  
+  <!-- BARRA DE BÚSQUEDA / CABECERA SUPERIOR -->
+  <header class="config-header">
+    <div class="header-logo-wrapper">
+      <div class="header-logo-circle">
+        <img src="logo-Serana.png" alt="Serana Logo" class="header-logo-img">
+      </div>
+    </div>
+    
+    <div class="header-search-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [placeholder]="langService.translate('header.search_community')" class="header-search-input">
+    </div>
+    
+    <div class="header-actions-right">
+      <button class="header-action-btn" title="Notificaciones">
+        <mat-icon>notifications_none</mat-icon>
+      </button>
+      <button class="header-action-btn" title="Mensajes">
+        <mat-icon>chat_bubble_outline</mat-icon>
+      </button>
+      <div class="header-user-avatar-circle">
+        <img [src]="getCreatorAvatarUrl()" alt="User Avatar" class="header-user-avatar-img">
+      </div>
+    </div>
+  </header>
+
+  <div class="config-main-layout">
+    
+    <!-- COLUMNA 1: Sidebar de Navegación Izquierda -->
+    <aside class="config-sidebar">
+      
+      <div class="sidebar-branding">
+        <div class="sidebar-logo-circle">
+          <img src="logo-Serana.png" alt="Serana Logo" class="sidebar-logo-img">
+        </div>
+        <div class="sidebar-brand-info">
+          <span class="sidebar-brand-title">Serana</span>
+          <span class="sidebar-brand-subtitle">{{langService.translate('brand.subtitle')}}</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a [routerLink]="getInicioUrl()" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">home</mat-icon>
+          <span>{{langService.translate('nav.inicio')}}</span>
+        </a>
+        <a routerLink="/comunidad" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">people</mat-icon>
+          <span>{{langService.translate('nav.comunidad')}}</span>
+        </a>
+        <a [routerLink]="getSesionesUrl()" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">calendar_today</mat-icon>
+          <span>{{langService.translate('nav.sesiones')}}</span>
+        </a>
+        <a routerLink="/recursos-educativos/list-recursos-educativos" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">menu_book</mat-icon>
+          <span>{{langService.translate('nav.recursos')}}</span>
+        </a>
+        <a routerLink="/usuarios/list-usuarios" class="sidebar-nav-item">
+          <mat-icon class="sidebar-nav-icon">person</mat-icon>
+          <span>{{langService.translate('nav.perfil')}}</span>
+        </a>
+        <a routerLink="/configuracion" class="sidebar-nav-item active">
+          <mat-icon class="sidebar-nav-icon">settings</mat-icon>
+          <span>{{langService.translate('nav.configuracion')}}</span>
+        </a>
+      </nav>
+      
+    </aside>
+
+    <!-- COLUMNA 2: Formulario de Configuración (Centro) -->
+    <section class="config-center-content">
+      
+      <div class="config-card">
+        <h1 class="config-title">{{getTranslation('title')}}</h1>
+        
+        <div class="config-sections-list">
+          
+          <!-- Sección: Apariencia -->
+          <div class="config-section-row">
+            <div class="section-icon-wrapper circle-blue">
+              <mat-icon class="section-icon">dark_mode</mat-icon>
+            </div>
+            <div class="section-details">
+              <h3 class="section-title">{{getTranslation('appearance')}}</h3>
+              <div class="setting-control-row">
+                <span class="setting-label">{{getTranslation('darkMode')}}</span>
+                <mat-slide-toggle 
+                  [checked]="config.tema === 'OSCURO'" 
+                  (change)="toggleModoOscuro($event)"
+                  color="primary"
+                ></mat-slide-toggle>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección: Idioma -->
+          <div class="config-section-row">
+            <div class="section-icon-wrapper circle-green">
+              <mat-icon class="section-icon">language</mat-icon>
+            </div>
+            <div class="section-details">
+              <h3 class="section-title">{{getTranslation('language')}}</h3>
+              <div class="setting-control-row">
+                <select 
+                  [ngModel]="config.idioma" 
+                  (ngModelChange)="cambiarIdioma($event)" 
+                  class="idioma-select"
+                >
+                  <option value="Español (España)">Español (España)</option>
+                  <option value="English">English</option>
+                  <option value="Français">Français</option>
+                  <option value="Português">Português</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección: Notificaciones -->
+          <div class="config-section-row">
+            <div class="section-icon-wrapper circle-orange">
+              <mat-icon class="section-icon">notifications</mat-icon>
+            </div>
+            <div class="section-details">
+              <h3 class="section-title">{{getTranslation('notifications')}}</h3>
+              
+              <div class="setting-control-row sub-row">
+                <span class="setting-label">{{getTranslation('emailAlerts')}}</span>
+                <mat-slide-toggle 
+                  [checked]="config.notificacionHabilitada" 
+                  (change)="toggleAlertasCorreo($event)"
+                  color="primary"
+                ></mat-slide-toggle>
+              </div>
+
+              <div class="setting-control-row sub-row">
+                <span class="setting-label">{{getTranslation('pushNotifications')}}</span>
+                <mat-slide-toggle 
+                  [checked]="pushNotifications" 
+                  (change)="togglePush($event)"
+                  color="primary"
+                ></mat-slide-toggle>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección: Privacidad y Seguridad -->
+          <div class="config-section-row">
+            <div class="section-icon-wrapper circle-purple">
+              <mat-icon class="section-icon">security</mat-icon>
+            </div>
+            <div class="section-details">
+              <h3 class="section-title">{{getTranslation('privacySecurity')}}</h3>
+              
+              <div class="setting-link-row" (click)="ejecutarAccion('Gestionar datos')">
+                <span class="setting-label">{{getTranslation('manageData')}}</span>
+                <mat-icon class="chevron-icon">chevron_right</mat-icon>
+              </div>
+
+              <div class="setting-link-row" (click)="ejecutarAccion('Cambiar contraseña')">
+                <span class="setting-label">{{getTranslation('changePassword')}}</span>
+                <mat-icon class="chevron-icon">chevron_right</mat-icon>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección: Anonimato -->
+          <div class="config-section-row">
+            <div class="section-icon-wrapper circle-yellow">
+              <mat-icon class="section-icon">person</mat-icon>
+            </div>
+            <div class="section-details">
+              <h3 class="section-title">{{getTranslation('anonymity')}}</h3>
+              <div class="setting-control-row">
+                <span class="setting-label">{{getTranslation('anonymousDefault')}}</span>
+                <mat-slide-toggle 
+                  [checked]="anonymousByDefault" 
+                  (change)="toggleAnonimoDefecto($event)"
+                  color="primary"
+                ></mat-slide-toggle>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- Footer Compartido -->
+  <footer class="main-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="logo-Serana.png" alt="Serana Logo" class="logo-img-footer">
+        </div>
+        <p class="brand-slogan">
+          {{langService.translate('footer.slogan')}}
+        </p>
+      </div>
+      
+      <div class="footer-links">
+        <h3>{{langService.translate('footer.explore')}}</h3>
+        <ul>
+          <li><a href="#">{{langService.translate('footer.privacy')}}</a></li>
+          <li><a href="#">{{langService.translate('footer.terms')}}</a></li>
+          <li><a href="#">{{langService.translate('footer.help')}}</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-contacts">
+        <h3>{{langService.translate('footer.contact')}}</h3>
+        <p>
+          <mat-icon class="contact-icon">email</mat-icon>
+          hola@serana.pe
+        </p>
+        <p>
+          <mat-icon class="contact-icon">phone</mat-icon>
+          +51 999 999 999
+        </p>
+      </div>
+      
+      <div class="footer-social">
+        <h3>{{langService.translate('footer.follow')}}</h3>
+        <div class="social-icons">
+          <a href="#" class="social-circle"><mat-icon>public</mat-icon></a>
+          <a href="#" class="social-circle"><mat-icon>camera</mat-icon></a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>{{langService.translate('footer.copyright')}}</p>
+      <div class="made-with-love">
+        <span>{{langService.translate('footer.made_with_love')}}</span>
+      </div>
+    </div>
+  </footer>
+
+</div>

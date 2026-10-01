@@ -1,0 +1,105 @@
+.reserva-placeholder-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f7faf0;
+  font-family: 'Outfit', 'Inter', 'Roboto', sans-serif;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.reserva-placeholder-card {
+  background-color: #ffffff;
+  border-radius: 28px;
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.reserva-icon-wrapper {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: #edf5cf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.reserva-icon {
+  color: #1a3e68;
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.reserva-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0 0 12px 0;
+}
+
+.reserva-message {
+  color: #4a5568;
+  font-size: 1rem;
+  margin: 0 0 16px 0;
+}
+
+.reserva-detalle {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.detalle-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f7faf0;
+  color: #2d3748;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.detalle-chip mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #718096;
+}
+
+.reserva-coming-soon {
+  color: #a0aec0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0 0 28px 0;
+}
+
+.btn-volver-perfil {
+  background-color: #1a3e68;
+  color: #ffffff;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-volver-perfil:hover {
+  background-color: #112d4e;
+}

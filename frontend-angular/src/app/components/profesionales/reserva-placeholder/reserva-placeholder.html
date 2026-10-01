@@ -1,0 +1,30 @@
+<div class="reserva-placeholder-container">
+  <div class="reserva-placeholder-card">
+
+    <div class="reserva-icon-wrapper">
+      <mat-icon class="reserva-icon">event_available</mat-icon>
+    </div>
+
+    <h1 class="reserva-title">{{langService.translate('reserva.title')}}</h1>
+
+    @if (profesional) {
+      <p class="reserva-message">
+        {{langService.translate('reserva.message')}} <strong>{{nombreCompleto()}}</strong>
+      </p>
+    }
+
+    @if (fecha && hora) {
+      <div class="reserva-detalle">
+        <span class="detalle-chip"><mat-icon>event</mat-icon>{{fecha}}</span>
+        <span class="detalle-chip"><mat-icon>schedule</mat-icon>{{formatHora(hora)}}</span>
+      </div>
+    }
+
+    <p class="reserva-coming-soon">{{langService.translate('reserva.confirmada')}}</p>
+
+    <button type="button" class="btn-volver-perfil" (click)="volverAlPerfil()">
+      {{langService.translate('reserva.btn_volver')}}
+    </button>
+
+  </div>
+</div>
