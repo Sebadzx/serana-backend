@@ -24,8 +24,8 @@ class EscalasPsicometricas(BaseModel):
     )
 
 class InferenciaRequest(BaseModel):
-    evaluacionId: int = Field(..., description="ID de la evaluacion generado por el backend de Spring Boot")
-    perfilEstudiante: PerfilEstudiante
+    evaluacionId: int = Field(default=1, description="ID de la evaluacion generado por el backend de Spring Boot")
+    perfilEstudiante: Optional[PerfilEstudiante] = Field(default_factory=PerfilEstudiante)
     escalas: EscalasPsicometricas
     textoLibre: Optional[str] = Field(
         default="",

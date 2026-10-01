@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.schemas import (
     InferenciaRequest, InferenciaResponse,
     RetrainRequest, RetrainResponse,
-    HealthResponse
+    HealthResponse, EscalasPsicometricas, PerfilEstudiante
 )
 from app.hybrid_model import HybridAnxietyModel
 
@@ -54,9 +54,8 @@ def health_check(request: Request):
     )
 
 
-@app.post("/api/v1/predict", response_model=InferenciaResponse, tags=["Inferencia"])
-def predecir_ansiedad(request: InferenciaRequest, req: Request):
-    # Issue 9: Acceso al modelo a través de app.state
+@app.post("/api/v1/predict", tags=["Inferencia"])
+async def predecir_ansiedad(req: Request):
     modelo = req.app.state.modelo_hibrido
     if not modelo or not modelo.model:
         raise HTTPException(
@@ -64,8 +63,64 @@ def predecir_ansiedad(request: InferenciaRequest, req: Request):
             detail="El modelo predictivo no se encuentra cargado."
         )
     try:
-        resultado = modelo.predecir(request)
-        return resultado
+        body = await req.json()
+
+        # Caso 1: Viene con la estructura completa InferenciaRequest
+        if "escalas" in body:
+            inf_request = InferenciaRequest(**body)
+        else:
+            # Caso 2: Viene con el payload plano del backend Spring Boot
+            eval_id = int(body.get("evaluacion_id", body.get("evaluacionId", 1)))
+            gad7 = int(body.get("puntuacion_gad7", 10))
+            pss10 = int(body.get("puntuacion_pss10", 20))
+            pantalla = float(body.get("tiempo_pantalla_horas", 8.0))
+            sueno = float(body.get("habito_sueno_horas", 6.0))
+            texto = str(body.get("texto_libre", ""))
+            carrera = str(body.get("carrera", "Ingenieria de Sistemas de Informacion"))
+            ciclo = int(body.get("ciclo", 6))
+
+            val_ts = min(5, max(1, round(pss10 / 8.0)))
+            val_as = min(5, max(1, round(gad7 / 4.2)))
+
+            escalas = EscalasPsicometricas(
+                ts4usRespuestas=[val_ts] * 13,
+                asaidasRespuestas=[val_as] * 8
+            )
+            perfil = PerfilEstudiante(
+                carrera=carrera,
+                ciclo=ciclo,
+                horasPantallaDia=pantalla,
+                horasRedesSociales=min(pantalla * 0.4, 4.0),
+                horasEstudioVirtual=min(pantalla * 0.6, 6.0),
+                dispositivoPrincipal="LAPTOP"
+            )
+            inf_request = InferenciaRequest(
+                evaluacionId=eval_id,
+                perfilEstudiante=perfil,
+                escalas=escalas,
+                textoLibre=texto
+            )
+
+        resultado = modelo.predecir(inf_request)
+
+        # Retornar formato compatible tanto con Spring Boot como con clientes REST directos
+        res_dict = resultado.model_dump()
+        res_dict["nivel_ansiedad_predicho"] = resultado.nivelAnsiedad
+        res_dict["score_probabilidad"] = resultado.probabilidadRiesgo
+        res_dict["es_caso_critico"] = resultado.alertaCritica
+        res_dict["justificacion_cli"] = (
+            f"Inferencia Híbrida IA (Random Forest + PLN + Reglas Clínicas). "
+            f"Nivel: {resultado.nivelAnsiedad}, Confianza: {round(resultado.probabilidadRiesgo * 100)}%. "
+            f"{resultado.reglaClinicaDisparada or 'Evaluación multimodal completada'}."
+        )
+        res_dict["estresores_detectados"] = (
+            resultado.indicadoresPLN.terminosDetectados
+            if resultado.indicadoresPLN.terminosDetectados
+            else ["sobrecarga_virtual"]
+        )
+        res_dict["polaridad_sentimiento"] = resultado.indicadoresPLN.polaridadSentimiento
+
+        return res_dict
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

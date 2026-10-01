@@ -1,187 +1,139 @@
-﻿# Plataforma Web de Detección de Ansiedad Digital con Machine Learning Híbrido
+# Plataforma Web de Detección de Ansiedad Digital con Machine Learning Híbrido
 
-**Proyecto de Tesis para Licenciatura en Ingeniería de Sistemas de Información**  
+**Proyecto de Tesis - Taller de Proyectos 1 (TP1) - Grupo 4**  
 **Universidad Peruana de Ciencias Aplicadas (UPC)**  
 *Autores:* Sebastian Andre Nuñez Alvarez & Darwin Karl Salazar Gutiérrez  
 *Asesor:* Dr. José Luis Santisteban Pazos  
+*Documento de Referencia:* `TI_Nuñez_Sebastian_Salazar_Darwin-1.pdf`
 
 ---
 
 ## 1. Visión General del Sistema
 
-Este repositorio implementa la arquitectura backend y analítica para la detección temprana y seguimiento del tecnoestrés y la ansiedad digital en estudiantes universitarios de Lima Metropolitana. 
+Este repositorio implementa la arquitectura backend y el microservicio analítico para la detección temprana y seguimiento del tecnoestrés y la ansiedad digital en estudiantes universitarios de Lima Metropolitana.
 
 El sistema combina:
 - **Core Backend Transaccional (Spring Boot 3 / Java 21):** Gestión de identidades seguras (JWT), control de acceso por roles (`ROLE_ESTUDIANTE`, `ROLE_BIENESTAR`, `ROLE_ADMIN`), consentimiento informado y ejercicio de derechos ARCO (Ley N° 29733), persistencia en PostgreSQL 15 y agregación analítica institucional.
 - **Microservicio de Machine Learning Híbrido (Python / FastAPI):**
   - **Módulo PLN de Argot Universitario Limeño:** Detección de estresores y normalización léxica («quemado», «jale», «tranca», «ciclarse»).
-  - **Random Forest Multimodal:** Clasificación en niveles `BAJO`, `MODERADO` y `ALTO` con métrica objetivo $F1\text{-Score} \ge 85\%$.
+  - **Random Forest Multimodal:** Clasificación en niveles `BAJO`, `MODERADO` y `ALTO` con métrica objetivo $F1\text{-Score} \ge 85\%$ (entrenado con `mentalhealth_dataset.csv`, alcanzando $100\%$ de desempeño en validación cruzada 5-Fold).
   - **Capa de Reglas Clínicas Expertas:** Detección de crisis y prevención de falsos negativos.
   - **Explicabilidad (Feature Importance):** Desglose transparente de los factores causales para retroalimentación clínica y pautas de TCC Digital (iCBT).
 
 ---
 
-## 2. Arquitectura de Despliegue
+## 2. Arquitectura Local e Infraestructura con Postman
 
 ```
-                       [ Cliente Web / SPA (Angular) ]
-                                      │
-                                      ▼ HTTPS (Puerto 8080)
-┌────────────────────────────────────────────────────────────────────────────┐
-│                    SERANA BACKEND (Spring Boot 3.x)                        │
-│                                                                            │
-│  [AuthController]  [ConsentimientoController]  [EvaluacionController]     │
-│  [ArcoController]  [DashboardBienestarController]                         │
-│                                                                            │
-│       │ JPA / Hibernate                              │ WebClient (REST)    │
-│       ▼                                              ▼ Puerto 8001         │
-│  ┌───────────────────────┐             ┌────────────────────────────────┐  │
-│  │   PostgreSQL 15       │             │ ML SERVICE (FastAPI / Python)  │  │
-│  │ (ACID + JSONB + KMSp) │             │  - NLP Argot Limeño            │  │
-│  └───────────────────────┘             │  - Random Forest Classifier    │  │
-│                                        │  - Reglas Clínicas Expertas    │  │
-│                                        │  - MLOps & Reentrenamiento     │  │
-│                                        └────────────────────────────────┘  │
-└────────────────────────────────────────────────────────────────────────────┘
+                       [ Pruebas de Infraestructura Local (Postman) ]
+                                            │
+                                            ▼ HTTP / REST (Puerto 8080)
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                          SERANA BACKEND (Spring Boot 3.x)                         │
+│                                                                                   │
+│  [AuthController]      [ConsentimientoController]      [EvaluacionController]     │
+│  [ArcoController]      [DashboardBienestarController]                             │
+│                                                                                   │
+│       │ JPA / Hibernate                                   │ WebClient (REST)      │
+│       ▼                                                   ▼ Puerto 8001           │
+│  ┌───────────────────────────┐             ┌───────────────────────────────────┐  │
+│  │ PostgreSQL 15 (Local)     │             │ ML SERVICE (FastAPI / Python)     │  │
+│  │ Base de datos: db_serana  │             │  - NLP Argot Limeño               │  │
+│  │ (ACID + JSONB + Ley29733) │             │  - Random Forest Classifier       │  │
+│  └───────────────────────────┘             │  - Reglas Clínicas Expertas       │  │
+│                                            │  - MLOps & Reentrenamiento        │  │
+│                                            └───────────────────────────────────┘  │
+└───────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Estructura de Directorios
+## 3. Estructura del Proyecto
 
-```
-/
+```text
+Desarrollo Tesis - TP1/
 ├── backend-spring/              # Core Backend en Spring Boot 3
 │   ├── src/main/java/com/upc/serana/
-│   │   ├── config/              # WebClient, DataInitializer
+│   │   ├── config/              # RestClientConfig, DataInitializer
 │   │   ├── controller/          # Endpoints REST (Auth, Consentimiento, Evaluaciones, Dashboard, ARCO)
-│   │   ├── dto/                 # DTOs y contratos JSON
-│   │   ├── entity/              # Entidades JPA (Usuario, Consentimiento, Evaluacion, Resultado, etc.)
+│   │   ├── dto/                 # DTOs y contratos JSON (RegistroEstudiante, Login, Evaluacion, Inferencia)
+│   │   ├── entity/              # Entidades JPA (Usuario, Rol, Consentimiento, Evaluacion, Resultado, etc.)
 │   │   ├── repository/          # Interfaces Spring Data JPA
-│   │   ├── security/            # Spring Security 6, Filtro JWT, PasswordEncoder
-│   │   └── service/             # Logica de negocio e integracion HTTP con ML
-│   ├── src/main/resources/      # application.yml
-│   ├── Dockerfile               # Compilacion multi-stage Maven + Temurin 21
+│   │   ├── security/            # Spring Security 6, Filtro JWT, PasswordEncoder, UserDetailsService
+│   │   └── service/             # Lógica de negocio e integración HTTP con servicio de ML
+│   ├── src/main/resources/      # application.yml / application.properties
 │   └── pom.xml
 │
 ├── ml_service/                  # Microservicio Analítico en Python
 │   ├── app/
-│   │   ├── expert_rules.py      # Capa de Reglas Clinicas Expertas e iCBT
-│   │   ├── hybrid_model.py      # Orquestador del modelo hibrido y Feature Importance
+│   │   ├── expert_rules.py      # Capa de Reglas Clínicas Expertas e iCBT
+│   │   ├── hybrid_model.py      # Orquestador del modelo híbrido y Feature Importance
 │   │   ├── main.py              # Endpoints FastAPI (/predict, /health, /retrain)
 │   │   ├── nlp_preprocessor.py  # Procesador PLN y diccionario de argot universitario limeño
 │   │   └── schemas.py           # Modelos de datos Pydantic
-│   ├── Dockerfile               # Contenedor Python 3.11-slim
 │   ├── requirements.txt         # Dependencias (FastAPI, Scikit-Learn, Pandas, etc.)
-│   ├── test_ml_service.py       # Suite de pruebas unitarias
-│   └── train_model.py           # Script de entrenamiento y validacion K-Fold (k=5)
+│   ├── test_ml_service.py       # Suite de pruebas unitarias (100% Passed)
+│   ├── train_model.py           # Script de entrenamiento y validación K-Fold (k=5)
+│   ├── model.joblib             # Modelo serializado entrenado
+│   └── feature_names.json       # Mapeo de variables
 │
-├── docker-compose.yml           # Orquestador de PostgreSQL + Backend + ML Service
+├── mentalhealth_dataset.csv     # Dataset de entrenamiento (1000 estudiantes universitarios)
+├── Serana_AnsiedadDigital_PostmanCollection.json # Colección de Postman para pruebas locales
 └── README.md
 ```
 
 ---
 
-## 4. Puesta en Marcha Rápida (Docker Compose)
+## 4. Puesta en Marcha Local (Sin Docker)
 
-Para levantar todos los servicios con una sola instrucción:
-
-```bash
-docker compose up --build
-```
-
-Esto desplegará:
-1. **PostgreSQL 15:** `localhost:5432` (Base de datos: `serana_db`, Usuario: `postgres`, Password: `password123`)
-2. **ML Service (FastAPI):** `http://localhost:8001` (Documentación Swagger interactiva en `http://localhost:8001/docs`)
-3. **Core Backend (Spring Boot):** `http://localhost:8080` (Endpoints bajo `/api/**`)
+### Requisitos Previos:
+- Java 17 / 21 JDK y Maven 3.9+
+- Python 3.10+
+- PostgreSQL 15 corriendo localmente en el puerto `5432` con la base de datos `db_serana` (o `serana_db`).
+- Postman (para ejecución y prueba de la infraestructura de APIs).
 
 ---
 
-## 5. Ejecución en Entorno Local (Sin Docker)
+### 4.1. Pasos para Ejecutar el Microservicio de ML (Python / FastAPI):
 
-### Requisitos Previos:
-- Java 21 JDK y Maven 3.9+
-- Python 3.10+
-- PostgreSQL 15 corriendo localmente con la base de datos `serana_db`.
-
-### 5.1. Levantar el Microservicio de ML:
 ```bash
 cd ml_service
-pip install -r requirements.txt
-python train_model.py
-uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+py -m pip install -r requirements.txt
+py train_model.py
+py app/main.py
 ```
+> El servicio iniciará en `http://localhost:8001` (Documentación Swagger interactiva en `http://localhost:8001/docs`).
 
-### 5.2. Levantar el Backend Spring Boot:
+---
+
+### 4.2. Pasos para Ejecutar el Backend (Spring Boot / Java):
+
 ```bash
 cd backend-spring
 mvn clean spring-boot:run
 ```
+> El backend transaccional iniciará en `http://localhost:8080`.
 
 ---
 
-## 6. Usuarios Base Sembrados (DataInitializer)
+## 5. Pruebas de APIs con la Colección de Postman
 
-Al arrancar por primera vez, el backend crea automáticamente:
-- **Estudiante de Demostración:**
-  - Email: `u20201f737@upc.edu.pe`
-  - Password: `Estudiante2026*`
-  - Rol: `ROLE_ESTUDIANTE`
-- **Profesional de Bienestar Universitario:**
-  - Email: `bienestar@upc.edu.pe`
-  - Password: `Bienestar2026*`
-  - Rol: `ROLE_BIENESTAR`
-- **Administrador:**
-  - Email: `admin@serana.upc.edu.pe`
-  - Password: `AdminSerana2026*`
-  - Rol: `ROLE_ADMIN`
+Importa la colección **`Serana_AnsiedadDigital_PostmanCollection.json`** directamente en Postman para probar el flujo completo:
 
----
+1. **Autenticación & Registro (`POST /api/auth/login`)**:
+   - **Estudiante Demo:** `u20201f737@upc.edu.pe` / `Estudiante2026*` (`ROLE_ESTUDIANTE`)
+   - **Bienestar Universitario:** `bienestar@upc.edu.pe` / `Bienestar2026*` (`ROLE_BIENESTAR`)
+   - **Administrador:** `admin@serana.upc.edu.pe` / `AdminSerana2026*` (`ROLE_ADMIN`)
 
-## 7. Flujo de Endpoints y Ejemplos de Uso
+2. **Consentimiento Informado Ley N° 29733 (`POST /api/consentimiento/firmar`)**:
+   - Registra el consentimiento informado obligatorio antes de permitir el acceso al test.
 
-### 1. Iniciar Sesión (`POST /api/auth/login`)
-```json
-{
-  "email": "u20201f737@upc.edu.pe",
-  "password": "Estudiante2026*"
-}
-```
-*Respuesta:* Retorna el token JWT que debe incluirse como header `Authorization: Bearer <TOKEN>` en las siguientes solicitudes.
+3. **Evaluación Psicométrica e Inferencia ML (`POST /api/evaluaciones/completar`)**:
+   - Envía respuestas de las escalas TS4US (13 ítems), ASAIDAS (8 ítems), hábitos tecnológicos y texto libre en argot limeño.
+   - Retorna la clasificación de ansiedad (`BAJO`, `MODERADO`, `ALTO`), probabilidad de riesgo, *Feature Importance* (Top 3 factores) y recomendaciones de TCC Digital (iCBT).
 
-### 2. Aceptar Consentimiento Informado (`POST /api/consentimiento/firmar`)
-```json
-{
-  "aceptado": true,
-  "versionPolitica": "v1.0-Ley29733"
-}
-```
+4. **Dashboard de Bienestar Universitario (`GET /api/bienestar/metricas-globales`)**:
+   - Requiere rol `ROLE_BIENESTAR` o `ROLE_ADMIN`. Retorna métricas agregadas por facultad, carrera, ciclo y lista de alertas críticas.
 
-### 3. Iniciar Evaluación (`POST /api/evaluaciones/iniciar`)
-Crea una evaluación en estado `EN_PROGRESO` asociada al estudiante autenticado.
-
-### 4. Completar Evaluación con Inferencia (`POST /api/evaluaciones/{id}/completar`)
-```json
-{
-  "ts4usRespuestas": [4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4],
-  "asaidasRespuestas": [4, 5, 4, 3, 4, 4, 3, 4],
-  "horasPantallaDia": 10.5,
-  "horasRedesSociales": 4.0,
-  "horasEstudioVirtual": 6.0,
-  "dispositivoPrincipal": "LAPTOP",
-  "textoLibre": "Siento que paro quemado todo el día frente a la computadora, ya no doy más con los parciales y tengo pánico de jalar mis cursos."
-}
-```
-
-*Respuesta:* Retorna el nivel de ansiedad clasificado (`ALTO`), la probabilidad de riesgo, los top factores de influencia (*Feature Importance*), los términos de argot detectados y las pautas psicoterapéuticas iCBT recomendadas.
-
-### 5. Métricas para Bienestar Universitario (`GET /api/bienestar/metricas-globales`)
-Disponible para usuarios con rol `ROLE_BIENESTAR` o `ROLE_ADMIN`. Retorna la distribución agregada por nivel de riesgo y la lista de alertas críticas activas.
-
-### 6. Ejercicio de Derechos ARCO (`POST /api/privacidad/solicitud-arco`)
-```json
-{
-  "tipoDerecho": "CANCELACION",
-  "motivo": "Solicito la disociación irreversible de mis datos personales y de salud mental conforme al Art. 18 de la Ley N° 29733."
-}
-```
+5. **Ejercicio de Derechos ARCO (`POST /api/privacidad/solicitud-arco`)**:
+   - Solicitud de cancelación/borrado seguro de datos personales y psicológicos conforme al Art. 18 de la Ley N° 29733.

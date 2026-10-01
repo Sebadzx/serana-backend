@@ -9,10 +9,10 @@
         <version>3.2.3</version>
         <relativePath/>
     </parent>
-    <groupId>com.upc</groupId>
-    <artifactId>serana-backend</artifactId>
+    <groupId>com.arquiweb.grupo4</groupId>
+    <artifactId>serana</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>serana-backend</name>
+    <name>serana</name>
     <description>Core Backend para la Plataforma de Deteccion de Ansiedad Digital con ML Hibrido</description>
 
     <properties>
@@ -70,18 +70,11 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- H2 Database - solo para pruebas unitarias (Issue 10: movido de runtime a test) -->
+        <!-- H2 Database - solo para pruebas unitarias -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <!-- Test Starter -->
@@ -102,14 +95,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
             </plugin>
         </plugins>
     </build>
