@@ -3,7 +3,7 @@ import time
 import json
 import numpy as np
 import joblib
-from typing import Dict, List, Any
+from typing import Dict, List
 
 from app.schemas import InferenciaRequest, InferenciaResponse, IndicadoresPLN, FeatureImportanceItem
 from app.nlp_preprocessor import NLPPreprocessor
@@ -41,78 +41,87 @@ DESCRIPCION_FACTORES = {
     "Habito_HorasPantallaDia": "Exposicion diaria prolongada frente a pantallas",
     "Habito_HorasRedesSociales": "Alto tiempo de uso en redes sociales no academicas",
     "Habito_HorasEstudioVirtual": "Jornada excesiva de estudio virtual sin pausas",
+    "Habito_SuenoHoras": "Horas de sueno y descanso nocturno",
     "Habito_DispositivoPrincipal": "Tipo de dispositivo tecnologico predominante",
-    "PLN_PolaridadSentimiento": "Tono emocional negativo en el discurso del estudiante",
-    "PLN_ScorePonderadoEstres": "Presencia recurrente de terminos de estres/tecnoestres",
-    "PLN_DensidadEstres": "Concentracion de modismos y quejas de agotamiento limeño"
+    "PLN_PolaridadSentimiento": "Tono emocional en el discurso del estudiante",
+    "PLN_ScorePonderadoEstres": "Presencia de terminos de estres/tecnoestres",
+    "PLN_DensidadEstres": "Concentracion de expresiones de agotamiento en el texto"
 }
+
 
 class HybridAnxietyModel:
     """
-    Nucleo del modelo hibrido:
-    - Random Forest (Bagging de arboles de decision)
-    - Procesamiento de Lenguaje Natural para el discurso libre
-    - Motor de Reglas Clinicas Expertas
+    Núcleo del modelo híbrido de orientación preventiva:
+    - Random Forest (29 variables: 13 TS4US + 8 ASAIDAS + 5 Hábitos + 3 PLN)
+    - Procesamiento de Lenguaje Natural con normalización de tildes y manejo de negaciones
+    - Motor de Reglas Clínicas Expertas registrado separadamente de las probabilidades del RF
     """
 
     def __init__(self):
         self.nlp = NLPPreprocessor()
         self.rules = ExpertRulesEngine()
         self.model = None
-        self.feature_names = []
+        self.feature_names: List[str] = []
         self._cargar_o_entrenar()
 
     def _cargar_o_entrenar(self):
-        if not os.path.exists(MODEL_FILE):
-            print("Artefacto model.joblib no encontrado. Entrenando modelo inicial...")
-            from train_model import entrenar_y_evaluar_modelo
-            entrenar_y_evaluar_modelo()
-            
-        self.model = joblib.load(MODEL_FILE)
         if os.path.exists(FEATURE_NAMES_FILE):
             with open(FEATURE_NAMES_FILE, "r", encoding="utf-8") as f:
                 self.feature_names = json.load(f)
+
+        if not os.path.exists(MODEL_FILE) or len(self.feature_names) != 29:
+            print("Entrenando modelo Random Forest con 29 variables y desenlace STAI-Estado...")
+            from train_model import entrenar_y_evaluar_modelo
+            entrenar_y_evaluar_modelo()
+            with open(FEATURE_NAMES_FILE, "r", encoding="utf-8") as f:
+                self.feature_names = json.load(f)
+
+        self.model = joblib.load(MODEL_FILE)
         print("Modelo Random Forest cargado exitosamente.")
 
     def predecir(self, request: InferenciaRequest) -> InferenciaResponse:
         t0 = time.time()
-        
-        # 1. Analisis de PLN sobre el texto libre emocional
+
+        # 1. Análisis de PLN sobre el texto libre emocional
         indicadores_pln_dict = self.nlp.analizar_discurso(request.textoLibre or "")
         vector_pln = self.nlp.extraer_vector_pln(request.textoLibre or "")
-        
-        # 2. Construccion del vector multimodal denso (28 caracteristicas)
+
+        # 2. Construcción del vector multimodal real (29 características)
         disp_num = DISPOSITIVO_MAP.get(
             request.perfilEstudiante.dispositivoPrincipal.upper(),
-            2.0 # Default LAPTOP
+            2.0
         )
-        
+
         vector_habitos = [
             request.perfilEstudiante.horasPantallaDia,
             request.perfilEstudiante.horasRedesSociales,
             request.perfilEstudiante.horasEstudioVirtual,
+            request.perfilEstudiante.habitoSuenoHoras,
             disp_num
         ]
-        
+
         vector_completo = (
-            request.escalas.ts4usRespuestas +
-            request.escalas.asaidasRespuestas +
-            vector_habitos +
-            vector_pln
+            request.escalas.ts4usRespuestas
+            + request.escalas.asaidasRespuestas
+            + vector_habitos
+            + vector_pln
         )
-        
-        X_eval = np.array([vector_completo])
-        
-        # 3. Prediccion probabilistica con Random Forest
+
+        X_eval = np.array([vector_completo], dtype=float)
+
+        # 3. Predicción probabilística pura con Random Forest
         probabilidades = self.model.predict_proba(X_eval)[0]
+        probs_por_clase: Dict[str, float] = {
+            CLASES[i]: round(float(probabilidades[i]), 4) for i in range(len(CLASES))
+        }
         clase_idx = int(np.argmax(probabilidades))
         prediccion_rf = CLASES[clase_idx]
-        probabilidad_rf = round(float(probabilidades[clase_idx]), 4)
-        
-        # 4. Evaluacion de la Capa de Reglas Clinicas Expertas
+        probabilidad_rf = probs_por_clase[prediccion_rf]
+
+        # 4. Evaluación separada de la Capa de Reglas Clínicas Expertas
         (
             nivel_final,
-            prob_final,
+            modificado_por_regla,
             alerta_critica,
             regla_disparada,
             recomendaciones_icbt
@@ -120,27 +129,24 @@ class HybridAnxietyModel:
             ts4us_respuestas=request.escalas.ts4usRespuestas,
             asaidas_respuestas=request.escalas.asaidasRespuestas,
             horas_pantalla=request.perfilEstudiante.horasPantallaDia,
+            habito_sueno_horas=request.perfilEstudiante.habitoSuenoHoras,
             dispositivo=request.perfilEstudiante.dispositivoPrincipal,
             indicadores_pln=indicadores_pln_dict,
-            prediccion_rf=prediccion_rf,
-            probabilidad_rf=probabilidad_rf
+            prediccion_rf=prediccion_rf
         )
-        
-        # 5. Calculo de Feature Importance Local (Explicabilidad clinica)
+
+        # 5. Cálculo de Feature Importance Local
         global_importances = self.model.feature_importances_
-        # Ponderar la importancia global por la intensidad de la respuesta del usuario
         local_weights = []
         for i, (nombre, val) in enumerate(zip(self.feature_names, vector_completo)):
-            # Normalizar valor relativo a escala 1-5
             val_norm = val / 5.0 if val <= 5.0 else min(val / 14.0, 1.0)
             impacto = global_importances[i] * max(val_norm, 0.1)
             desc = DESCRIPCION_FACTORES.get(nombre, nombre)
             local_weights.append((desc, impacto))
-            
-        # Ordenar y seleccionar los 4 factores mas determinantes
+
         local_weights.sort(key=lambda item: item[1], reverse=True)
         suma_top = sum(item[1] for item in local_weights[:4]) or 1.0
-        
+
         top_factores = [
             FeatureImportanceItem(
                 factor=item[0],
@@ -148,15 +154,19 @@ class HybridAnxietyModel:
             )
             for item in local_weights[:4]
         ]
-        
+
         tiempo_ms = round((time.time() - t0) * 1000, 2)
-        
+
         return InferenciaResponse(
             evaluacionId=request.evaluacionId,
             nivelAnsiedad=nivel_final,
-            probabilidadRiesgo=round(prob_final, 3),
-            alertaCritica=alerta_critica,
+            prediccionRandomForest=prediccion_rf,
+            probabilidadesRandomForest=probs_por_clase,
+            probabilidadPrediccionRF=probabilidad_rf,
+            modificadoPorRegla=modificado_por_regla,
             reglaClinicaDisparada=regla_disparada,
+            alertaCritica=alerta_critica,
+            probabilidadRiesgo=probabilidad_rf,
             indicadoresPLN=IndicadoresPLN(**indicadores_pln_dict),
             featureImportance=top_factores,
             recomendacionesICBT=recomendaciones_icbt,

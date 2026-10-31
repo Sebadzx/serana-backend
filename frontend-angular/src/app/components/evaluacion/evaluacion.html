@@ -25,7 +25,7 @@
 
       <div class="step-item" [class.active]="pasoActual === 4">
         <div class="step-circle">4</div>
-        <span class="step-label">Diagnóstico IA</span>
+        <span class="step-label">Orientación IA</span>
       </div>
     </div>
 
@@ -45,39 +45,39 @@
       </div>
     </div>
 
-    <!-- PASO 1: Cuestionario Psicométrico (US-04 & US-06) -->
+    <!-- PASO 1: Cuestionario Psicométrico Completo (13 TS4US + 8 ASAIDAS) -->
     <div class="eval-card animate-fade-in" *ngIf="pasoActual === 1">
       <div class="card-header">
         <mat-icon class="header-icon">psychology</mat-icon>
         <div>
-          <h2 class="card-title">Paso 1: Cuestionario Psicométrico</h2>
-          <p class="card-subtitle">Escalas validadas de Tecnoestrés (TS4US) y Ansiedad por IA (ASAIDAS)</p>
+          <h2 class="card-title">Paso 1: Cuestionario Psicométrico ({{ cantidadRespondidasPaso1 }}/21 respondidas)</h2>
+          <p class="card-subtitle">Escalas completas de Tecnoestrés Universitario (TS4US: 13 ítems) y Ansiedad / Dependencia Digital e IA (ASAIDAS: 8 ítems)</p>
         </div>
       </div>
 
       <p class="likert-legend">
-        Escala: <strong>1: Totalmente en desacuerdo</strong> | <strong>3: Neutral</strong> | <strong>5: Totalmente de acuerdo</strong>
+        Selecciona una opción en cada pregunta — <strong>1: Totalmente en desacuerdo</strong> | <strong>3: Neutral</strong> | <strong>5: Totalmente de acuerdo</strong>
       </p>
 
       <form [formGroup]="formPaso1" (ngSubmit)="guardarPaso1()">
         
-        <h3 class="section-divider">Escala TS4US (Tecnoestrés Universitario)</h3>
+        <h3 class="section-divider">Escala TS4US (Tecnoestrés Universitario — 13 ítems)</h3>
         <div class="question-row" *ngFor="let q of preguntasTS4US; let idx = index">
           <div class="question-text">{{ idx + 1 }}. {{ q.texto }}</div>
           <div class="options-container">
             <label class="radio-label" *ngFor="let val of [1, 2, 3, 4, 5]">
-              <input type="radio" [formControlName]="'p' + (idx + 1)" [value]="val">
+              <input type="radio" [formControlName]="q.control" [value]="val">
               <span>{{ val }}</span>
             </label>
           </div>
         </div>
 
-        <h3 class="section-divider" style="margin-top: 28px;">Escala ASAIDAS (Ansiedad e Inteligencia Artificial)</h3>
+        <h3 class="section-divider" style="margin-top: 28px;">Escala ASAIDAS (Ansiedad e Inteligencia Artificial — 8 ítems)</h3>
         <div class="question-row" *ngFor="let q of preguntasASAIDAS; let idx = index">
-          <div class="question-text">{{ idx + 6 }}. {{ q.texto }}</div>
+          <div class="question-text">{{ idx + 14 }}. {{ q.texto }}</div>
           <div class="options-container">
             <label class="radio-label" *ngFor="let val of [1, 2, 3, 4, 5]">
-              <input type="radio" [formControlName]="'p' + (idx + 6)" [value]="val">
+              <input type="radio" [formControlName]="q.control" [value]="val">
               <span>{{ val }}</span>
             </label>
           </div>
@@ -88,20 +88,20 @@
             <mat-icon>bookmark_border</mat-icon> Guardar y salir (US-06)
           </button>
           <button mat-raised-button color="primary" class="btn-primary" type="submit" [disabled]="formPaso1.invalid || cargando">
-            {{ cargando ? 'Guardando progreso...' : 'Guardar y Continuar a Hábitos Digitales' }}
+            {{ cargando ? 'Guardando respuestas...' : 'Guardar y Continuar a Hábitos Digitales' }}
             <mat-icon>arrow_forward</mat-icon>
           </button>
         </div>
       </form>
     </div>
 
-    <!-- PASO 2: Hábitos Digitales (US-05 & US-06) -->
+    <!-- PASO 2: Hábitos Digitales Completos (US-05 & US-06) -->
     <div class="eval-card animate-fade-in" *ngIf="pasoActual === 2">
       <div class="card-header">
         <mat-icon class="header-icon">devices</mat-icon>
         <div>
-          <h2 class="card-title">Paso 2: Hábitos de Uso Digital</h2>
-          <p class="card-subtitle">Evaluación de exposición frente a pantallas y descanso (US-05)</p>
+          <h2 class="card-title">Paso 2: Hábitos de Uso Digital y Descanso</h2>
+          <p class="card-subtitle">Registro real de exposición frente a pantallas, estudio virtual, redes sociales, dispositivo y sueño (US-05)</p>
         </div>
       </div>
 
@@ -110,7 +110,7 @@
         <div class="habit-field-box">
           <label class="habit-label">
             <mat-icon>screen_search_desktop</mat-icon>
-            <span>Horas diarias promedio frente a pantallas (Laptop, Celular, Tablet):</span>
+            <span>Horas diarias totales frente a pantallas:</span>
           </label>
           <div class="slider-val-display">
             <strong>{{ formPaso2.get('tiempoPantallaHoras')?.value }}</strong> horas / día
@@ -118,7 +118,29 @@
           <input type="range" formControlName="tiempoPantallaHoras" min="1" max="18" step="0.5" class="custom-range-slider">
         </div>
 
-        <div class="habit-field-box" style="margin-top: 24px;">
+        <div class="habit-field-box" style="margin-top: 20px;">
+          <label class="habit-label">
+            <mat-icon>school</mat-icon>
+            <span>Horas diarias dedicadas a estudio virtual / plataformas académicas:</span>
+          </label>
+          <div class="slider-val-display">
+            <strong>{{ formPaso2.get('horasEstudioVirtual')?.value }}</strong> horas / día
+          </div>
+          <input type="range" formControlName="horasEstudioVirtual" min="0" max="14" step="0.5" class="custom-range-slider">
+        </div>
+
+        <div class="habit-field-box" style="margin-top: 20px;">
+          <label class="habit-label">
+            <mat-icon>share</mat-icon>
+            <span>Horas diarias en redes sociales y ocio digital:</span>
+          </label>
+          <div class="slider-val-display">
+            <strong>{{ formPaso2.get('horasRedesSociales')?.value }}</strong> horas / día
+          </div>
+          <input type="range" formControlName="horasRedesSociales" min="0" max="14" step="0.5" class="custom-range-slider">
+        </div>
+
+        <div class="habit-field-box" style="margin-top: 20px;">
           <label class="habit-label">
             <mat-icon>bedtime</mat-icon>
             <span>Horas promedio de sueño y descanso nocturno:</span>
@@ -127,6 +149,19 @@
             <strong>{{ formPaso2.get('habitoSuenoHoras')?.value }}</strong> horas / noche
           </div>
           <input type="range" formControlName="habitoSuenoHoras" min="3" max="12" step="0.5" class="custom-range-slider">
+        </div>
+
+        <div class="habit-field-box" style="margin-top: 20px;">
+          <label class="habit-label">
+            <mat-icon>computer</mat-icon>
+            <span>Dispositivo tecnológico principal de uso diario:</span>
+          </label>
+          <select formControlName="dispositivoPrincipal" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
+            <option value="LAPTOP">Laptop / Portátil</option>
+            <option value="SMARTPHONE">Smartphone / Teléfono Móvil</option>
+            <option value="DESKTOP">Computadora de Escritorio (PC)</option>
+            <option value="TABLET">Tablet / iPad</option>
+          </select>
         </div>
 
         <div class="action-footer">
@@ -147,7 +182,7 @@
         <mat-icon class="header-icon">sentiment_dissatisfied</mat-icon>
         <div>
           <h2 class="card-title">Paso 3: Expresión Emocional Libre</h2>
-          <p class="card-subtitle">El procesador de Lenguaje Natural (NLP) analizará estresores y tono afectivo (US-07)</p>
+          <p class="card-subtitle">El módulo de Procesamiento de Lenguaje Natural (PLN) analizará términos del diccionario y polaridad afectiva considerando tildes y negaciones (US-07)</p>
         </div>
       </div>
 
@@ -155,13 +190,13 @@
         
         <div class="textarea-box">
           <label class="textarea-label">
-            Cuéntanos con tus propias palabras cómo te has sentido en estos últimos días con tus cursos, tareas virtuales, exámenes o el uso continuo de la computadora:
+            Cuéntanos con tus propias palabras cómo te has sentido en estos últimos días con tus cursos, tareas virtuales, exámenes o el uso continuo de pantallas:
           </label>
           <textarea 
             formControlName="textoLibre" 
             rows="5" 
             class="custom-textarea"
-            placeholder="Ejemplo: Paro recontra quemado frente a la pantalla todo el día, no doy más con los parciales y tengo miedo de jalar mis cursos por estar tan saturado..."></textarea>
+            placeholder="Describe aquí tu experiencia reciente con las clases virtuales, entregas y descanso..."></textarea>
           <div class="char-counter">
             {{ formPaso3.get('textoLibre')?.value?.length || 0 }} caracteres ingresados
           </div>
@@ -173,37 +208,59 @@
           </button>
           <button mat-raised-button color="accent" class="btn-primary btn-ia-trigger" type="submit" [disabled]="formPaso3.invalid || cargando">
             <mat-icon>smart_toy</mat-icon>
-            {{ cargando ? 'Ejecutando Modelo Random Forest & NLP...' : 'Finalizar y Procesar con Inteligencia Artificial' }}
+            {{ cargando ? 'Ejecutando Modelo Random Forest & PLN...' : 'Finalizar y Generar Orientación Preventiva' }}
           </button>
         </div>
       </form>
     </div>
 
-    <!-- PASO 4: Resultados y Recomendaciones iCBT (US-10 a US-13) -->
+    <!-- PASO 4: Resultado Experimental de Orientación Preventiva -->
     <div class="eval-card animate-fade-in result-card" *ngIf="pasoActual === 4 && resultadoFinal">
       
-      <!-- Banner de Diagnóstico -->
+      <!-- Banner de Orientación Experimental (No Diagnóstico) -->
       <div class="result-banner" [ngClass]="resultadoFinal.nivelAnsiedadPredicho.toLowerCase()">
         <div class="banner-top">
-          <span class="badge-eval-id">Evaluación #{{ resultadoFinal.idEvaluacion }}</span>
+          <span class="badge-eval-id">Tamizaje Experimental #{{ resultadoFinal.idEvaluacion }}</span>
           <span class="badge-alerta" *ngIf="resultadoFinal.esCasoCritico">
-            <mat-icon>warning</mat-icon> CASO CRÍTICO DETECTADO
+            <mat-icon>warning</mat-icon> ALERTA PREVENTIVA PRIORITARIA
           </span>
         </div>
         
         <div class="score-display">
-          <h1 class="ansiedad-level">NIVEL DE ANSIEDAD: {{ resultadoFinal.nivelAnsiedadPredicho }}</h1>
-          <p class="probabilidad-text">
-            Confianza del Modelo Predictivo: <strong>{{ (resultadoFinal.scoreProbabilidad * 100) | number:'1.1-1' }}%</strong>
+          <h1 class="ansiedad-level">NIVEL DE ORIENTACIÓN PREVENTIVA: {{ resultadoFinal.nivelAnsiedadPredicho }}</h1>
+          <p class="probabilidad-text" style="font-size: 0.92rem; opacity: 0.95;">
+            <em>Resultado experimental de orientación psicopedagógica (no constituye un diagnóstico clínico).</em>
           </p>
         </div>
       </div>
 
-      <!-- Resumen NLP & Reglas Clínicas -->
+      <!-- Separación explícita: Predicción Random Forest vs. Reglas Clínicas Expertas -->
+      <div class="nlp-summary-box" style="margin-bottom: 14px;">
+        <div class="summary-col">
+          <span class="col-label">Predicción del Modelo Random Forest:</span>
+          <strong class="col-val">
+            Clase RF: {{ resultadoFinal.prediccionRandomForest || resultadoFinal.nivelAnsiedadPredicho }}
+            ({{ (resultadoFinal.scoreProbabilidad * 100) | number:'1.1-1' }}% para {{ resultadoFinal.prediccionRandomForest || resultadoFinal.nivelAnsiedadPredicho }})
+          </strong>
+          <small *ngIf="resultadoFinal.probabilidadesRandomForest" style="display:block; margin-top:4px; color:#475569;">
+            Probabilidades RF — BAJO: {{ ((resultadoFinal.probabilidadesRandomForest['BAJO'] || 0) * 100) | number:'1.0-1' }}% |
+            MODERADO: {{ ((resultadoFinal.probabilidadesRandomForest['MODERADO'] || 0) * 100) | number:'1.0-1' }}% |
+            ALTO: {{ ((resultadoFinal.probabilidadesRandomForest['ALTO'] || 0) * 100) | number:'1.0-1' }}%
+          </small>
+        </div>
+        <div class="summary-col">
+          <span class="col-label">Decisión de Reglas Clínicas Expertas:</span>
+          <strong class="col-val">
+            {{ resultadoFinal.modificadoPorRegla ? ('Modificó categoría a ' + resultadoFinal.nivelAnsiedadPredicho + ' (' + resultadoFinal.reglaClinicaDisparada + ')') : (resultadoFinal.reglaClinicaDisparada ? ('Verificada sin cambio de clase (' + resultadoFinal.reglaClinicaDisparada + ')') : 'Sin modificación por reglas clínicas') }}
+          </strong>
+        </div>
+      </div>
+
+      <!-- Resumen NLP -->
       <div class="nlp-summary-box">
         <div class="summary-col">
-          <span class="col-label">Estresores Detectados (NLP):</span>
-          <strong class="col-val">{{ resultadoFinal.estresoresDetectados || 'Sobrecarga académica y fatiga' }}</strong>
+          <span class="col-label">Términos del Diccionario Detectados (PLN):</span>
+          <strong class="col-val">{{ resultadoFinal.estresoresDetectados || 'No se detectaron términos del diccionario' }}</strong>
         </div>
         <div class="summary-col">
           <span class="col-label">Polaridad Afectiva del Discurso:</span>
@@ -213,23 +270,23 @@
         </div>
       </div>
 
-      <!-- Justificación Clínica de Explicabilidad (XAI - US-12) -->
+      <!-- Detalle Técnico de la Inferencia (US-12) -->
       <div class="justificacion-box">
-        <h4><mat-icon>info</mat-icon> Justificación Clínica Algorítmica:</h4>
+        <h4><mat-icon>info</mat-icon> Detalle del Resultado Experimental de Orientación:</h4>
         <p>{{ resultadoFinal.justificacionCli }}</p>
       </div>
 
-      <!-- Plan de Intervención Digital (Módulos iCBT - US-13) -->
+      <!-- Pautas de Orientación Preventiva (Módulos iCBT - US-13) -->
       <div class="icbt-modules-container">
         <h3 class="icbt-title">
           <mat-icon>health_and_safety</mat-icon> 
-          Plan de Intervención Terapéutica Digital (TCC / iCBT):
+          Pautas de Orientación Preventiva y Bienestar Digital (TCC / iCBT):
         </h3>
 
         <div class="module-card" *ngFor="let rec of resultadoFinal.recomendacionesICBT">
           <div class="module-header">
             <span class="module-tag">{{ rec.moduloICBT }}</span>
-            <span class="module-status">Módulo Recomendado</span>
+            <span class="module-status">Pauta Sugerida</span>
           </div>
           <h4 class="module-title">{{ rec.titulo }}</h4>
           <p class="module-desc">{{ rec.descripcion }}</p>
@@ -252,7 +309,7 @@
 
   <!-- Footer -->
   <footer class="eval-footer">
-    <p>SERANA © 2026 - Plataforma de IA para la Detección de Ansiedad Digital (TP1 / Grupo 4).</p>
+    <p>SERANA © 2026 - Plataforma Experimental de Orientación Preventiva para Ansiedad Digital (TP1 / Grupo 4).</p>
   </footer>
 
 </div>

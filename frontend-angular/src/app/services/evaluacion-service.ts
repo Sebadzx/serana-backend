@@ -14,6 +14,10 @@ export interface EvaluacionResponseDTO {
   idEvaluacion: number;
   fechaEvaluacion: string;
   nivelAnsiedadPredicho: string;
+  prediccionRandomForest?: string;
+  probabilidadesRandomForest?: { [key: string]: number };
+  modificadoPorRegla?: boolean;
+  reglaClinicaDisparada?: string | null;
   scoreProbabilidad: number;
   esCasoCritico: boolean;
   justificacionCli: string;
@@ -31,20 +35,32 @@ export class EvaluacionService {
   constructor(private http: HttpClient) {}
 
   paso1Psicometrico(datos: {
-    nivelEstres: number;
-    nivelAnsiedad: number;
-    puntuacionGad7: number;
-    puntuacionPss10: number;
-  }): Observable<{ evaluacionId: number; estado: string; mensaje: string; siguientePaso: string }> {
-    return this.http.post<{ evaluacionId: number; estado: string; mensaje: string; siguientePaso: string }>(
-      `${this.apiUrl}/paso1-psicometrico`,
-      datos
-    );
+    ts4usRespuestas: number[];
+    asaidasRespuestas: number[];
+  }): Observable<{
+    evaluacionId: number;
+    estado: string;
+    puntajeTs4usTotal: number;
+    puntajeAsaidasTotal: number;
+    mensaje: string;
+    siguientePaso: string;
+  }> {
+    return this.http.post<{
+      evaluacionId: number;
+      estado: string;
+      puntajeTs4usTotal: number;
+      puntajeAsaidasTotal: number;
+      mensaje: string;
+      siguientePaso: string;
+    }>(`${this.apiUrl}/paso1-psicometrico`, datos);
   }
 
   paso2Habitos(evaluacionId: number, datos: {
     habitoSuenoHoras: number;
     tiempoPantallaHoras: number;
+    horasRedesSociales: number;
+    horasEstudioVirtual: number;
+    dispositivoPrincipal: string;
   }): Observable<any> {
     return this.http.put<any>(
       `${this.apiUrl}/${evaluacionId}/paso2-habitos`,

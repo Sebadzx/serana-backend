@@ -11,35 +11,44 @@ import { EvaluacionService, EvaluacionResponseDTO } from '../../services/evaluac
   styleUrl: './evaluacion.css'
 })
 export class EvaluacionComponent implements OnInit {
-  pasoActual: number = 1; // 1: Psicométrico, 2: Hábitos, 3: Texto Libre, 4: Resultado
+  pasoActual: number = 1; // 1: Psicométrico, 2: Hábitos, 3: Texto Libre, 4: Resultado de Orientación
   cargando: boolean = false;
   evaluacionId: number | null = null;
   resultadoFinal: EvaluacionResponseDTO | null = null;
 
-  // Formulario Paso 1: Psicométrico
   formPaso1!: FormGroup;
-  // Formulario Paso 2: Hábitos
   formPaso2!: FormGroup;
-  // Formulario Paso 3: Texto Libre
   formPaso3!: FormGroup;
 
-  // Reactivos TS4US (Escala de Tecnoestrés Universitario)
+  // 13 Reactivos completos de la Escala TS4US (Tecnoestrés Universitario)
   preguntasTS4US = [
-    { id: 1, texto: 'Siento que las plataformas y herramientas virtuales de la universidad saturan mi día a día.' },
-    { id: 2, texto: 'Las notificaciones y entregas virtuales interrumpen constantemente mi tiempo de descanso personal.' },
-    { id: 3, texto: 'Experimento fatiga visual o cansancio físico excesivo tras largas jornadas de estudio virtual.' },
-    { id: 4, texto: 'Siento la presión o necesidad de responder mensajes académicos de forma inmediata.' },
-    { id: 5, texto: 'Me cuesta concentrarme debido a la multitarea constante entre pestañas y aplicaciones.' }
+    { id: 1, control: 'ts4us_1', texto: 'Siento sobrecarga de información digital y tareas virtuales en mis cursos.' },
+    { id: 2, control: 'ts4us_2', texto: 'Las demandas digitales de la universidad invaden mi tiempo personal y de descanso.' },
+    { id: 3, control: 'ts4us_3', texto: 'La complejidad de las plataformas virtuales me genera dificultad o desgaste.' },
+    { id: 4, control: 'ts4us_4', texto: 'Siento inseguridad o estrés ante posibles fallas técnicas durante mis actividades académicas.' },
+    { id: 5, control: 'ts4us_5', texto: 'Los cambios constantes en herramientas digitales me producen incertidumbre.' },
+    { id: 6, control: 'ts4us_6', texto: 'Experimento fatiga visual o agotamiento físico tras estudiar frente a pantallas.' },
+    { id: 7, control: 'ts4us_7', texto: 'Siento presión constante por responder mensajes y notificaciones académicas de inmediato.' },
+    { id: 8, control: 'ts4us_8', texto: 'Me cuesta concentrarme debido a la multitarea continua entre varias pestañas y aplicaciones.' },
+    { id: 9, control: 'ts4us_9', texto: 'Me preocupa quedar desactualizado frente a las nuevas herramientas tecnológicas exigidas.' },
+    { id: 10, control: 'ts4us_10', texto: 'Siento una dependencia excesiva de las plataformas virtuales para poder avanzar en mis estudios.' },
+    { id: 11, control: 'ts4us_11', texto: 'El volumen continuo de entregas virtuales me hace sentir saturado.' },
+    { id: 12, control: 'ts4us_12', texto: 'Siento temor o intranquilidad de perder avisos importantes si me desconecto.' },
+    { id: 13, control: 'ts4us_13', texto: 'Siento que pierdo el control sobre el tiempo que paso conectado a dispositivos digitales.' }
   ];
 
-  // Reactivos ASAIDAS (Ansiedad e Inteligencia Artificial en Estudiantes)
+  // 8 Reactivos completos de la Escala ASAIDAS (Ansiedad y Dependencia a la IA / Entorno Digital)
   preguntasASAIDAS = [
-    { id: 1, texto: 'Siento la necesidad compulsiva de consultar herramientas de IA para realizar mis tareas.' },
-    { id: 2, texto: 'Experimento ansiedad o inseguridad cuando debo rendir evaluaciones presenciales sin soporte tecnológico.' },
-    { id: 3, texto: 'Temo que depender demasiado de herramientas digitales reduzca mi capacidad autónoma de análisis.' }
+    { id: 1, control: 'asaidas_1', texto: 'Siento la necesidad frecuente de consultar herramientas de Inteligencia Artificial para mis tareas.' },
+    { id: 2, control: 'asaidas_2', texto: 'Experimento ansiedad o inseguridad cuando rindo evaluaciones presenciales sin apoyo tecnológico.' },
+    { id: 3, control: 'asaidas_3', texto: 'Delego gran parte del análisis de mis trabajos en herramientas generativas digitales.' },
+    { id: 4, control: 'asaidas_4', texto: 'Me genera temor que las respuestas o herramientas de IA contengan errores que afecten mis notas.' },
+    { id: 5, control: 'asaidas_5', texto: 'Siento que el uso constante de asistentes digitales reduce mi autonomía de razonamiento crítico.' },
+    { id: 6, control: 'asaidas_6', texto: 'Dudo de mi propia capacidad académica cuando no dispongo de herramientas digitales de consulta.' },
+    { id: 7, control: 'asaidas_7', texto: 'Las notificaciones constantes de plataformas y grupos académicos me generan saturación emocional.' },
+    { id: 8, control: 'asaidas_8', texto: 'Me afecta compararme en entornos digitales con el avance o desempeño de otros compañeros.' }
   ];
 
-  // US-06: Guardar y retomar progreso
   progresoRecuperado: boolean = false;
   fechaProgreso: string = '';
 
@@ -51,28 +60,35 @@ export class EvaluacionComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.formPaso1 = this.fb.group({
-      p1: [3, Validators.required],
-      p2: [3, Validators.required],
-      p3: [3, Validators.required],
-      p4: [3, Validators.required],
-      p5: [3, Validators.required],
-      p6: [3, Validators.required],
-      p7: [3, Validators.required],
-      p8: [3, Validators.required]
-    });
+    // Punto 1: Todas las opciones inician en null (sin preselección en 3), obligando al estudiante a responder cada ítem (1 a 5)
+    const controlesPaso1: { [key: string]: any } = {};
+    for (let i = 1; i <= 13; i++) {
+      controlesPaso1[`ts4us_${i}`] = [null, [Validators.required, Validators.min(1), Validators.max(5)]];
+    }
+    for (let j = 1; j <= 8; j++) {
+      controlesPaso1[`asaidas_${j}`] = [null, [Validators.required, Validators.min(1), Validators.max(5)]];
+    }
+    this.formPaso1 = this.fb.group(controlesPaso1);
 
     this.formPaso2 = this.fb.group({
-      tiempoPantallaHoras: [8.5, [Validators.required, Validators.min(1), Validators.max(20)]],
-      habitoSuenoHoras: [6.0, [Validators.required, Validators.min(2), Validators.max(14)]]
+      tiempoPantallaHoras: [8.0, [Validators.required, Validators.min(1), Validators.max(20)]],
+      horasRedesSociales: [3.0, [Validators.required, Validators.min(0), Validators.max(16)]],
+      horasEstudioVirtual: [5.0, [Validators.required, Validators.min(0), Validators.max(16)]],
+      habitoSuenoHoras: [6.5, [Validators.required, Validators.min(2), Validators.max(14)]],
+      dispositivoPrincipal: ['LAPTOP', [Validators.required]]
     });
 
     this.formPaso3 = this.fb.group({
       textoLibre: ['', [Validators.required, Validators.minLength(10)]]
     });
 
-    // US-06: Verificar si hay progreso previo guardado para retomar
     this.verificarProgresoGuardado();
+  }
+
+  get cantidadRespondidasPaso1(): number {
+    if (!this.formPaso1) return 0;
+    const vals = this.formPaso1.value;
+    return Object.keys(vals).filter(k => vals[k] !== null && vals[k] >= 1 && vals[k] <= 5).length;
   }
 
   verificarProgresoGuardado(): void {
@@ -122,21 +138,27 @@ export class EvaluacionComponent implements OnInit {
     this.snackBar.open('Progreso descartado. Comenzando nueva evaluación desde el inicio.', 'Aceptar', { duration: 2500 });
   }
 
-  // PASO 1 -> PASO 2
+  // PASO 1 -> PASO 2: Enviar las 13 respuestas reales de TS4US y 8 de ASAIDAS sin conversiones simuladas
   guardarPaso1(): void {
-    if (this.formPaso1.invalid) return;
+    if (this.formPaso1.invalid) {
+      this.snackBar.open('Por favor, responde las 21 preguntas antes de continuar.', 'Aceptar', { duration: 3000 });
+      return;
+    }
 
     this.cargando = true;
     const v = this.formPaso1.value;
-    // Calcular puntajes simulados de escalas
-    const puntajeGad = Number(v.p1) + Number(v.p2) + Number(v.p3) + Number(v.p4) + 4;
-    const puntajePss = Number(v.p5) + Number(v.p6) + Number(v.p7) + Number(v.p8) + 8;
+    const ts4usRespuestas: number[] = [];
+    for (let i = 1; i <= 13; i++) {
+      ts4usRespuestas.push(Number(v[`ts4us_${i}`]));
+    }
+    const asaidasRespuestas: number[] = [];
+    for (let j = 1; j <= 8; j++) {
+      asaidasRespuestas.push(Number(v[`asaidas_${j}`]));
+    }
 
     const bodyPaso1 = {
-      nivelEstres: Math.round(puntajePss / 2),
-      nivelAnsiedad: Math.round(puntajeGad / 2),
-      puntuacionGad7: puntajeGad,
-      puntuacionPss10: puntajePss
+      ts4usRespuestas,
+      asaidasRespuestas
     };
 
     this.evaluacionService.paso1Psicometrico(bodyPaso1).subscribe({
@@ -144,8 +166,8 @@ export class EvaluacionComponent implements OnInit {
         this.cargando = false;
         this.evaluacionId = res.evaluacionId;
         this.pasoActual = 2;
-        this.guardarProgresoLocal(); // US-06
-        this.snackBar.open('Cuestionario psicométrico guardado (US-04 y US-06). Paso 2 habilitado.', 'Aceptar', { duration: 2500 });
+        this.guardarProgresoLocal();
+        this.snackBar.open('Respuestas psicométricas reales guardadas (TS4US y ASAIDAS). Paso 2 habilitado.', 'Aceptar', { duration: 2500 });
       },
       error: (err) => {
         this.cargando = false;
@@ -156,22 +178,25 @@ export class EvaluacionComponent implements OnInit {
     });
   }
 
-  // PASO 2 -> PASO 3
+  // PASO 2 -> PASO 3: Enviar los 5 hábitos reales
   guardarPaso2(): void {
     if (this.formPaso2.invalid || !this.evaluacionId) return;
 
     this.cargando = true;
     const bodyPaso2 = {
       tiempoPantallaHoras: Number(this.formPaso2.get('tiempoPantallaHoras')?.value),
-      habitoSuenoHoras: Number(this.formPaso2.get('habitoSuenoHoras')?.value)
+      horasRedesSociales: Number(this.formPaso2.get('horasRedesSociales')?.value),
+      horasEstudioVirtual: Number(this.formPaso2.get('horasEstudioVirtual')?.value),
+      habitoSuenoHoras: Number(this.formPaso2.get('habitoSuenoHoras')?.value),
+      dispositivoPrincipal: String(this.formPaso2.get('dispositivoPrincipal')?.value || 'LAPTOP')
     };
 
     this.evaluacionService.paso2Habitos(this.evaluacionId, bodyPaso2).subscribe({
       next: () => {
         this.cargando = false;
         this.pasoActual = 3;
-        this.guardarProgresoLocal(); // US-06
-        this.snackBar.open('Hábitos de uso digital registrados (US-05 y US-06). Paso final habilitado.', 'Aceptar', { duration: 2500 });
+        this.guardarProgresoLocal();
+        this.snackBar.open('Hábitos digitales y horas de sueño registrados. Paso final habilitado.', 'Aceptar', { duration: 2500 });
       },
       error: (err) => {
         this.cargando = false;
@@ -182,7 +207,7 @@ export class EvaluacionComponent implements OnInit {
     });
   }
 
-  // PASO 3 -> RESULTADOS (IA ML Híbrido)
+  // PASO 3 -> RESULTADO EXPERIMENTAL DE ORIENTACIÓN
   finalizarEvaluacion(): void {
     if (this.formPaso3.invalid || !this.evaluacionId) return;
 
@@ -196,9 +221,9 @@ export class EvaluacionComponent implements OnInit {
         this.cargando = false;
         this.resultadoFinal = res;
         this.pasoActual = 4;
-        localStorage.removeItem('serana_evaluacion_progreso'); // US-06 completado
+        localStorage.removeItem('serana_evaluacion_progreso');
         this.progresoRecuperado = false;
-        this.snackBar.open('¡Evaluación finalizada y procesada por Inteligencia Artificial!', 'Aceptar', { duration: 3500 });
+        this.snackBar.open('Evaluación finalizada. Se generó tu orientación preventiva.', 'Aceptar', { duration: 3500 });
       },
       error: (err) => {
         this.cargando = false;
@@ -219,8 +244,17 @@ export class EvaluacionComponent implements OnInit {
     this.resultadoFinal = null;
     this.progresoRecuperado = false;
     localStorage.removeItem('serana_evaluacion_progreso');
-    this.formPaso1.reset({ p1: 3, p2: 3, p3: 3, p4: 3, p5: 3, p6: 3, p7: 3, p8: 3 });
-    this.formPaso2.reset({ tiempoPantallaHoras: 8.5, habitoSuenoHoras: 6.0 });
+    const resetPaso1: { [key: string]: any } = {};
+    for (let i = 1; i <= 13; i++) resetPaso1[`ts4us_${i}`] = null;
+    for (let j = 1; j <= 8; j++) resetPaso1[`asaidas_${j}`] = null;
+    this.formPaso1.reset(resetPaso1);
+    this.formPaso2.reset({
+      tiempoPantallaHoras: 8.0,
+      horasRedesSociales: 3.0,
+      horasEstudioVirtual: 5.0,
+      habitoSuenoHoras: 6.5,
+      dispositivoPrincipal: 'LAPTOP'
+    });
     this.formPaso3.reset({ textoLibre: '' });
   }
 }

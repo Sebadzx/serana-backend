@@ -84,13 +84,16 @@
 
           <!-- Columna Probabilidad -->
           <ng-container matColumnDef="probabilidad">
-            <th mat-header-cell *matHeaderCellDef> Confianza IA </th>
-            <td mat-cell *matCellDef="let ev"> {{ ((ev.scoreProbabilidad || 0) * 100) | number:'1.0-0' }}% </td>
+            <th mat-header-cell *matHeaderCellDef> Probabilidad RF </th>
+            <td mat-cell *matCellDef="let ev">
+              {{ ((ev.scoreProbabilidad || 0) * 100) | number:'1.0-0' }}%
+              <small *ngIf="ev.modificadoPorRegla" style="display:block; font-size:0.72rem; color:#b45309;">(Ajustado por regla)</small>
+            </td>
           </ng-container>
 
           <!-- Columna Alerta Crítica -->
           <ng-container matColumnDef="alerta">
-            <th mat-header-cell *matHeaderCellDef> Caso Crítico </th>
+            <th mat-header-cell *matHeaderCellDef> Alerta Preventiva </th>
             <td mat-cell *matCellDef="let ev">
               <span class="badge-critico" *ngIf="ev.esCasoCritico">
                 <mat-icon>warning</mat-icon> SÍ
@@ -101,8 +104,8 @@
 
           <!-- Columna Estresores -->
           <ng-container matColumnDef="estresores">
-            <th mat-header-cell *matHeaderCellDef> Estresores Detectados </th>
-            <td mat-cell *matCellDef="let ev"> {{ ev.estresoresDetectados || 'Sobrecarga virtual' }} </td>
+            <th mat-header-cell *matHeaderCellDef> Términos Detectados (PLN) </th>
+            <td mat-cell *matCellDef="let ev"> {{ ev.estresoresDetectados || 'No se detectaron términos del diccionario' }} </td>
           </ng-container>
 
           <!-- Columna Acciones / Recomendaciones (US-14) -->
@@ -145,7 +148,7 @@
       </div>
 
       <div class="modal-body-scroll">
-        <!-- Diagnóstico Predictivo (US-11) -->
+        <!-- Orientación Preventiva (US-11) -->
         <div class="diagnostico-banner" [ngClass]="(evaluacionSeleccionada.nivelAnsiedadPredicho || 'bajo').toLowerCase()">
           <div class="diag-icon-box">
             <mat-icon *ngIf="evaluacionSeleccionada.nivelAnsiedadPredicho === 'Alto'">crisis_alert</mat-icon>
@@ -153,24 +156,27 @@
             <mat-icon *ngIf="evaluacionSeleccionada.nivelAnsiedadPredicho === 'Bajo'">check_circle</mat-icon>
           </div>
           <div class="diag-details">
-            <span class="diag-label">Nivel de Ansiedad Digital Clasificado por IA:</span>
+            <span class="diag-label">Resultado Experimental de Orientación Preventiva (Tamizaje no clínico):</span>
             <span class="diag-value">{{ evaluacionSeleccionada.nivelAnsiedadPredicho }}</span>
             <p class="diag-confianza">
-              Confianza del ensamble Random Forest: <strong>{{ ((evaluacionSeleccionada.scoreProbabilidad || 0) * 100) | number:'1.0-1' }}%</strong>
-              <span *ngIf="evaluacionSeleccionada.esCasoCritico" class="alerta-critica-tag">⚠️ Alerta Clínica Temprana</span>
+              Predicción Random Forest: <strong>{{ evaluacionSeleccionada.prediccionRandomForest || evaluacionSeleccionada.nivelAnsiedadPredicho }} ({{ ((evaluacionSeleccionada.scoreProbabilidad || 0) * 100) | number:'1.0-1' }}%)</strong>
+              <span *ngIf="evaluacionSeleccionada.modificadoPorRegla" style="margin-left: 8px; font-weight: 600;">
+                | Modificado por regla: {{ evaluacionSeleccionada.reglaClinicaDisparada }}
+              </span>
+              <span *ngIf="evaluacionSeleccionada.esCasoCritico" class="alerta-critica-tag">⚠️ Alerta Preventiva Prioritaria</span>
             </p>
           </div>
         </div>
 
-        <!-- Factores Determinantes / Feature Importance (US-13 & US-14) -->
+        <!-- Términos Detectados y Detalle de Inferencia (US-13 & US-14) -->
         <div class="seccion-informe">
           <h3 class="seccion-title">
-            <mat-icon class="sec-icon">troubleshoot</mat-icon> Factores de Mayor Influencia Detectados (Feature Importance)
+            <mat-icon class="sec-icon">troubleshoot</mat-icon> Términos del Diccionario Detectados y Detalle del Modelo
           </h3>
           <div class="estresores-box">
-            <p class="estresores-text">{{ evaluacionSeleccionada.estresoresDetectados || 'Sobrecarga de conexión virtual y exposición prolongada a pantallas.' }}</p>
+            <p class="estresores-text"><strong>Términos detectados (PLN):</strong> {{ evaluacionSeleccionada.estresoresDetectados || 'No se detectaron términos del diccionario' }}</p>
             <p class="estresores-justif" *ngIf="evaluacionSeleccionada.justificacionCli">
-              <em>Criterio clínico experto: {{ evaluacionSeleccionada.justificacionCli }}</em>
+              <em>Detalle de inferencia: {{ evaluacionSeleccionada.justificacionCli }}</em>
             </p>
           </div>
         </div>

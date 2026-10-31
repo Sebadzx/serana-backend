@@ -52,7 +52,7 @@
       <button *ngIf="esBienestar" type="button" class="tab-btn" [class.tab-active]="seccionActiva === 'dashboard'" (click)="cambiarPestana('dashboard')">
         <mat-icon>analytics</mat-icon> Monitor Poblacional de Ansiedad (US-15 y US-16)
       </button>
-      <button type="button" class="tab-btn" [class.tab-active]="seccionActiva === 'arco'" (click)="cambiarPestana('arco')">
+      <button *ngIf="esAdmin" type="button" class="tab-btn" [class.tab-active]="seccionActiva === 'arco'" (click)="cambiarPestana('arco')">
         <mat-icon>security</mat-icon> Bandeja de Derechos ARCO - Ley 29733 (US-18)
       </button>
       <button *ngIf="esAdmin" type="button" class="tab-btn" [class.tab-active]="seccionActiva === 'mlops'" (click)="cambiarPestana('mlops')">

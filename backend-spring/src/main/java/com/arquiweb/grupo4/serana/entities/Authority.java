@@ -1,0 +1,62 @@
+package com.arquiweb.grupo4.serana.entities;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "authorities")
+public class Authority {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String name;
+
+    public Authority() {
+    }
+
+    public Authority(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public static AuthorityBuilder builder() {
+        return new AuthorityBuilder();
+    }
+
+    public static class AuthorityBuilder {
+        private Long id;
+        private String name;
+
+        public AuthorityBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public AuthorityBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Authority build() {
+            return new Authority(id, name);
+        }
+    }
+}
