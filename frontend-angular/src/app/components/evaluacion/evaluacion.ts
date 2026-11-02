@@ -11,7 +11,7 @@ import { EvaluacionService, EvaluacionResponseDTO } from '../../services/evaluac
   styleUrl: './evaluacion.css'
 })
 export class EvaluacionComponent implements OnInit {
-  pasoActual: number = 1; // 1: Psicométrico, 2: Hábitos, 3: Texto Libre, 4: Resultado de Orientación
+  pasoActual: number = 1; // 1: Psicometría (TMD + STAI-Rasgo), 2: Hábitos SocioDemo, 3: Texto Libre, 4: Orientación IA
   cargando: boolean = false;
   evaluacionId: number | null = null;
   resultadoFinal: EvaluacionResponseDTO | null = null;
@@ -20,33 +20,60 @@ export class EvaluacionComponent implements OnInit {
   formPaso2!: FormGroup;
   formPaso3!: FormGroup;
 
-  // 13 Reactivos completos de la Escala TS4US (Tecnoestrés Universitario)
-  preguntasTS4US = [
-    { id: 1, control: 'ts4us_1', texto: 'Siento sobrecarga de información digital y tareas virtuales en mis cursos.' },
-    { id: 2, control: 'ts4us_2', texto: 'Las demandas digitales de la universidad invaden mi tiempo personal y de descanso.' },
-    { id: 3, control: 'ts4us_3', texto: 'La complejidad de las plataformas virtuales me genera dificultad o desgaste.' },
-    { id: 4, control: 'ts4us_4', texto: 'Siento inseguridad o estrés ante posibles fallas técnicas durante mis actividades académicas.' },
-    { id: 5, control: 'ts4us_5', texto: 'Los cambios constantes en herramientas digitales me producen incertidumbre.' },
-    { id: 6, control: 'ts4us_6', texto: 'Experimento fatiga visual o agotamiento físico tras estudiar frente a pantallas.' },
-    { id: 7, control: 'ts4us_7', texto: 'Siento presión constante por responder mensajes y notificaciones académicas de inmediato.' },
-    { id: 8, control: 'ts4us_8', texto: 'Me cuesta concentrarme debido a la multitarea continua entre varias pestañas y aplicaciones.' },
-    { id: 9, control: 'ts4us_9', texto: 'Me preocupa quedar desactualizado frente a las nuevas herramientas tecnológicas exigidas.' },
-    { id: 10, control: 'ts4us_10', texto: 'Siento una dependencia excesiva de las plataformas virtuales para poder avanzar en mis estudios.' },
-    { id: 11, control: 'ts4us_11', texto: 'El volumen continuo de entregas virtuales me hace sentir saturado.' },
-    { id: 12, control: 'ts4us_12', texto: 'Siento temor o intranquilidad de perder avisos importantes si me desconecto.' },
-    { id: 13, control: 'ts4us_13', texto: 'Siento que pierdo el control sobre el tiempo que paso conectado a dispositivos digitales.' }
+  // Test de Dependencia al Móvil — TMD (Chóliz, 2012)
+  // Bloque 1: Frecuencia (Q1 a Q10, escala 0 a 4: 0=Nunca, 1=Rara vez, 2=A veces, 3=Frecuentemente, 4=Muy frecuentemente)
+  preguntasTMDFrecuencia = [
+    { id: 1, control: 'tmd_1', texto: 'Me han llamado la atención o me han hecho alguna advertencia por utilizar mucho el teléfono móvil.' },
+    { id: 2, control: 'tmd_2', texto: 'Me he puesto un límite de gasto o consumo en el móvil, pero lo agoto antes de terminar el mes.' },
+    { id: 3, control: 'tmd_3', texto: 'He discutido con mis padres o familiares por el gasto o tiempo dedicado al teléfono móvil.' },
+    { id: 4, control: 'tmd_4', texto: 'Dedico más tiempo del que quisiera a hablar por teléfono, enviar mensajes, usar WhatsApp o chatear.' },
+    { id: 5, control: 'tmd_5', texto: 'He enviado más de cinco (5) mensajes o cadenas de chat en un día a través del teléfono móvil.' },
+    { id: 6, control: 'tmd_6', texto: 'Me he acostado más tarde o he dormido menos por estar utilizando el teléfono móvil.' },
+    { id: 7, control: 'tmd_7', texto: 'Gasto más dinero o tiempo en el teléfono móvil (llamadas, mensajes, WhatsApp, chat) del que me había previsto.' },
+    { id: 8, control: 'tmd_8', texto: 'Cuando me aburro, utilizo el teléfono móvil.' },
+    { id: 9, control: 'tmd_9', texto: 'Utilizo el teléfono móvil (llamadas, mensajes, WhatsApp, chat) en situaciones que no son apropiadas, como comiendo o conversando con otras personas.' },
+    { id: 10, control: 'tmd_10', texto: 'Me han recriminado por el gasto o por el excesivo tiempo que dedico al teléfono móvil.' }
   ];
 
-  // 8 Reactivos completos de la Escala ASAIDAS (Ansiedad y Dependencia a la IA / Entorno Digital)
-  preguntasASAIDAS = [
-    { id: 1, control: 'asaidas_1', texto: 'Siento la necesidad frecuente de consultar herramientas de Inteligencia Artificial para mis tareas.' },
-    { id: 2, control: 'asaidas_2', texto: 'Experimento ansiedad o inseguridad cuando rindo evaluaciones presenciales sin apoyo tecnológico.' },
-    { id: 3, control: 'asaidas_3', texto: 'Delego gran parte del análisis de mis trabajos en herramientas generativas digitales.' },
-    { id: 4, control: 'asaidas_4', texto: 'Me genera temor que las respuestas o herramientas de IA contengan errores que afecten mis notas.' },
-    { id: 5, control: 'asaidas_5', texto: 'Siento que el uso constante de asistentes digitales reduce mi autonomía de razonamiento crítico.' },
-    { id: 6, control: 'asaidas_6', texto: 'Dudo de mi propia capacidad académica cuando no dispongo de herramientas digitales de consulta.' },
-    { id: 7, control: 'asaidas_7', texto: 'Las notificaciones constantes de plataformas y grupos académicos me generan saturación emocional.' },
-    { id: 8, control: 'asaidas_8', texto: 'Me afecta compararme en entornos digitales con el avance o desempeño de otros compañeros.' }
+  // Bloque 2: Grado de Acuerdo (Q11 a Q22, escala 0 a 4: 0=Totalmente en desacuerdo, 1=Algo en desacuerdo, 2=Neutral, 3=Algo de acuerdo, 4=Totalmente de acuerdo)
+  preguntasTMDAcuerdo = [
+    { id: 11, control: 'tmd_11', texto: 'Cuando llevo un tiempo sin utilizar el móvil, siento la necesidad de llamar a alguien, enviar un mensaje o usar WhatsApp.' },
+    { id: 12, control: 'tmd_12', texto: 'Desde que tengo teléfono móvil he aumentado el número de llamadas o comunicaciones que realizo.' },
+    { id: 13, control: 'tmd_13', texto: 'Si se me estropeara el móvil durante un periodo largo y tardaran en arreglarlo, me sentiría muy mal.' },
+    { id: 14, control: 'tmd_14', texto: 'Cada vez necesito utilizar con mayor frecuencia el teléfono móvil.' },
+    { id: 15, control: 'tmd_15', texto: 'Si no tengo el teléfono móvil conmigo me encuentro mal.' },
+    { id: 16, control: 'tmd_16', texto: 'Cuando tengo el teléfono móvil en la mano no puedo dejar de utilizarlo.' },
+    { id: 17, control: 'tmd_17', texto: 'Desde que tengo teléfono móvil he aumentado el número de mensajes, WhatsApp o chats que envío.' },
+    { id: 18, control: 'tmd_18', texto: 'Nada más levantarme por la mañana, lo primero que hago es ver si me han llamado o si me han enviado un mensaje o WhatsApp.' },
+    { id: 19, control: 'tmd_19', texto: 'Gasto más recursos o tiempo en el móvil ahora que cuando lo adquirí al principio.' },
+    { id: 20, control: 'tmd_20', texto: 'No creo que pudiera aguantar una semana sin teléfono móvil.' },
+    { id: 21, control: 'tmd_21', texto: 'Cuando me siento solo(a), hago una llamada, envío un mensaje o escribo por WhatsApp a alguien.' },
+    { id: 22, control: 'tmd_22', texto: 'Ahora mismo agarraría el móvil y enviaría un mensaje, haría una llamada o revisaría WhatsApp.' }
+  ];
+
+  // Escala de Ansiedad Rasgo — STAI-Rasgo (Spielberger, ítems 21 a 40 del cuestionario oficial STAI, escala 1 a 4)
+  // 1=Casi nunca, 2=A veces, 3=A menudo, 4=Casi siempre
+  preguntasSTAIRasgo = [
+    { id: 21, control: 'stai_21', texto: 'Me siento bien / agradable.' },
+    { id: 22, control: 'stai_22', texto: 'Me siento nervioso(a) e inquieto(a).' },
+    { id: 23, control: 'stai_23', texto: 'Me siento satisfecho(a) conmigo mismo(a).' },
+    { id: 24, control: 'stai_24', texto: 'Quisiera ser tan feliz como otros parecen serlo.' },
+    { id: 25, control: 'stai_25', texto: 'Me siento como si fallara o fracasara.' },
+    { id: 26, control: 'stai_26', texto: 'Me siento descansado(a).' },
+    { id: 27, control: 'stai_27', texto: 'Soy una persona tranquila, serena y sosegada.' },
+    { id: 28, control: 'stai_28', texto: 'Siento que las dificultades se acumulan tanto que no puedo superarlas.' },
+    { id: 29, control: 'stai_29', texto: 'Me preocupo demasiado por cosas que en realidad no tienen importancia.' },
+    { id: 30, control: 'stai_30', texto: 'Soy feliz.' },
+    { id: 31, control: 'stai_31', texto: 'Tengo pensamientos que me perturban o incomodan.' },
+    { id: 32, control: 'stai_32', texto: 'Me falta confianza en mí mismo(a).' },
+    { id: 33, control: 'stai_33', texto: 'Me siento seguro(a).' },
+    { id: 34, control: 'stai_34', texto: 'Tomo decisiones fácilmente.' },
+    { id: 35, control: 'stai_35', texto: 'Me siento insuficiente o inadecuado(a).' },
+    { id: 36, control: 'stai_36', texto: 'Estoy contento(a) y conforme.' },
+    { id: 37, control: 'stai_37', texto: 'Algún pensamiento sin importancia pasa por mi mente y me molesta.' },
+    { id: 38, control: 'stai_38', texto: 'Me afectan tanto los desengaños que no puedo olvidarlos.' },
+    { id: 39, control: 'stai_39', texto: 'Soy una persona estable.' },
+    { id: 40, control: 'stai_40', texto: 'Entro en un estado de tensión o agitación cuando pienso en mis preocupaciones recientes.' }
   ];
 
   progresoRecuperado: boolean = false;
@@ -60,22 +87,33 @@ export class EvaluacionComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Punto 1: Todas las opciones inician en null (sin preselección en 3), obligando al estudiante a responder cada ítem (1 a 5)
+    // Punto 1: Todas las opciones inician en null (sin valores premarcados), obligando al estudiante a responder cada ítem
     const controlesPaso1: { [key: string]: any } = {};
-    for (let i = 1; i <= 13; i++) {
-      controlesPaso1[`ts4us_${i}`] = [null, [Validators.required, Validators.min(1), Validators.max(5)]];
+    for (let i = 1; i <= 22; i++) {
+      controlesPaso1[`tmd_${i}`] = [null, [Validators.required, Validators.min(0), Validators.max(4)]];
     }
-    for (let j = 1; j <= 8; j++) {
-      controlesPaso1[`asaidas_${j}`] = [null, [Validators.required, Validators.min(1), Validators.max(5)]];
+    for (let j = 21; j <= 40; j++) {
+      controlesPaso1[`stai_${j}`] = [null, [Validators.required, Validators.min(1), Validators.max(4)]];
     }
     this.formPaso1 = this.fb.group(controlesPaso1);
 
+    // Paso 2: 15 variables de Hábitos Digitales y Contexto Sociofamiliar (SocioDemo, SIN molestias musculoesqueléticas)
     this.formPaso2 = this.fb.group({
-      tiempoPantallaHoras: [8.0, [Validators.required, Validators.min(1), Validators.max(20)]],
-      horasRedesSociales: [3.0, [Validators.required, Validators.min(0), Validators.max(16)]],
-      horasEstudioVirtual: [5.0, [Validators.required, Validators.min(0), Validators.max(16)]],
-      habitoSuenoHoras: [6.5, [Validators.required, Validators.min(2), Validators.max(14)]],
-      dispositivoPrincipal: ['LAPTOP', [Validators.required]]
+      tipoDispositivo: [2, [Validators.required, Validators.min(1), Validators.max(4)]],
+      tiempoUsoDiario: [3, [Validators.required, Validators.min(1), Validators.max(4)]],
+      lugarUsoFrecuente: [2, [Validators.required, Validators.min(1), Validators.max(4)]],
+      tipoAccesoRed: [3, [Validators.required, Validators.min(1), Validators.max(3)]],
+      reglasHogarUso: [2, [Validators.required, Validators.min(1), Validators.max(4)]],
+      percepcionDiscriminacion: [1, [Validators.required, Validators.min(1), Validators.max(4)]],
+      discusionesUsoCelular: [2, [Validators.required, Validators.min(1), Validators.max(4)]],
+      appMensajeria: [2, [Validators.required]],
+      appVideojuegos: [1, [Validators.required]],
+      appRedesSociales: [2, [Validators.required]],
+      appMusica: [2, [Validators.required]],
+      appVideos: [2, [Validators.required]],
+      appGestionTiempo: [2, [Validators.required]],
+      appCamara: [2, [Validators.required]],
+      appCorreo: [2, [Validators.required]]
     });
 
     this.formPaso3 = this.fb.group({
@@ -88,11 +126,11 @@ export class EvaluacionComponent implements OnInit {
   get cantidadRespondidasPaso1(): number {
     if (!this.formPaso1) return 0;
     const vals = this.formPaso1.value;
-    return Object.keys(vals).filter(k => vals[k] !== null && vals[k] >= 1 && vals[k] <= 5).length;
+    return Object.keys(vals).filter(k => vals[k] !== null && vals[k] !== undefined).length;
   }
 
   verificarProgresoGuardado(): void {
-    const raw = localStorage.getItem('serana_evaluacion_progreso');
+    const raw = localStorage.getItem('serana_evaluacion_progreso_v2');
     if (!raw) return;
     try {
       const p = JSON.parse(raw);
@@ -120,7 +158,7 @@ export class EvaluacionComponent implements OnInit {
       textoLibre: this.formPaso3?.get('textoLibre')?.value,
       fechaGuardado: new Date().toISOString()
     };
-    localStorage.setItem('serana_evaluacion_progreso', JSON.stringify(data));
+    localStorage.setItem('serana_evaluacion_progreso_v2', JSON.stringify(data));
     if (notificar) {
       this.snackBar.open('Progreso guardado exitosamente (US-06). Puedes salir y retomar cuando desees.', 'Aceptar', { duration: 3500 });
     }
@@ -132,33 +170,33 @@ export class EvaluacionComponent implements OnInit {
   }
 
   descartarProgreso(): void {
-    localStorage.removeItem('serana_evaluacion_progreso');
+    localStorage.removeItem('serana_evaluacion_progreso_v2');
     this.progresoRecuperado = false;
     this.reiniciarEvaluacion();
     this.snackBar.open('Progreso descartado. Comenzando nueva evaluación desde el inicio.', 'Aceptar', { duration: 2500 });
   }
 
-  // PASO 1 -> PASO 2: Enviar las 13 respuestas reales de TS4US y 8 de ASAIDAS sin conversiones simuladas
+  // PASO 1 -> PASO 2: Enviar las 22 respuestas reales de TMD (0..4) y 20 de STAI-Rasgo (1..4) sin conversiones simuladas
   guardarPaso1(): void {
     if (this.formPaso1.invalid) {
-      this.snackBar.open('Por favor, responde las 21 preguntas antes de continuar.', 'Aceptar', { duration: 3000 });
+      this.snackBar.open('Por favor, responde las 42 preguntas antes de continuar.', 'Aceptar', { duration: 3000 });
       return;
     }
 
     this.cargando = true;
     const v = this.formPaso1.value;
-    const ts4usRespuestas: number[] = [];
-    for (let i = 1; i <= 13; i++) {
-      ts4usRespuestas.push(Number(v[`ts4us_${i}`]));
+    const tmdRespuestas: number[] = [];
+    for (let i = 1; i <= 22; i++) {
+      tmdRespuestas.push(Number(v[`tmd_${i}`]));
     }
-    const asaidasRespuestas: number[] = [];
-    for (let j = 1; j <= 8; j++) {
-      asaidasRespuestas.push(Number(v[`asaidas_${j}`]));
+    const staiRasgoRespuestas: number[] = [];
+    for (let j = 21; j <= 40; j++) {
+      staiRasgoRespuestas.push(Number(v[`stai_${j}`]));
     }
 
     const bodyPaso1 = {
-      ts4usRespuestas,
-      asaidasRespuestas
+      tmdRespuestas,
+      staiRasgoRespuestas
     };
 
     this.evaluacionService.paso1Psicometrico(bodyPaso1).subscribe({
@@ -167,7 +205,7 @@ export class EvaluacionComponent implements OnInit {
         this.evaluacionId = res.evaluacionId;
         this.pasoActual = 2;
         this.guardarProgresoLocal();
-        this.snackBar.open('Respuestas psicométricas reales guardadas (TS4US y ASAIDAS). Paso 2 habilitado.', 'Aceptar', { duration: 2500 });
+        this.snackBar.open('Respuestas psicométricas reales guardadas (TMD y STAI-Rasgo). Paso 2 habilitado.', 'Aceptar', { duration: 2500 });
       },
       error: (err) => {
         this.cargando = false;
@@ -178,17 +216,28 @@ export class EvaluacionComponent implements OnInit {
     });
   }
 
-  // PASO 2 -> PASO 3: Enviar los 5 hábitos reales
+  // PASO 2 -> PASO 3: Enviar las 15 variables reales de Hábitos Digitales SocioDemo
   guardarPaso2(): void {
     if (this.formPaso2.invalid || !this.evaluacionId) return;
 
     this.cargando = true;
+    const v = this.formPaso2.value;
     const bodyPaso2 = {
-      tiempoPantallaHoras: Number(this.formPaso2.get('tiempoPantallaHoras')?.value),
-      horasRedesSociales: Number(this.formPaso2.get('horasRedesSociales')?.value),
-      horasEstudioVirtual: Number(this.formPaso2.get('horasEstudioVirtual')?.value),
-      habitoSuenoHoras: Number(this.formPaso2.get('habitoSuenoHoras')?.value),
-      dispositivoPrincipal: String(this.formPaso2.get('dispositivoPrincipal')?.value || 'LAPTOP')
+      tipoDispositivo: Number(v.tipoDispositivo),
+      tiempoUsoDiario: Number(v.tiempoUsoDiario),
+      lugarUsoFrecuente: Number(v.lugarUsoFrecuente),
+      tipoAccesoRed: Number(v.tipoAccesoRed),
+      reglasHogarUso: Number(v.reglasHogarUso),
+      percepcionDiscriminacion: Number(v.percepcionDiscriminacion),
+      discusionesUsoCelular: Number(v.discusionesUsoCelular),
+      appMensajeria: Number(v.appMensajeria),
+      appVideojuegos: Number(v.appVideojuegos),
+      appRedesSociales: Number(v.appRedesSociales),
+      appMusica: Number(v.appMusica),
+      appVideos: Number(v.appVideos),
+      appGestionTiempo: Number(v.appGestionTiempo),
+      appCamara: Number(v.appCamara),
+      appCorreo: Number(v.appCorreo)
     };
 
     this.evaluacionService.paso2Habitos(this.evaluacionId, bodyPaso2).subscribe({
@@ -196,18 +245,18 @@ export class EvaluacionComponent implements OnInit {
         this.cargando = false;
         this.pasoActual = 3;
         this.guardarProgresoLocal();
-        this.snackBar.open('Hábitos digitales y horas de sueño registrados. Paso final habilitado.', 'Aceptar', { duration: 2500 });
+        this.snackBar.open('Hábitos de uso digital y contexto sociofamiliar registrados. Paso final habilitado.', 'Aceptar', { duration: 2500 });
       },
       error: (err) => {
         this.cargando = false;
         console.error('Error Paso 2:', err);
-        const msg = err.error?.message || 'Error al registrar hábitos de pantalla y sueño.';
+        const msg = err.error?.message || 'Error al registrar hábitos digitales.';
         this.snackBar.open(msg, 'Cerrar', { duration: 3500 });
       }
     });
   }
 
-  // PASO 3 -> RESULTADO EXPERIMENTAL DE ORIENTACIÓN
+  // PASO 3 -> RESULTADO EXPERIMENTAL DE ORIENTACIÓN (Desenlace STAI-Estado)
   finalizarEvaluacion(): void {
     if (this.formPaso3.invalid || !this.evaluacionId) return;
 
@@ -221,7 +270,7 @@ export class EvaluacionComponent implements OnInit {
         this.cargando = false;
         this.resultadoFinal = res;
         this.pasoActual = 4;
-        localStorage.removeItem('serana_evaluacion_progreso');
+        localStorage.removeItem('serana_evaluacion_progreso_v2');
         this.progresoRecuperado = false;
         this.snackBar.open('Evaluación finalizada. Se generó tu orientación preventiva.', 'Aceptar', { duration: 3500 });
       },
@@ -243,17 +292,27 @@ export class EvaluacionComponent implements OnInit {
     this.evaluacionId = null;
     this.resultadoFinal = null;
     this.progresoRecuperado = false;
-    localStorage.removeItem('serana_evaluacion_progreso');
+    localStorage.removeItem('serana_evaluacion_progreso_v2');
     const resetPaso1: { [key: string]: any } = {};
-    for (let i = 1; i <= 13; i++) resetPaso1[`ts4us_${i}`] = null;
-    for (let j = 1; j <= 8; j++) resetPaso1[`asaidas_${j}`] = null;
+    for (let i = 1; i <= 22; i++) resetPaso1[`tmd_${i}`] = null;
+    for (let j = 21; j <= 40; j++) resetPaso1[`stai_${j}`] = null;
     this.formPaso1.reset(resetPaso1);
     this.formPaso2.reset({
-      tiempoPantallaHoras: 8.0,
-      horasRedesSociales: 3.0,
-      horasEstudioVirtual: 5.0,
-      habitoSuenoHoras: 6.5,
-      dispositivoPrincipal: 'LAPTOP'
+      tipoDispositivo: 2,
+      tiempoUsoDiario: 3,
+      lugarUsoFrecuente: 2,
+      tipoAccesoRed: 3,
+      reglasHogarUso: 2,
+      percepcionDiscriminacion: 1,
+      discusionesUsoCelular: 2,
+      appMensajeria: 2,
+      appVideojuegos: 1,
+      appRedesSociales: 2,
+      appMusica: 2,
+      appVideos: 2,
+      appGestionTiempo: 2,
+      appCamara: 2,
+      appCorreo: 2
     });
     this.formPaso3.reset({ textoLibre: '' });
   }

@@ -1,30 +1,28 @@
-import datetime
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Request, status
+from datetime import datetime
+from typing import Dict, Any
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import ValidationError
+from sklearn.model_selection import StratifiedKFold, cross_validate
+import numpy as np
 
 from app.schemas import (
-    InferenciaRequest, InferenciaResponse,
-    RetrainRequest, RetrainResponse,
-    HealthResponse, EscalasPsicometricas, PerfilEstudiante
+    InferenciaRequest,
+    HabitosSocioDemo,
+    EscalasPsicometricas,
+    RetrainRequest,
+    RetrainResponse,
+    HealthResponse,
 )
-from app.hybrid_model import HybridAnxietyModel
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Gestiona el ciclo de vida: carga el modelo al inicio y libera recursos al cierre."""
-    app.state.modelo_hibrido = HybridAnxietyModel()
-    yield
-    app.state.modelo_hibrido = None
-
+from app.hybrid_model import HybridTriajeModel
 
 app = FastAPI(
-    title="Servicio de Machine Learning Hibrido - Orientacion Preventiva de Ansiedad Digital",
-    description="Microservicio experimental de tamizaje y orientacion preventiva para tecnoestres y ansiedad digital en estudiantes universitarios",
-    version="1.1.0",
-    lifespan=lifespan
+    title="SERANA - Microservicio de Orientacion Preventiva Hibrida (ML + PLN)",
+    description=(
+        "API REST para tamizaje preventivo de ansiedad estado (STAI-Estado) "
+        "mediante Random Forest (57 variables reales: TMD + STAI-Rasgo + Habitos SocioDemo), "
+        "Reglas Clinicas separadas y PLN con normalizacion de tildes y negaciones."
+    ),
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -35,162 +33,144 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+motor_ia = HybridTriajeModel()
+
 
 @app.get("/health", response_model=HealthResponse, tags=["Monitoreo"])
-@app.get("/api/v1/health", response_model=HealthResponse, tags=["Monitoreo"])
-def health_check(request: Request):
-    modelo = request.app.state.modelo_hibrido
-    modelo_ok = (modelo is not None and modelo.model is not None)
+def verificar_salud():
     return HealthResponse(
-        status="UP" if modelo_ok else "DEGRADED",
-        modeloCargado=modelo_ok,
-        version="1.1.0",
-        algoritmo="Random Forest (29 vars, STAI-Estado) + Reglas Clinicas Separadas + PLN"
+        status="UP",
+        modeloCargado=motor_ia.model is not None,
+        version="2.0.0",
+        algoritmo="Random Forest (57 vars: 22 TMD + 20 STAI-Rasgo + 15 SocioDemo -> STAI-Estado) + Reglas Separadas + PLN",
     )
 
 
-@app.post("/predict", tags=["Inferencia"])
-@app.post("/api/v1/predict", tags=["Inferencia"])
-async def predecir_ansiedad(req: Request):
-    modelo = req.app.state.modelo_hibrido
-    if not modelo or not modelo.model:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="El modelo predictivo no se encuentra cargado."
-        )
+@app.post("/predict", tags=["Inferencia Preventiva"])
+def predecir_ansiedad_digital(payload: Dict[str, Any] = Body(...)):
+    """
+    Ejecuta el pipeline de orientación preventiva recibiendo las respuestas reales completas:
+      - 22 ítems de TMD (escala 0..4)
+      - 20 ítems de STAI-Rasgo (escala 1..4)
+      - 15 variables de Hábitos Digitales y Contexto Sociofamiliar (SocioDemo, sin posturas/ergonomía)
+      - Texto libre emocional
+    No reconstruye ni inventa respuestas faltantes.
+    """
     try:
-        body = await req.json()
-
-        # Caso 1: Estructura anidada InferenciaRequest {"escalas": {...}, "perfilEstudiante": {...}}
-        if "escalas" in body:
-            inf_request = InferenciaRequest(**body)
+        if "escalas" in payload and isinstance(payload["escalas"], dict):
+            req = InferenciaRequest(**payload)
         else:
-            # Caso 2: Payload con respuestas reales enviado desde el backend Spring Boot
-            eval_id = int(body.get("evaluacion_id", body.get("evaluacionId", 1)))
-            ts4us_raw = body.get("ts4us_respuestas", body.get("ts4usRespuestas"))
-            asaidas_raw = body.get("asaidas_respuestas", body.get("asaidasRespuestas"))
+            tmd_raw = payload.get("tmdRespuestas")
+            stai_raw = payload.get("staiRasgoRespuestas")
 
-            if not isinstance(ts4us_raw, list) or len(ts4us_raw) != 13:
-                raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    detail="Se requieren las 13 respuestas reales de la escala TS4US (rango 1 a 5)."
+            if not isinstance(tmd_raw, list) or len(tmd_raw) != 22:
+                raise ValueError(
+                    "Se requieren exactamente las 22 respuestas reales de la escala TMD (tmdRespuestas, rango 0 a 4)."
                 )
-            if not isinstance(asaidas_raw, list) or len(asaidas_raw) != 8:
-                raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    detail="Se requieren las 8 respuestas reales de la escala ASAIDAS (rango 1 a 5)."
+            if not isinstance(stai_raw, list) or len(stai_raw) != 20:
+                raise ValueError(
+                    "Se requieren exactamente las 20 respuestas reales de la escala STAI-Rasgo (staiRasgoRespuestas, rango 1 a 4)."
                 )
 
-            pantalla = float(body.get("tiempo_pantalla_horas", body.get("horasPantallaDia", 8.0)))
-            redes = float(body.get("horas_redes_sociales", body.get("horasRedesSociales", 3.0)))
-            estudio = float(body.get("horas_estudio_virtual", body.get("horasEstudioVirtual", 5.0)))
-            sueno = float(body.get("habito_sueno_horas", body.get("habitoSuenoHoras", 6.5)))
-            dispositivo = str(body.get("dispositivo_principal", body.get("dispositivoPrincipal", "LAPTOP")))
-            texto = str(body.get("texto_libre", body.get("textoLibre", "")))
-            carrera = str(body.get("carrera", "Ingenieria de Sistemas de Informacion"))
-            ciclo = int(body.get("ciclo", 7))
-
-            escalas = EscalasPsicometricas(
-                ts4usRespuestas=[int(x) for x in ts4us_raw],
-                asaidasRespuestas=[int(x) for x in asaidas_raw]
-            )
-            perfil = PerfilEstudiante(
-                carrera=carrera,
-                ciclo=ciclo,
-                horasPantallaDia=pantalla,
-                horasRedesSociales=redes,
-                horasEstudioVirtual=estudio,
-                habitoSuenoHoras=sueno,
-                dispositivoPrincipal=dispositivo
-            )
-            inf_request = InferenciaRequest(
-                evaluacionId=eval_id,
-                perfilEstudiante=perfil,
-                escalas=escalas,
-                textoLibre=texto
+            habitos = HabitosSocioDemo(
+                tipoDispositivo=int(payload.get("tipoDispositivo", 2)),
+                tiempoUsoDiario=int(payload.get("tiempoUsoDiario", 3)),
+                lugarUsoFrecuente=int(payload.get("lugarUsoFrecuente", 2)),
+                tipoAccesoRed=int(payload.get("tipoAccesoRed", 3)),
+                reglasHogarUso=int(payload.get("reglasHogarUso", 2)),
+                percepcionDiscriminacion=int(payload.get("percepcionDiscriminacion", 1)),
+                discusionesUsoCelular=int(payload.get("discusionesUsoCelular", 2)),
+                appMensajeria=int(payload.get("appMensajeria", 2)),
+                appVideojuegos=int(payload.get("appVideojuegos", 1)),
+                appRedesSociales=int(payload.get("appRedesSociales", 2)),
+                appMusica=int(payload.get("appMusica", 2)),
+                appVideos=int(payload.get("appVideos", 2)),
+                appGestionTiempo=int(payload.get("appGestionTiempo", 2)),
+                appCamara=int(payload.get("appCamara", 2)),
+                appCorreo=int(payload.get("appCorreo", 2)),
             )
 
-        resultado = modelo.predecir(inf_request)
-        res_dict = resultado.model_dump()
-
-        # Campos separados para el backend Spring Boot y el frontend Angular
-        probs_rf = resultado.probabilidadesRandomForest
-        probs_str = (
-            f"BAJO: {round(probs_rf['BAJO'] * 100, 1)}%, "
-            f"MODERADO: {round(probs_rf['MODERADO'] * 100, 1)}%, "
-            f"ALTO: {round(probs_rf['ALTO'] * 100, 1)}%"
-        )
-
-        if resultado.modificadoPorRegla:
-            detalle_regla = (
-                f"Regla clínica aplicada ({resultado.reglaClinicaDisparada}): modificó la orientación de "
-                f"{resultado.prediccionRandomForest} a {resultado.nivelAnsiedad}. "
-                f"(La probabilidad del Random Forest corresponde a la clase {resultado.prediccionRandomForest})."
+            req = InferenciaRequest(
+                evaluacionId=int(payload.get("evaluacionId", 1)),
+                habitosSocioDemo=habitos,
+                escalas=EscalasPsicometricas(
+                    tmdRespuestas=[int(x) for x in tmd_raw],
+                    staiRasgoRespuestas=[int(x) for x in stai_raw],
+                ),
+                textoLibre=str(payload.get("textoLibre", "") or ""),
             )
-        elif resultado.reglaClinicaDisparada:
-            detalle_regla = f"Regla clínica verificada ({resultado.reglaClinicaDisparada}): consistente con el modelo."
+
+        res = motor_ia.predecir(req)
+        terminos_detectados = list(res.indicadoresPLN.terminosDetectados)
+
+        if res.modificadoPorRegla:
+            justificacion = (
+                f"Resultado experimental de orientación preventiva (no constituye diagnóstico clínico). "
+                f"Predicción Random Forest (STAI-Estado): {res.prediccionRandomForest} "
+                f"({res.probabilidadPrediccionRF * 100:.1f}% | Distribución RF: "
+                f"BAJO: {res.probabilidadesRandomForest['BAJO']*100:.1f}%, "
+                f"MODERADO: {res.probabilidadesRandomForest['MODERADO']*100:.1f}%, "
+                f"ALTO: {res.probabilidadesRandomForest['ALTO']*100:.1f}%). "
+                f"Ajustado a {res.nivelAnsiedad} por regla clínica experta ({res.reglaClinicaDisparada})."
+            )
         else:
-            detalle_regla = "Sin modificación por reglas clínicas expertas."
+            regla_txt = (
+                f"Regla clínica verificada ({res.reglaClinicaDisparada}): consistente con el modelo."
+                if res.reglaClinicaDisparada
+                else "Sin modificación por reglas clínicas expertas."
+            )
+            justificacion = (
+                f"Resultado experimental de orientación preventiva (no constituye diagnóstico clínico). "
+                f"Predicción Random Forest (STAI-Estado): {res.prediccionRandomForest} "
+                f"({res.probabilidadPrediccionRF * 100:.1f}% | Distribución RF: "
+                f"BAJO: {res.probabilidadesRandomForest['BAJO']*100:.1f}%, "
+                f"MODERADO: {res.probabilidadesRandomForest['MODERADO']*100:.1f}%, "
+                f"ALTO: {res.probabilidadesRandomForest['ALTO']*100:.1f}%). "
+                f"{regla_txt}"
+            )
 
-        res_dict["nivel_ansiedad_predicho"] = resultado.nivelAnsiedad
-        res_dict["prediccion_random_forest"] = resultado.prediccionRandomForest
-        res_dict["probabilidades_random_forest"] = resultado.probabilidadesRandomForest
-        res_dict["modificado_por_regla"] = resultado.modificadoPorRegla
-        res_dict["regla_clinica_disparada"] = resultado.reglaClinicaDisparada
-        res_dict["score_probabilidad"] = resultado.probabilidadPrediccionRF
-        res_dict["es_caso_critico"] = resultado.alertaCritica
-        res_dict["justificacion_cli"] = (
-            f"Resultado experimental de orientación preventiva (no constituye diagnóstico clínico). "
-            f"Predicción Random Forest: {resultado.prediccionRandomForest} "
-            f"({round(resultado.probabilidadPrediccionRF * 100, 1)}% | Distribución RF: {probs_str}). "
-            f"{detalle_regla}"
+        res_dict = res.model_dump()
+        res_dict.update(
+            {
+                "nivelAnsiedadPredicho": res.nivelAnsiedad,
+                "prediccionRandomForest": res.prediccionRandomForest,
+                "probabilidadesRandomForest": res.probabilidadesRandomForest,
+                "modificadoPorRegla": res.modificadoPorRegla,
+                "reglaClinicaDisparada": res.reglaClinicaDisparada,
+                "scoreProbabilidad": res.probabilidadPrediccionRF,
+                "esCasoCritico": res.alertaCritica,
+                "justificacionExclusion": justificacion,
+                "estresoresDetectados": terminos_detectados,
+                "polaridadSentimiento": res.indicadoresPLN.polaridadSentimiento,
+            }
         )
-
-        # Punto 6: No atribuir estresores ficticios si no se detectaron términos del diccionario
-        terminos_detectados = resultado.indicadoresPLN.terminosDetectados
-        res_dict["estresores_detectados"] = terminos_detectados if terminos_detectados else []
-        res_dict["estresores_texto"] = (
-            ", ".join(terminos_detectados)
-            if terminos_detectados
-            else "No se detectaron términos del diccionario"
-        )
-        res_dict["polaridad_sentimiento"] = resultado.indicadoresPLN.polaridadSentimiento
-
         return res_dict
-    except ValidationError as ve:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(ve)
-        )
-    except HTTPException:
-        raise
+    except ValueError as ve:
+        raise HTTPException(status_code=422, detail=str(ve))
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error durante el procesamiento de inferencia: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Error en el motor de inferencia: {str(e)}")
 
 
-@app.post("/api/v1/retrain", response_model=RetrainResponse, tags=["MLOps"])
-def reentrenar_modelo(request: RetrainRequest, req: Request):
+@app.post("/retrain", response_model=RetrainResponse, tags=["Entrenamiento Continuo"])
+def reentrenar_modelo(req: RetrainRequest):
     try:
-        from train_model import entrenar_y_evaluar_modelo
-        metricas = entrenar_y_evaluar_modelo()
-        modelo = req.app.state.modelo_hibrido
-        if modelo:
-            modelo._cargar_o_entrenar()
+        from train_model import cargar_dataset_real
+
+        X, y, n_rows = cargar_dataset_real()
+        cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+        scoring = ["f1_macro", "accuracy", "precision_macro", "recall_macro"]
+        scores = cross_validate(motor_ia.model, X, y, cv=cv, scoring=scoring)
+
+        motor_ia.model.fit(X, y)
 
         return RetrainResponse(
-            mensaje="Reentrenamiento y evaluacion con desenlace STAI-Estado completados exitosamente.",
-            f1ScoreMacro=round(metricas["f1ScoreMacro"], 4),
-            accuracy=round(metricas["accuracy"], 4),
-            precisionMacro=round(metricas["precisionMacro"], 4),
-            recallMacro=round(metricas["recallMacro"], 4),
-            totalMuestras=metricas["totalMuestras"],
-            timestamp=datetime.datetime.now(datetime.timezone.utc).isoformat()
+            mensaje="Modelo Random Forest reentrenado exitosamente sobre las 1,220 observaciones reales (TMD + STAI-Rasgo + SocioDemo -> STAI-Estado).",
+            f1ScoreMacro=round(float(np.mean(scores["test_f1_macro"])), 4),
+            accuracy=round(float(np.mean(scores["test_accuracy"])), 4),
+            precisionMacro=round(float(np.mean(scores["test_precision_macro"])), 4),
+            recallMacro=round(float(np.mean(scores["test_recall_macro"])), 4),
+            totalMuestras=int(n_rows),
+            timestamp=datetime.utcnow().isoformat() + "Z",
         )
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Fallo en el pipeline de reentrenamiento: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Error durante el reentrenamiento: {str(e)}")

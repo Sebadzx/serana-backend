@@ -4,108 +4,162 @@ import java.util.List;
 
 public class MLInferenceRequestDTO {
 
-    private Integer nivelEstres;
-    private Integer nivelAnsiedad;
-    private Integer puntuacionGad7;
-    private Integer puntuacionPss10;
-    private List<Integer> ts4usRespuestas;
-    private List<Integer> asaidasRespuestas;
-    private Double habitoSuenoHoras;
-    private Double tiempoPantallaHoras;
-    private Double horasRedesSociales;
-    private Double horasEstudioVirtual;
-    private String dispositivoPrincipal;
+    private List<Integer> tmdRespuestas;
+    private List<Integer> staiRasgoRespuestas;
+    private Integer tipoDispositivo;
+    private Integer tiempoUsoDiario;
+    private Integer lugarUsoFrecuente;
+    private Integer tipoAccesoRed;
+    private Integer reglasHogarUso;
+    private Integer percepcionDiscriminacion;
+    private Integer discusionesUsoCelular;
+    private Integer appMensajeria;
+    private Integer appVideojuegos;
+    private Integer appRedesSociales;
+    private Integer appMusica;
+    private Integer appVideos;
+    private Integer appGestionTiempo;
+    private Integer appCamara;
+    private Integer appCorreo;
     private String textoLibre;
 
     public MLInferenceRequestDTO() {
     }
 
-    public Integer getNivelEstres() {
-        return nivelEstres;
+    public List<Integer> getTmdRespuestas() {
+        return tmdRespuestas;
     }
 
-    public void setNivelEstres(Integer nivelEstres) {
-        this.nivelEstres = nivelEstres;
+    public void setTmdRespuestas(List<Integer> tmdRespuestas) {
+        this.tmdRespuestas = tmdRespuestas;
     }
 
-    public Integer getNivelAnsiedad() {
-        return nivelAnsiedad;
+    public List<Integer> getStaiRasgoRespuestas() {
+        return staiRasgoRespuestas;
     }
 
-    public void setNivelAnsiedad(Integer nivelAnsiedad) {
-        this.nivelAnsiedad = nivelAnsiedad;
+    public void setStaiRasgoRespuestas(List<Integer> staiRasgoRespuestas) {
+        this.staiRasgoRespuestas = staiRasgoRespuestas;
     }
 
-    public Integer getPuntuacionGad7() {
-        return puntuacionGad7;
+    public Integer getTipoDispositivo() {
+        return tipoDispositivo;
     }
 
-    public void setPuntuacionGad7(Integer puntuacionGad7) {
-        this.puntuacionGad7 = puntuacionGad7;
+    public void setTipoDispositivo(Integer tipoDispositivo) {
+        this.tipoDispositivo = tipoDispositivo;
     }
 
-    public Integer getPuntuacionPss10() {
-        return puntuacionPss10;
+    public Integer getTiempoUsoDiario() {
+        return tiempoUsoDiario;
     }
 
-    public void setPuntuacionPss10(Integer puntuacionPss10) {
-        this.puntuacionPss10 = puntuacionPss10;
+    public void setTiempoUsoDiario(Integer tiempoUsoDiario) {
+        this.tiempoUsoDiario = tiempoUsoDiario;
     }
 
-    public List<Integer> getTs4usRespuestas() {
-        return ts4usRespuestas;
+    public Integer getLugarUsoFrecuente() {
+        return lugarUsoFrecuente;
     }
 
-    public void setTs4usRespuestas(List<Integer> ts4usRespuestas) {
-        this.ts4usRespuestas = ts4usRespuestas;
+    public void setLugarUsoFrecuente(Integer lugarUsoFrecuente) {
+        this.lugarUsoFrecuente = lugarUsoFrecuente;
     }
 
-    public List<Integer> getAsaidasRespuestas() {
-        return asaidasRespuestas;
+    public Integer getTipoAccesoRed() {
+        return tipoAccesoRed;
     }
 
-    public void setAsaidasRespuestas(List<Integer> asaidasRespuestas) {
-        this.asaidasRespuestas = asaidasRespuestas;
+    public void setTipoAccesoRed(Integer tipoAccesoRed) {
+        this.tipoAccesoRed = tipoAccesoRed;
     }
 
-    public Double getHabitoSuenoHoras() {
-        return habitoSuenoHoras;
+    public Integer getReglasHogarUso() {
+        return reglasHogarUso;
     }
 
-    public void setHabitoSuenoHoras(Double habitoSuenoHoras) {
-        this.habitoSuenoHoras = habitoSuenoHoras;
+    public void setReglasHogarUso(Integer reglasHogarUso) {
+        this.reglasHogarUso = reglasHogarUso;
     }
 
-    public Double getTiempoPantallaHoras() {
-        return tiempoPantallaHoras;
+    public Integer getPercepcionDiscriminacion() {
+        return percepcionDiscriminacion;
     }
 
-    public void setTiempoPantallaHoras(Double tiempoPantallaHoras) {
-        this.tiempoPantallaHoras = tiempoPantallaHoras;
+    public void setPercepcionDiscriminacion(Integer percepcionDiscriminacion) {
+        this.percepcionDiscriminacion = percepcionDiscriminacion;
     }
 
-    public Double getHorasRedesSociales() {
-        return horasRedesSociales;
+    public Integer getDiscusionesUsoCelular() {
+        return discusionesUsoCelular;
     }
 
-    public void setHorasRedesSociales(Double horasRedesSociales) {
-        this.horasRedesSociales = horasRedesSociales;
+    public void setDiscusionesUsoCelular(Integer discusionesUsoCelular) {
+        this.discusionesUsoCelular = discusionesUsoCelular;
     }
 
-    public Double getHorasEstudioVirtual() {
-        return horasEstudioVirtual;
+    public Integer getAppMensajeria() {
+        return appMensajeria;
     }
 
-    public void setHorasEstudioVirtual(Double horasEstudioVirtual) {
-        this.horasEstudioVirtual = horasEstudioVirtual;
+    public void setAppMensajeria(Integer appMensajeria) {
+        this.appMensajeria = appMensajeria;
     }
 
-    public String getDispositivoPrincipal() {
-        return dispositivoPrincipal;
+    public Integer getAppVideojuegos() {
+        return appVideojuegos;
     }
 
-    public void setDispositivoPrincipal(String dispositivoPrincipal) {
-        this.dispositivoPrincipal = dispositivoPrincipal;
+    public void setAppVideojuegos(Integer appVideojuegos) {
+        this.appVideojuegos = appVideojuegos;
+    }
+
+    public Integer getAppRedesSociales() {
+        return appRedesSociales;
+    }
+
+    public void setAppRedesSociales(Integer appRedesSociales) {
+        this.appRedesSociales = appRedesSociales;
+    }
+
+    public Integer getAppMusica() {
+        return appMusica;
+    }
+
+    public void setAppMusica(Integer appMusica) {
+        this.appMusica = appMusica;
+    }
+
+    public Integer getAppVideos() {
+        return appVideos;
+    }
+
+    public void setAppVideos(Integer appVideos) {
+        this.appVideos = appVideos;
+    }
+
+    public Integer getAppGestionTiempo() {
+        return appGestionTiempo;
+    }
+
+    public void setAppGestionTiempo(Integer appGestionTiempo) {
+        this.appGestionTiempo = appGestionTiempo;
+    }
+
+    public Integer getAppCamara() {
+        return appCamara;
+    }
+
+    public void setAppCamara(Integer appCamara) {
+        this.appCamara = appCamara;
+    }
+
+    public Integer getAppCorreo() {
+        return appCorreo;
+    }
+
+    public void setAppCorreo(Integer appCorreo) {
+        this.appCorreo = appCorreo;
     }
 
     public String getTextoLibre() {
@@ -121,71 +175,107 @@ public class MLInferenceRequestDTO {
     }
 
     public static class MLInferenceRequestDTOBuilder {
-        private Integer nivelEstres;
-        private Integer nivelAnsiedad;
-        private Integer puntuacionGad7;
-        private Integer puntuacionPss10;
-        private List<Integer> ts4usRespuestas;
-        private List<Integer> asaidasRespuestas;
-        private Double habitoSuenoHoras;
-        private Double tiempoPantallaHoras;
-        private Double horasRedesSociales;
-        private Double horasEstudioVirtual;
-        private String dispositivoPrincipal;
+        private List<Integer> tmdRespuestas;
+        private List<Integer> staiRasgoRespuestas;
+        private Integer tipoDispositivo = 2;
+        private Integer tiempoUsoDiario = 3;
+        private Integer lugarUsoFrecuente = 2;
+        private Integer tipoAccesoRed = 3;
+        private Integer reglasHogarUso = 2;
+        private Integer percepcionDiscriminacion = 1;
+        private Integer discusionesUsoCelular = 2;
+        private Integer appMensajeria = 2;
+        private Integer appVideojuegos = 1;
+        private Integer appRedesSociales = 2;
+        private Integer appMusica = 2;
+        private Integer appVideos = 2;
+        private Integer appGestionTiempo = 2;
+        private Integer appCamara = 2;
+        private Integer appCorreo = 2;
         private String textoLibre;
 
-        public MLInferenceRequestDTOBuilder nivelEstres(Integer nivelEstres) {
-            this.nivelEstres = nivelEstres;
+        public MLInferenceRequestDTOBuilder tmdRespuestas(List<Integer> tmdRespuestas) {
+            this.tmdRespuestas = tmdRespuestas;
             return this;
         }
 
-        public MLInferenceRequestDTOBuilder nivelAnsiedad(Integer nivelAnsiedad) {
-            this.nivelAnsiedad = nivelAnsiedad;
+        public MLInferenceRequestDTOBuilder staiRasgoRespuestas(List<Integer> staiRasgoRespuestas) {
+            this.staiRasgoRespuestas = staiRasgoRespuestas;
             return this;
         }
 
-        public MLInferenceRequestDTOBuilder puntuacionGad7(Integer puntuacionGad7) {
-            this.puntuacionGad7 = puntuacionGad7;
+        public MLInferenceRequestDTOBuilder tipoDispositivo(Integer tipoDispositivo) {
+            this.tipoDispositivo = tipoDispositivo;
             return this;
         }
 
-        public MLInferenceRequestDTOBuilder puntuacionPss10(Integer puntuacionPss10) {
-            this.puntuacionPss10 = puntuacionPss10;
+        public MLInferenceRequestDTOBuilder tiempoUsoDiario(Integer tiempoUsoDiario) {
+            this.tiempoUsoDiario = tiempoUsoDiario;
             return this;
         }
 
-        public MLInferenceRequestDTOBuilder ts4usRespuestas(List<Integer> ts4usRespuestas) {
-            this.ts4usRespuestas = ts4usRespuestas;
+        public MLInferenceRequestDTOBuilder lugarUsoFrecuente(Integer lugarUsoFrecuente) {
+            this.lugarUsoFrecuente = lugarUsoFrecuente;
             return this;
         }
 
-        public MLInferenceRequestDTOBuilder asaidasRespuestas(List<Integer> asaidasRespuestas) {
-            this.asaidasRespuestas = asaidasRespuestas;
+        public MLInferenceRequestDTOBuilder tipoAccesoRed(Integer tipoAccesoRed) {
+            this.tipoAccesoRed = tipoAccesoRed;
             return this;
         }
 
-        public MLInferenceRequestDTOBuilder habitoSuenoHoras(Double habitoSuenoHoras) {
-            this.habitoSuenoHoras = habitoSuenoHoras;
+        public MLInferenceRequestDTOBuilder reglasHogarUso(Integer reglasHogarUso) {
+            this.reglasHogarUso = reglasHogarUso;
             return this;
         }
 
-        public MLInferenceRequestDTOBuilder tiempoPantallaHoras(Double tiempoPantallaHoras) {
-            this.tiempoPantallaHoras = tiempoPantallaHoras;
+        public MLInferenceRequestDTOBuilder percepcionDiscriminacion(Integer percepcionDiscriminacion) {
+            this.percepcionDiscriminacion = percepcionDiscriminacion;
             return this;
         }
 
-        public MLInferenceRequestDTOBuilder horasRedesSociales(Double horasRedesSociales) {
-            this.horasRedesSociales = horasRedesSociales;
+        public MLInferenceRequestDTOBuilder discusionesUsoCelular(Integer discusionesUsoCelular) {
+            this.discusionesUsoCelular = discusionesUsoCelular;
             return this;
         }
 
-        public MLInferenceRequestDTOBuilder horasEstudioVirtual(Double horasEstudioVirtual) {
-            this.horasEstudioVirtual = horasEstudioVirtual;
+        public MLInferenceRequestDTOBuilder appMensajeria(Integer appMensajeria) {
+            this.appMensajeria = appMensajeria;
             return this;
         }
 
-        public MLInferenceRequestDTOBuilder dispositivoPrincipal(String dispositivoPrincipal) {
-            this.dispositivoPrincipal = dispositivoPrincipal;
+        public MLInferenceRequestDTOBuilder appVideojuegos(Integer appVideojuegos) {
+            this.appVideojuegos = appVideojuegos;
+            return this;
+        }
+
+        public MLInferenceRequestDTOBuilder appRedesSociales(Integer appRedesSociales) {
+            this.appRedesSociales = appRedesSociales;
+            return this;
+        }
+
+        public MLInferenceRequestDTOBuilder appMusica(Integer appMusica) {
+            this.appMusica = appMusica;
+            return this;
+        }
+
+        public MLInferenceRequestDTOBuilder appVideos(Integer appVideos) {
+            this.appVideos = appVideos;
+            return this;
+        }
+
+        public MLInferenceRequestDTOBuilder appGestionTiempo(Integer appGestionTiempo) {
+            this.appGestionTiempo = appGestionTiempo;
+            return this;
+        }
+
+        public MLInferenceRequestDTOBuilder appCamara(Integer appCamara) {
+            this.appCamara = appCamara;
+            return this;
+        }
+
+        public MLInferenceRequestDTOBuilder appCorreo(Integer appCorreo) {
+            this.appCorreo = appCorreo;
             return this;
         }
 
@@ -196,17 +286,23 @@ public class MLInferenceRequestDTO {
 
         public MLInferenceRequestDTO build() {
             MLInferenceRequestDTO dto = new MLInferenceRequestDTO();
-            dto.setNivelEstres(nivelEstres);
-            dto.setNivelAnsiedad(nivelAnsiedad);
-            dto.setPuntuacionGad7(puntuacionGad7);
-            dto.setPuntuacionPss10(puntuacionPss10);
-            dto.setTs4usRespuestas(ts4usRespuestas);
-            dto.setAsaidasRespuestas(asaidasRespuestas);
-            dto.setHabitoSuenoHoras(habitoSuenoHoras);
-            dto.setTiempoPantallaHoras(tiempoPantallaHoras);
-            dto.setHorasRedesSociales(horasRedesSociales);
-            dto.setHorasEstudioVirtual(horasEstudioVirtual);
-            dto.setDispositivoPrincipal(dispositivoPrincipal);
+            dto.setTmdRespuestas(tmdRespuestas);
+            dto.setStaiRasgoRespuestas(staiRasgoRespuestas);
+            dto.setTipoDispositivo(tipoDispositivo);
+            dto.setTiempoUsoDiario(tiempoUsoDiario);
+            dto.setLugarUsoFrecuente(lugarUsoFrecuente);
+            dto.setTipoAccesoRed(tipoAccesoRed);
+            dto.setReglasHogarUso(reglasHogarUso);
+            dto.setPercepcionDiscriminacion(percepcionDiscriminacion);
+            dto.setDiscusionesUsoCelular(discusionesUsoCelular);
+            dto.setAppMensajeria(appMensajeria);
+            dto.setAppVideojuegos(appVideojuegos);
+            dto.setAppRedesSociales(appRedesSociales);
+            dto.setAppMusica(appMusica);
+            dto.setAppVideos(appVideos);
+            dto.setAppGestionTiempo(appGestionTiempo);
+            dto.setAppCamara(appCamara);
+            dto.setAppCorreo(appCorreo);
             dto.setTextoLibre(textoLibre);
             return dto;
         }

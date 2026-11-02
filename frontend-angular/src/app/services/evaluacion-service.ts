@@ -35,32 +35,42 @@ export class EvaluacionService {
   constructor(private http: HttpClient) {}
 
   paso1Psicometrico(datos: {
-    ts4usRespuestas: number[];
-    asaidasRespuestas: number[];
+    tmdRespuestas: number[];
+    staiRasgoRespuestas: number[];
   }): Observable<{
     evaluacionId: number;
     estado: string;
-    puntajeTs4usTotal: number;
-    puntajeAsaidasTotal: number;
+    puntajeTmdTotal: number;
+    puntajeStaiRasgoTotal: number;
     mensaje: string;
     siguientePaso: string;
   }> {
     return this.http.post<{
       evaluacionId: number;
       estado: string;
-      puntajeTs4usTotal: number;
-      puntajeAsaidasTotal: number;
+      puntajeTmdTotal: number;
+      puntajeStaiRasgoTotal: number;
       mensaje: string;
       siguientePaso: string;
     }>(`${this.apiUrl}/paso1-psicometrico`, datos);
   }
 
   paso2Habitos(evaluacionId: number, datos: {
-    habitoSuenoHoras: number;
-    tiempoPantallaHoras: number;
-    horasRedesSociales: number;
-    horasEstudioVirtual: number;
-    dispositivoPrincipal: string;
+    tipoDispositivo: number;
+    tiempoUsoDiario: number;
+    lugarUsoFrecuente: number;
+    tipoAccesoRed: number;
+    reglasHogarUso: number;
+    percepcionDiscriminacion: number;
+    discusionesUsoCelular: number;
+    appMensajeria: number;
+    appVideojuegos: number;
+    appRedesSociales: number;
+    appMusica: number;
+    appVideos: number;
+    appGestionTiempo: number;
+    appCamara: number;
+    appCorreo: number;
   }): Observable<any> {
     return this.http.put<any>(
       `${this.apiUrl}/${evaluacionId}/paso2-habitos`,

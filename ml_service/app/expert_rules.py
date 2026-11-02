@@ -3,20 +3,22 @@ from typing import Dict, List, Optional, Tuple
 
 class ExpertRulesEngine:
     """
-    Capa de Reglas Clínicas Expertas.
-    Evalúa criterios preventivos sobre las respuestas reales de TS4US, ASAIDAS,
-    hábitos digitales (incluyendo sueño) e indicadores de PLN.
+    Capa de Reglas Clínicas Expertas basada en los puntos de corte psicométricos oficiales
+    del dataset empírico:
+      - TMD (Test of Mobile Dependence, Chóliz 2012, rango 0-88):
+          0-29: Ausencia | 30-38: Bajo | 39-48: Medio | 49-88: Alto
+      - STAI-Rasgo (Spielberger, rango 20-80):
+          20-37: Bajo | 38-44: Moderado | 45-80: Alto
+      - Indicadores discursivos de PLN (tildes normalizadas y negaciones controladas).
     IMPORTANTE: No altera ni inventa porcentajes de probabilidad del Random Forest;
     registra su decisión (modificado_por_regla, regla_disparada, alerta_critica) de forma separada.
     """
 
     @staticmethod
     def evaluar_reglas_clinicas(
-        ts4us_respuestas: List[int],
-        asaidas_respuestas: List[int],
-        horas_pantalla: float,
-        habito_sueno_horas: float,
-        dispositivo: str,
+        tmd_respuestas: List[int],
+        stai_rasgo_respuestas: List[int],
+        tiempo_uso_diario: int,
         indicadores_pln: Dict[str, any],
         prediccion_rf: str
     ) -> Tuple[str, bool, bool, Optional[str], List[str]]:
@@ -25,9 +27,9 @@ class ExpertRulesEngine:
         Retorna:
             (nivel_final, modificado_por_regla, alerta_critica, regla_disparada, recomendaciones_icbt)
         """
-        promedio_ts4us = sum(ts4us_respuestas) / len(ts4us_respuestas)
-        promedio_asaidas = sum(asaidas_respuestas) / len(asaidas_respuestas)
-        conteo_extremos_ts4us = sum(1 for r in ts4us_respuestas if r >= 4)
+        puntaje_tmd = sum(tmd_respuestas)  # Rango 0..88
+        puntaje_stai_rasgo = sum(stai_rasgo_respuestas)  # Rango 20..80
+        item_q6_sueno = tmd_respuestas[5] if len(tmd_respuestas) >= 6 else 0  # Q6: dormir menos por el celular (0..4)
 
         polaridad = indicadores_pln.get("polaridadSentimiento", 0.0)
         terminos = indicadores_pln.get("terminosDetectados", [])
@@ -41,36 +43,44 @@ class ExpertRulesEngine:
         }
         hay_termino_critico = any(term in palabras_alerta for term in terminos)
 
-        # REGLA 1: Crisis Aguda y Saturación Extrema (Alerta Preventiva Prioritaria)
-        if (conteo_extremos_ts4us >= 8 and hay_termino_critico) or (
-            promedio_ts4us >= 4.2 and polaridad <= -0.5
+        # REGLA 1: Dependencia Móvil Moderada/Alta o STAI-Rasgo Elevado + Expresión Discursiva Crítica
+        if (
+            (puntaje_tmd >= 39 and hay_termino_critico)
+            or (puntaje_stai_rasgo >= 45 and hay_termino_critico)
+            or (puntaje_stai_rasgo >= 52 and puntaje_tmd >= 49 and polaridad <= -0.4)
         ):
             nivel_final = "ALTO"
             alerta_critica = True
-            regla_disparada = "REGLA_1_SATURACION_EXTREMA_Y_ALERTA_DISCURSIVA"
+            regla_disparada = "REGLA_1_DEPENDENCIA_ALTA_Y_ALERTA_DISCURSIVA"
 
-        # REGLA 2: Hiperconectividad, Privación de Sueño y Alta Dependencia de IA
-        elif (horas_pantalla >= 10.0 and promedio_asaidas >= 4.0) or (
-            horas_pantalla >= 10.0 and habito_sueno_horas <= 5.0 and promedio_ts4us >= 3.5
+        # REGLA 2: Hiperconectividad (>3h diarias), Privación de Sueño por Celular (Q6 >= 3) y Dependencia Media/Alta
+        elif (tiempo_uso_diario >= 3 and puntaje_tmd >= 49) or (
+            tiempo_uso_diario >= 3 and item_q6_sueno >= 3 and puntaje_stai_rasgo >= 38
         ):
             if nivel_final == "BAJO":
                 nivel_final = "MODERADO"
             alerta_critica = (nivel_final == "ALTO")
-            regla_disparada = "REGLA_2_HIPERCONECTIVIDAD_PRIVACION_SUENO_Y_DEPENDENCIA_IA"
+            regla_disparada = "REGLA_2_HIPERCONECTIVIDAD_Y_ALTERACION_SUENO_TMD"
 
-        # REGLA 3: Ajuste por Baja Sobrecarga Autorreportada y Discurso Positivo
-        elif nivel_final == "ALTO" and promedio_ts4us <= 2.2 and polaridad >= 0.2 and not hay_termino_critico:
+        # REGLA 3: Ajuste por Ausencia de Dependencia (TMD <= 29), STAI-Rasgo Bajo (<= 37) y Discurso Positivo
+        elif (
+            nivel_final == "ALTO"
+            and puntaje_tmd <= 29
+            and puntaje_stai_rasgo <= 37
+            and polaridad >= 0.2
+            and not hay_termino_critico
+        ):
             nivel_final = "MODERADO"
-            regla_disparada = "REGLA_3_AJUSTE_POR_BAJA_SOBRECARGA_Y_DISCURSO_POSITIVO"
+            regla_disparada = "REGLA_3_AJUSTE_POR_BAJA_DEPENDENCIA_Y_DISCURSO_POSITIVO"
 
         modificado_por_regla = (nivel_final != prediccion_rf)
 
         recomendaciones = ExpertRulesEngine._generar_recomendaciones(
             nivel_final,
-            promedio_ts4us,
-            promedio_asaidas,
-            horas_pantalla,
-            habito_sueno_horas,
+            puntaje_tmd,
+            puntaje_stai_rasgo,
+            tiempo_uso_diario,
+            item_q6_sueno,
             alerta_critica
         )
 
@@ -79,59 +89,40 @@ class ExpertRulesEngine:
     @staticmethod
     def _generar_recomendaciones(
         nivel: str,
-        prom_ts4us: float,
-        prom_asaidas: float,
-        horas_pantalla: float,
-        habito_sueno_horas: float,
+        puntaje_tmd: int,
+        puntaje_stai_rasgo: int,
+        tiempo_uso_diario: int,
+        item_q6_sueno: int,
         alerta_critica: bool
     ) -> List[str]:
         pautas = []
 
-        if alerta_critica:
+        if alerta_critica or nivel == "ALTO":
             pautas.append(
-                "ORIENTACIÓN PRIORITARIA: Se sugiere acudir al servicio psicopedagógico de Bienestar Universitario "
-                "para recibir acompañamiento profesional oportuno."
+                "ORIENTACIÓN PRIORITARIA: Se sugiere agendar una sesión de acompañamiento con el Servicio de Tutoría y Bienestar Estudiantil."
+            )
+            pautas.append(
+                "TCC Digital - Regulación Fisiológica: Practica respiración diafragmática (técnica 4-7-8) durante 5 minutos ante episodios de tensión aguda."
             )
 
-        if nivel == "ALTO":
+        if puntaje_tmd >= 39 or tiempo_uso_diario >= 3:
             pautas.append(
-                "TCC Digital (iCBT): Práctica de reestructuración cognitiva mediante registro diario de pensamientos "
-                "automáticos vinculados a la autoexigencia académica."
-            )
-            pautas.append(
-                "Higiene Digital: Implementa bloques de desconexión sin notificaciones durante períodos de estudio."
-            )
-            pautas.append(
-                "Regulación Fisiológica: Ejercicios de respiración diafragmática 4-7-8 al inicio y cierre "
-                "de cada sesión frente al computador."
-            )
-        elif nivel == "MODERADO":
-            pautas.append(
-                "Gestión del Tecnoestrés: Regla 20-20-20 (cada 20 minutos mirar a 20 pies de distancia por 20 segundos) "
-                "para mitigar la fatiga visual y cognitiva."
-            )
-            pautas.append(
-                "Estrategia de Autoeficacia: Descomposición de entregas complejas en metas cortas "
-                "para fortalecer la percepción de control académico."
-            )
-        else:
-            pautas.append(
-                "Mantenimiento Proactivo: Continúa aplicando tus estrategias actuales de organización y autocontrol digital."
-            )
-            pautas.append(
-                "Higiene Mental Preventiva: Integra pausas activas y actividades recreativas desconectadas."
+                "Higiene Digital (Control de Dependencia Móvil - TMD): Establece bloques libres de notificaciones durante tus horas de estudio y desactiva alertas no urgentes."
             )
 
-        if horas_pantalla > 8.0 or habito_sueno_horas < 6.0:
+        if item_q6_sueno >= 2:
             pautas.append(
-                "Higiene del Sueño y Pantallas: Establece una desconexión de pantallas al menos 45 minutos "
-                "antes de dormir para recuperar al menos 7 horas de descanso nocturno."
+                "Higiene del Sueño: Evita utilizar el teléfono móvil o revisar mensajes al menos 45 minutos antes de dormir (Ítem TMD-Q6)."
             )
 
-        if prom_asaidas >= 3.5:
+        if puntaje_stai_rasgo >= 38:
             pautas.append(
-                "Uso Crítico de IA: Utiliza las herramientas generativas como apoyo de consulta y evita la delegación "
-                "total que incrementa la inseguridad ante evaluaciones presenciales."
+                "Reestructuración Cognitiva (STAI): Registra las preocupaciones recurrentes del día y distingue entre pendientes accionables y rumiación anticipatoria."
+            )
+
+        if len(pautas) == 0:
+            pautas.append(
+                "Prevención y Bienestar: Mantén tus hábitos actuales de equilibrio entre actividades académicas, descanso y uso moderado de dispositivos."
             )
 
         return pautas

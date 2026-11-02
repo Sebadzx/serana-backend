@@ -5,7 +5,7 @@ import numpy as np
 import joblib
 from typing import Dict, List
 
-from app.schemas import InferenciaRequest, InferenciaResponse, IndicadoresPLN, FeatureImportanceItem
+from app.schemas import InferenciaRequest, InferenciaResponse, IndicadoresPLN, FeatureImportanceItem, HabitosSocioDemo
 from app.nlp_preprocessor import NLPPreprocessor
 from app.expert_rules import ExpertRulesEngine
 
@@ -14,161 +14,188 @@ MODEL_FILE = os.path.join(BASE_DIR, "model.joblib")
 FEATURE_NAMES_FILE = os.path.join(BASE_DIR, "feature_names.json")
 
 CLASES = ["BAJO", "MODERADO", "ALTO"]
-DISPOSITIVO_MAP = {"SMARTPHONE": 1.0, "LAPTOP": 2.0, "DESKTOP": 3.0, "TABLET": 4.0}
 
 DESCRIPCION_FACTORES = {
-    "TS4US_1_SobrecargaInfo": "Sobrecarga de informacion digital y tareas virtuales",
-    "TS4US_2_InvasionVidaPrivada": "Invasion del tiempo personal por demandas digitales",
-    "TS4US_3_ComplejidadSistemas": "Dificultad y fatiga ante plataformas universitarias",
-    "TS4US_4_InseguridadDigital": "Inseguridad y estres ante fallas tecnicas",
-    "TS4US_5_IncertidumbreTecnologica": "Incertidumbre por cambios continuos en herramientas",
-    "TS4US_6_FatigaPantalla": "Fatiga visual y agotamiento fisico frente a pantallas",
-    "TS4US_7_PresionConectividad": "Presion constante de respuesta inmediata",
-    "TS4US_8_MultitareaVirtual": "Sobrecarga por multitarea academica virtual",
-    "TS4US_9_ObsolescenciaHabilidades": "Temor a quedar desactualizado tecnologicamente",
-    "TS4US_10_DependenciaPlataformas": "Dependencia excesiva a plataformas de la institucion",
-    "TS4US_11_SaturacionTareas": "Saturacion de entregas virtuales continuas",
-    "TS4US_12_MiedoDesconexion": "Miedo a perder eventos o avisos al desconectarse",
-    "TS4US_13_FaltaControlDigital": "Sensacion de perdida de control del tiempo digital",
-    "ASAIDAS_1_UsoCompulsivoIA": "Uso compulsivo de herramientas de Inteligencia Artificial",
-    "ASAIDAS_2_AnsiedadEvaluaciones": "Ansiedad ante examenes sin soporte tecnologico",
-    "ASAIDAS_3_DelegacionCognitiva": "Delegacion cognitiva excesiva en modelos generativos",
-    "ASAIDAS_4_MiedoFalloAlgoritmico": "Temor al fallo o sesgo en sistemas inteligentes",
-    "ASAIDAS_5_PerdidaAutonomia": "Perdida de autonomia en el razonamiento critico",
-    "ASAIDAS_6_DudaCapacidadPropia": "Duda en la propia capacidad academica (baja autoeficacia)",
-    "ASAIDAS_7_SaturacionNotificaciones": "Saturacion emocional por notificaciones constantes",
-    "ASAIDAS_8_ComparacionDigital": "Comparacion social nociva en entornos digitales",
-    "Habito_HorasPantallaDia": "Exposicion diaria prolongada frente a pantallas",
-    "Habito_HorasRedesSociales": "Alto tiempo de uso en redes sociales no academicas",
-    "Habito_HorasEstudioVirtual": "Jornada excesiva de estudio virtual sin pausas",
-    "Habito_SuenoHoras": "Horas de sueno y descanso nocturno",
-    "Habito_DispositivoPrincipal": "Tipo de dispositivo tecnologico predominante",
-    "PLN_PolaridadSentimiento": "Tono emocional en el discurso del estudiante",
-    "PLN_ScorePonderadoEstres": "Presencia de terminos de estres/tecnoestres",
-    "PLN_DensidadEstres": "Concentracion de expresiones de agotamiento en el texto"
+    "TMD_Q1_LlamadasAtencionUso": "Advertencias recibidas por uso intensivo del celular (TMD-Q1)",
+    "TMD_Q2_ExcesoLimiteGasto": "Exceso del limite de consumo mensual en el celular (TMD-Q2)",
+    "TMD_Q3_DiscusionesCosto": "Discusiones familiares por costos del celular (TMD-Q3)",
+    "TMD_Q4_MasTiempoMensajes": "Tiempo excesivo en llamadas, WhatsApp o chats (TMD-Q4)",
+    "TMD_Q5_MasCincoMensajesDia": "Alta frecuencia diaria de envio de mensajes (TMD-Q5)",
+    "TMD_Q6_DormirMenosPorCelular": "Acostarse tarde o dormir menos por usar el celular (TMD-Q6)",
+    "TMD_Q7_GastoMayorPrevisto": "Gasto mayor al planificado en servicios moviles (TMD-Q7)",
+    "TMD_Q8_UsoPorAburrimiento": "Recurrir al celular ante el aburrimiento (TMD-Q8)",
+    "TMD_Q9_UsoSituacionesInapropiadas": "Uso del celular en situaciones inapropiadas (TMD-Q9)",
+    "TMD_Q10_CriticasPorTiempoUso": "Criticas por el tiempo invertido en el celular (TMD-Q10)",
+    "TMD_Q11_NecesidadUsarTrasPausa": "Urgencia por revisar mensajes tras un periodo sin uso (TMD-Q11)",
+    "TMD_Q12_IncrementoLlamadas": "Incremento progresivo de llamadas y contacto movil (TMD-Q12)",
+    "TMD_Q13_MalestarSiSeAveria": "Malestar intenso si el celular se averiara (TMD-Q13)",
+    "TMD_Q14_NecesidadCrecienteUso": "Necesidad creciente de utilizar el celular cada vez mas (TMD-Q14)",
+    "TMD_Q15_MalestarSinCelular": "Malestar emocional al no tener el celular consigo (TMD-Q15)",
+    "TMD_Q16_NoPoderDejarDeUsarlo": "Dificultad para detener el uso cuando tiene el celular en mano (TMD-Q16)",
+    "TMD_Q17_IncrementoMensajesWhatsApp": "Incremento sostenido de mensajes de WhatsApp y chats (TMD-Q17)",
+    "TMD_Q18_RevisarAlDespertar": "Revisar llamadas o WhatsApp apenas se despierta (TMD-Q18)",
+    "TMD_Q19_MayorGastoActual": "Incremento del gasto actual respecto al inicial (TMD-Q19)",
+    "TMD_Q20_IncapazSemanaSinCelular": "Incapacidad percibida de pasar una semana sin celular (TMD-Q20)",
+    "TMD_Q21_LlamarMensajearPorSoledad": "Uso del celular o WhatsApp ante sentimientos de soledad (TMD-Q21)",
+    "TMD_Q22_ImpulsoUsarAhoraMismo": "Impulso inmediato de tomar el celular y enviar mensajes (TMD-Q22)",
+    "STAI_R21_MalestarEmocional": "Disminucion de sensacion de bienestar cotidiano (STAI-21)",
+    "STAI_R22_NerviosismoInquietud": "Sentimiento de nerviosismo e inquietud (STAI-22)",
+    "STAI_R23_InsatisfaccionPersonal": "Baja satisfaccion consigo mismo (STAI-23)",
+    "STAI_R24_DeseoFelicidadAjena": "Comparacion con la felicidad percibida en otros (STAI-24)",
+    "STAI_R25_SentimientoFracaso": "Sensacion de fracaso ante exigencias (STAI-25)",
+    "STAI_R26_FaltaDescanso": "Sensacion de falta de descanso reparador (STAI-26)",
+    "STAI_R27_FaltaCalmaSerenidad": "Dificultad para mantener la calma y serenidad (STAI-27)",
+    "STAI_R28_AcumulacionDificultades": "Sensacion de que las dificultades se acumulan sin poder superarlas (STAI-28)",
+    "STAI_R29_PreocupacionExcesiva": "Preocupacion excesiva por asuntos cotidianos (STAI-29)",
+    "STAI_R30_FaltaFelicidad": "Disminucion del estado de animo positivo (STAI-30)",
+    "STAI_R31_PensamientosPerturbadores": "Presencia de pensamientos perturbadores recurrentes (STAI-31)",
+    "STAI_R32_FaltaAutoconfianza": "Falta de confianza en si mismo (STAI-32)",
+    "STAI_R33_InseguridadPersonal": "Disminucion de la sensacion de seguridad personal (STAI-33)",
+    "STAI_R34_DificultadDecisiones": "Dificultad para tomar decisiones con facilidad (STAI-34)",
+    "STAI_R35_SentimientoIncompetencia": "Sentimiento de insuficiencia ante retos (STAI-35)",
+    "STAI_R36_InsatisfaccionCotidiana": "Disminucion de conformidad y tranquilidad general (STAI-36)",
+    "STAI_R37_PensamientosIntrusivos": "Pensamientos intrusivos que generan incomodidad (STAI-37)",
+    "STAI_R38_RumiacionDecepciones": "Dificultad para apartar decepciones de la mente (STAI-38)",
+    "STAI_R39_InestabilidadEmocional": "Menor estabilidad emocional percibida (STAI-39)",
+    "STAI_R40_TensionPreocupacionesRecientes": "Estado de tension o agitacion al pensar en preocupaciones recientes (STAI-40)",
+    "Habito_TipoDispositivo": "Tipo de dispositivo tecnologico de uso mas frecuente",
+    "Habito_TiempoUsoDiario": "Tiempo promedio diario de uso del dispositivo",
+    "Habito_LugarUsoFrecuente": "Entorno principal de uso del dispositivo",
+    "Habito_TipoAccesoRed": "Modalidad de acceso a internet (datos/Wi-Fi)",
+    "Habito_ReglasHogarUso": "Existencia de limites o reglas de horario en el hogar",
+    "Habito_PercepcionDiscriminacion": "Presion social por tenencia/uso de celular",
+    "Habito_DiscusionesUsoCelular": "Frecuencia de discusiones por tiempo de uso del celular",
+    "App_MensajeriaInstantanea": "Uso frecuente de aplicaciones de mensajeria instantanea (WhatsApp)",
+    "App_Videojuegos": "Uso frecuente de videojuegos en el dispositivo",
+    "App_RedesSociales": "Uso frecuente de aplicaciones de redes sociales",
+    "App_Musica": "Uso frecuente de aplicaciones de musica",
+    "App_VideosStreaming": "Uso frecuente de aplicaciones de video/streaming",
+    "App_GestionTiempoAcademico": "Uso de herramientas de gestion del tiempo (calendario/recordatorios)",
+    "App_Camara": "Uso frecuente de camara y fotografia movil",
+    "App_CorreoElectronico": "Uso frecuente de correo electronico y academico",
 }
 
 
-class HybridAnxietyModel:
+class HybridTriajeModel:
     """
-    Núcleo del modelo híbrido de orientación preventiva:
-    - Random Forest (29 variables: 13 TS4US + 8 ASAIDAS + 5 Hábitos + 3 PLN)
-    - Procesamiento de Lenguaje Natural con normalización de tildes y manejo de negaciones
-    - Motor de Reglas Clínicas Expertas registrado separadamente de las probabilidades del RF
+    Motor de Inferencia Híbrido entrenado sobre el dataset empírico real (1,220 universitarios):
+      1. Random Forest de 57 variables reales (22 TMD + 20 STAI-Rasgo + 15 Hábitos SocioDemo)
+         con desenlace independiente STAI-Estado (BAJO, MODERADO, ALTO).
+      2. Preprocesador PLN (normalización de tildes + manejo de negaciones).
+      3. Capa de Reglas Clínicas Expertas registrada de forma independiente de las probabilidades RF.
     """
 
     def __init__(self):
-        self.nlp = NLPPreprocessor()
-        self.rules = ExpertRulesEngine()
         self.model = None
-        self.feature_names: List[str] = []
-        self._cargar_o_entrenar()
+        self.feature_names = []
+        self.nlp = NLPPreprocessor()
+        self.cargar_o_entrenar_modelo()
 
-    def _cargar_o_entrenar(self):
-        if os.path.exists(FEATURE_NAMES_FILE):
+    def cargar_o_entrenar_modelo(self):
+        if os.path.exists(MODEL_FILE) and os.path.exists(FEATURE_NAMES_FILE):
             with open(FEATURE_NAMES_FILE, "r", encoding="utf-8") as f:
                 self.feature_names = json.load(f)
+            if len(self.feature_names) == 57:
+                self.model = joblib.load(MODEL_FILE)
+                return
 
-        if not os.path.exists(MODEL_FILE) or len(self.feature_names) != 29:
-            print("Entrenando modelo Random Forest con 29 variables y desenlace STAI-Estado...")
-            from train_model import entrenar_y_evaluar_modelo
-            entrenar_y_evaluar_modelo()
-            with open(FEATURE_NAMES_FILE, "r", encoding="utf-8") as f:
-                self.feature_names = json.load(f)
+        from train_model import entrenar_y_guardar
+        self.model = entrenar_y_guardar()
+        with open(FEATURE_NAMES_FILE, "r", encoding="utf-8") as f:
+            self.feature_names = json.load(f)
 
-        self.model = joblib.load(MODEL_FILE)
-        print("Modelo Random Forest cargado exitosamente.")
+    def predecir(self, req: InferenciaRequest) -> InferenciaResponse:
+        t0 = time.perf_counter()
 
-    def predecir(self, request: InferenciaRequest) -> InferenciaResponse:
-        t0 = time.time()
+        # 1. Análisis léxico del discurso libre (con normalización de tildes y negaciones)
+        pln_dict = self.nlp.analizar_discurso(req.textoLibre or "")
 
-        # 1. Análisis de PLN sobre el texto libre emocional
-        indicadores_pln_dict = self.nlp.analizar_discurso(request.textoLibre or "")
-        vector_pln = self.nlp.extraer_vector_pln(request.textoLibre or "")
-
-        # 2. Construcción del vector multimodal real (29 características)
-        disp_num = DISPOSITIVO_MAP.get(
-            request.perfilEstudiante.dispositivoPrincipal.upper(),
-            2.0
-        )
-
-        vector_habitos = [
-            request.perfilEstudiante.horasPantallaDia,
-            request.perfilEstudiante.horasRedesSociales,
-            request.perfilEstudiante.horasEstudioVirtual,
-            request.perfilEstudiante.habitoSuenoHoras,
-            disp_num
+        # 2. Construcción del vector real de 57 características (sin conversiones simuladas)
+        hab = req.habitosSocioDemo if req.habitosSocioDemo else HabitosSocioDemo()
+        habitos_vector = [
+            float(hab.tipoDispositivo),
+            float(hab.tiempoUsoDiario),
+            float(hab.lugarUsoFrecuente),
+            float(hab.tipoAccesoRed),
+            float(hab.reglasHogarUso),
+            float(hab.percepcionDiscriminacion),
+            float(hab.discusionesUsoCelular),
+            float(hab.appMensajeria),
+            float(hab.appVideojuegos),
+            float(hab.appRedesSociales),
+            float(hab.appMusica),
+            float(hab.appVideos),
+            float(hab.appGestionTiempo),
+            float(hab.appCamara),
+            float(hab.appCorreo),
         ]
 
-        vector_completo = (
-            request.escalas.ts4usRespuestas
-            + request.escalas.asaidasRespuestas
-            + vector_habitos
-            + vector_pln
-        )
+        x_vector = np.array(
+            req.escalas.tmdRespuestas
+            + req.escalas.staiRasgoRespuestas
+            + habitos_vector,
+            dtype=float,
+        ).reshape(1, -1)
 
-        X_eval = np.array([vector_completo], dtype=float)
-
-        # 3. Predicción probabilística pura con Random Forest
-        probabilidades = self.model.predict_proba(X_eval)[0]
-        probs_por_clase: Dict[str, float] = {
-            CLASES[i]: round(float(probabilidades[i]), 4) for i in range(len(CLASES))
+        # 3. Inferencia probabilística exclusiva del Random Forest (desenlace STAI-Estado)
+        probas = self.model.predict_proba(x_vector)[0]
+        idx_max = int(np.argmax(probas))
+        pred_rf = CLASES[idx_max]
+        prob_rf = round(float(probas[idx_max]), 4)
+        probabilidades_rf_dict = {
+            CLASES[i]: round(float(probas[i]), 4) for i in range(len(CLASES))
         }
-        clase_idx = int(np.argmax(probabilidades))
-        prediccion_rf = CLASES[clase_idx]
-        probabilidad_rf = probs_por_clase[prediccion_rf]
 
-        # 4. Evaluación separada de la Capa de Reglas Clínicas Expertas
-        (
-            nivel_final,
-            modificado_por_regla,
-            alerta_critica,
-            regla_disparada,
-            recomendaciones_icbt
-        ) = self.rules.evaluar_reglas_clinicas(
-            ts4us_respuestas=request.escalas.ts4usRespuestas,
-            asaidas_respuestas=request.escalas.asaidasRespuestas,
-            horas_pantalla=request.perfilEstudiante.horasPantallaDia,
-            habito_sueno_horas=request.perfilEstudiante.habitoSuenoHoras,
-            dispositivo=request.perfilEstudiante.dispositivoPrincipal,
-            indicadores_pln=indicadores_pln_dict,
-            prediccion_rf=prediccion_rf
+        # 4. Evaluación de reglas clínicas expertas (separada de las probabilidades del RF)
+        nivel_final, modificado_por_regla, alerta_critica, regla_disparada, recomendaciones = (
+            ExpertRulesEngine.evaluar_reglas_clinicas(
+                tmd_respuestas=req.escalas.tmdRespuestas,
+                stai_rasgo_respuestas=req.escalas.staiRasgoRespuestas,
+                tiempo_uso_diario=hab.tiempoUsoDiario,
+                indicadores_pln=pln_dict,
+                prediccion_rf=pred_rf,
+            )
         )
 
-        # 5. Cálculo de Feature Importance Local
-        global_importances = self.model.feature_importances_
-        local_weights = []
-        for i, (nombre, val) in enumerate(zip(self.feature_names, vector_completo)):
-            val_norm = val / 5.0 if val <= 5.0 else min(val / 14.0, 1.0)
-            impacto = global_importances[i] * max(val_norm, 0.1)
-            desc = DESCRIPCION_FACTORES.get(nombre, nombre)
-            local_weights.append((desc, impacto))
+        # 5. Explicabilidad local (Feature Importance ponderado por activación de la instancia)
+        importancias_globales = self.model.feature_importances_
+        x_norm = np.abs(x_vector[0]) / (np.max(np.abs(x_vector[0])) + 1e-6)
+        contribucion_local = importancias_globales * (0.6 + 0.4 * x_norm)
+        contribucion_local = contribucion_local / (np.sum(contribucion_local) + 1e-9)
 
-        local_weights.sort(key=lambda item: item[1], reverse=True)
-        suma_top = sum(item[1] for item in local_weights[:4]) or 1.0
-
-        top_factores = [
-            FeatureImportanceItem(
-                factor=item[0],
-                peso=round(float(item[1] / suma_top), 3)
+        top_indices = np.argsort(contribucion_local)[::-1][:5]
+        top_features: List[FeatureImportanceItem] = []
+        for idx in top_indices:
+            fname = self.feature_names[idx] if idx < len(self.feature_names) else f"Factor_{idx}"
+            desc = DESCRIPCION_FACTORES.get(fname, fname)
+            top_features.append(
+                FeatureImportanceItem(
+                    factor=desc,
+                    peso=round(float(contribucion_local[idx]), 4),
+                )
             )
-            for item in local_weights[:4]
-        ]
 
-        tiempo_ms = round((time.time() - t0) * 1000, 2)
+        t1 = time.perf_counter()
+        tiempo_ms = round((t1 - t0) * 1000.0, 2)
 
         return InferenciaResponse(
-            evaluacionId=request.evaluacionId,
+            evaluacionId=req.evaluacionId,
             nivelAnsiedad=nivel_final,
-            prediccionRandomForest=prediccion_rf,
-            probabilidadesRandomForest=probs_por_clase,
-            probabilidadPrediccionRF=probabilidad_rf,
+            prediccionRandomForest=pred_rf,
+            probabilidadesRandomForest=probabilidades_rf_dict,
+            probabilidadPrediccionRF=prob_rf,
             modificadoPorRegla=modificado_por_regla,
             reglaClinicaDisparada=regla_disparada,
             alertaCritica=alerta_critica,
-            probabilidadRiesgo=probabilidad_rf,
-            indicadoresPLN=IndicadoresPLN(**indicadores_pln_dict),
-            featureImportance=top_factores,
-            recomendacionesICBT=recomendaciones_icbt,
-            tiempoInferenciaMs=tiempo_ms
+            probabilidadRiesgo=prob_rf,
+            indicadoresPLN=IndicadoresPLN(
+                polaridadSentimiento=pln_dict["polaridadSentimiento"],
+                conteoTerminosArgot=pln_dict["conteoTerminosArgot"],
+                terminosDetectados=pln_dict["terminosDetectados"],
+                densidadEstres=pln_dict["densidadEstres"],
+                longitudPalabras=pln_dict["longitudPalabras"],
+            ),
+            featureImportance=top_features,
+            recomendacionesICBT=recomendaciones,
+            tiempoInferenciaMs=tiempo_ms,
         )

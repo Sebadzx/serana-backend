@@ -37,6 +37,9 @@ public class EvaluacionPsicometrica {
     @Column(name = "asaidas_respuestas_json", columnDefinition = "TEXT")
     private String asaidasRespuestasJson;
 
+    @Column(name = "habitos_sociodemo_json", columnDefinition = "TEXT")
+    private String habitosSocioDemoJson;
+
     @Column(name = "habito_sueno_horas")
     private Double habitoSuenoHoras;
 
@@ -139,6 +142,14 @@ public class EvaluacionPsicometrica {
         this.asaidasRespuestasJson = asaidasRespuestasJson;
     }
 
+    public String getHabitosSocioDemoJson() {
+        return habitosSocioDemoJson;
+    }
+
+    public void setHabitosSocioDemoJson(String habitosSocioDemoJson) {
+        this.habitosSocioDemoJson = habitosSocioDemoJson;
+    }
+
     public Double getHabitoSuenoHoras() {
         return habitoSuenoHoras;
     }
@@ -193,6 +204,7 @@ public class EvaluacionPsicometrica {
         private Integer puntuacionPss10;
         private String ts4usRespuestasJson;
         private String asaidasRespuestasJson;
+        private String habitosSocioDemoJson;
         private Double habitoSuenoHoras;
         private Double tiempoPantallaHoras;
         private Double horasRedesSociales;
@@ -244,6 +256,11 @@ public class EvaluacionPsicometrica {
             return this;
         }
 
+        public EvaluacionPsicometricaBuilder habitosSocioDemoJson(String habitosSocioDemoJson) {
+            this.habitosSocioDemoJson = habitosSocioDemoJson;
+            return this;
+        }
+
         public EvaluacionPsicometricaBuilder habitoSuenoHoras(Double habitoSuenoHoras) {
             this.habitoSuenoHoras = habitoSuenoHoras;
             return this;
@@ -273,6 +290,7 @@ public class EvaluacionPsicometrica {
             EvaluacionPsicometrica e = new EvaluacionPsicometrica(id, usuario, fechaEvaluacion, nivelEstres, nivelAnsiedad, puntuacionGad7, puntuacionPss10, habitoSuenoHoras, tiempoPantallaHoras);
             e.setTs4usRespuestasJson(ts4usRespuestasJson);
             e.setAsaidasRespuestasJson(asaidasRespuestasJson);
+            e.setHabitosSocioDemoJson(habitosSocioDemoJson);
             e.setHorasRedesSociales(horasRedesSociales);
             e.setHorasEstudioVirtual(horasEstudioVirtual);
             e.setDispositivoPrincipal(dispositivoPrincipal);

@@ -7,7 +7,7 @@
     <div class="stepper-indicator">
       <div class="step-item" [class.active]="pasoActual === 1" [class.completed]="pasoActual > 1">
         <div class="step-circle">1</div>
-        <span class="step-label">Psicometría</span>
+        <span class="step-label">Psicometría (TMD + STAI)</span>
       </div>
       <div class="step-line" [class.completed]="pasoActual > 1"></div>
 
@@ -45,38 +45,54 @@
       </div>
     </div>
 
-    <!-- PASO 1: Cuestionario Psicométrico Completo (13 TS4US + 8 ASAIDAS) -->
+    <!-- PASO 1: Cuestionario Psicométrico Completo (22 TMD + 20 STAI-Rasgo = 42 ítems) -->
     <div class="eval-card animate-fade-in" *ngIf="pasoActual === 1">
       <div class="card-header">
         <mat-icon class="header-icon">psychology</mat-icon>
         <div>
-          <h2 class="card-title">Paso 1: Cuestionario Psicométrico ({{ cantidadRespondidasPaso1 }}/21 respondidas)</h2>
-          <p class="card-subtitle">Escalas completas de Tecnoestrés Universitario (TS4US: 13 ítems) y Ansiedad / Dependencia Digital e IA (ASAIDAS: 8 ítems)</p>
+          <h2 class="card-title">Paso 1: Cuestionario Psicométrico ({{ cantidadRespondidasPaso1 }}/42 respondidas)</h2>
+          <p class="card-subtitle">Test de Dependencia al Dispositivo Móvil (TMD de Chóliz, 2012: 22 ítems) y Escala de Ansiedad Rasgo (STAI-Rasgo: 20 ítems)</p>
         </div>
       </div>
 
-      <p class="likert-legend">
-        Selecciona una opción en cada pregunta — <strong>1: Totalmente en desacuerdo</strong> | <strong>3: Neutral</strong> | <strong>5: Totalmente de acuerdo</strong>
-      </p>
-
       <form [formGroup]="formPaso1" (ngSubmit)="guardarPaso1()">
         
-        <h3 class="section-divider">Escala TS4US (Tecnoestrés Universitario — 13 ítems)</h3>
-        <div class="question-row" *ngFor="let q of preguntasTS4US; let idx = index">
-          <div class="question-text">{{ idx + 1 }}. {{ q.texto }}</div>
+        <h3 class="section-divider">1A. Test de Dependencia al Móvil (TMD) — Frecuencia de Conductas (Ítems Q1 a Q10)</h3>
+        <p class="likert-legend">
+          Escala de Frecuencia (0 a 4) — <strong>0: Nunca</strong> | <strong>1: Rara vez</strong> | <strong>2: A veces</strong> | <strong>3: Frecuentemente</strong> | <strong>4: Muy frecuentemente</strong>
+        </p>
+        <div class="question-row" *ngFor="let q of preguntasTMDFrecuencia">
+          <div class="question-text">Q{{ q.id }}. {{ q.texto }}</div>
           <div class="options-container">
-            <label class="radio-label" *ngFor="let val of [1, 2, 3, 4, 5]">
+            <label class="radio-label" *ngFor="let val of [0, 1, 2, 3, 4]">
               <input type="radio" [formControlName]="q.control" [value]="val">
               <span>{{ val }}</span>
             </label>
           </div>
         </div>
 
-        <h3 class="section-divider" style="margin-top: 28px;">Escala ASAIDAS (Ansiedad e Inteligencia Artificial — 8 ítems)</h3>
-        <div class="question-row" *ngFor="let q of preguntasASAIDAS; let idx = index">
-          <div class="question-text">{{ idx + 14 }}. {{ q.texto }}</div>
+        <h3 class="section-divider" style="margin-top: 28px;">1B. Test de Dependencia al Móvil (TMD) — Grado de Acuerdo (Ítems Q11 a Q22)</h3>
+        <p class="likert-legend">
+          Escala de Acuerdo (0 a 4) — <strong>0: Totalmente en desacuerdo</strong> | <strong>1: Algo en desacuerdo</strong> | <strong>2: Neutral</strong> | <strong>3: Algo de acuerdo</strong> | <strong>4: Totalmente de acuerdo</strong>
+        </p>
+        <div class="question-row" *ngFor="let q of preguntasTMDAcuerdo">
+          <div class="question-text">Q{{ q.id }}. {{ q.texto }}</div>
           <div class="options-container">
-            <label class="radio-label" *ngFor="let val of [1, 2, 3, 4, 5]">
+            <label class="radio-label" *ngFor="let val of [0, 1, 2, 3, 4]">
+              <input type="radio" [formControlName]="q.control" [value]="val">
+              <span>{{ val }}</span>
+            </label>
+          </div>
+        </div>
+
+        <h3 class="section-divider" style="margin-top: 28px;">2. Escala de Ansiedad Rasgo (STAI-Rasgo — Ítems 21 a 40)</h3>
+        <p class="likert-legend">
+          Indica cómo te sientes generalmente (1 a 4) — <strong>1: Casi nunca</strong> | <strong>2: A veces</strong> | <strong>3: A menudo</strong> | <strong>4: Casi siempre</strong>
+        </p>
+        <div class="question-row" *ngFor="let q of preguntasSTAIRasgo">
+          <div class="question-text">Ítem {{ q.id }}. {{ q.texto }}</div>
+          <div class="options-container">
+            <label class="radio-label" *ngFor="let val of [1, 2, 3, 4]">
               <input type="radio" [formControlName]="q.control" [value]="val">
               <span>{{ val }}</span>
             </label>
@@ -95,13 +111,13 @@
       </form>
     </div>
 
-    <!-- PASO 2: Hábitos Digitales Completos (US-05 & US-06) -->
+    <!-- PASO 2: Hábitos Digitales y Contexto Sociofamiliar (15 variables SocioDemo, sin molestias musculoesqueléticas) -->
     <div class="eval-card animate-fade-in" *ngIf="pasoActual === 2">
       <div class="card-header">
         <mat-icon class="header-icon">devices</mat-icon>
         <div>
-          <h2 class="card-title">Paso 2: Hábitos de Uso Digital y Descanso</h2>
-          <p class="card-subtitle">Registro real de exposición frente a pantallas, estudio virtual, redes sociales, dispositivo y sueño (US-05)</p>
+          <h2 class="card-title">Paso 2: Hábitos de Uso Digital y Contexto Sociofamiliar</h2>
+          <p class="card-subtitle">Cuestionario de Caracterización de Uso de Dispositivos Móviles en Universitarios (15 indicadores reales)</p>
         </div>
       </div>
 
@@ -109,59 +125,160 @@
         
         <div class="habit-field-box">
           <label class="habit-label">
-            <mat-icon>screen_search_desktop</mat-icon>
-            <span>Horas diarias totales frente a pantallas:</span>
+            <mat-icon>smartphone</mat-icon>
+            <span>1. ¿Qué tipo de dispositivo tecnológico utilizas con mayor frecuencia?</span>
           </label>
-          <div class="slider-val-display">
-            <strong>{{ formPaso2.get('tiempoPantallaHoras')?.value }}</strong> horas / día
-          </div>
-          <input type="range" formControlName="tiempoPantallaHoras" min="1" max="18" step="0.5" class="custom-range-slider">
-        </div>
-
-        <div class="habit-field-box" style="margin-top: 20px;">
-          <label class="habit-label">
-            <mat-icon>school</mat-icon>
-            <span>Horas diarias dedicadas a estudio virtual / plataformas académicas:</span>
-          </label>
-          <div class="slider-val-display">
-            <strong>{{ formPaso2.get('horasEstudioVirtual')?.value }}</strong> horas / día
-          </div>
-          <input type="range" formControlName="horasEstudioVirtual" min="0" max="14" step="0.5" class="custom-range-slider">
-        </div>
-
-        <div class="habit-field-box" style="margin-top: 20px;">
-          <label class="habit-label">
-            <mat-icon>share</mat-icon>
-            <span>Horas diarias en redes sociales y ocio digital:</span>
-          </label>
-          <div class="slider-val-display">
-            <strong>{{ formPaso2.get('horasRedesSociales')?.value }}</strong> horas / día
-          </div>
-          <input type="range" formControlName="horasRedesSociales" min="0" max="14" step="0.5" class="custom-range-slider">
-        </div>
-
-        <div class="habit-field-box" style="margin-top: 20px;">
-          <label class="habit-label">
-            <mat-icon>bedtime</mat-icon>
-            <span>Horas promedio de sueño y descanso nocturno:</span>
-          </label>
-          <div class="slider-val-display">
-            <strong>{{ formPaso2.get('habitoSuenoHoras')?.value }}</strong> horas / noche
-          </div>
-          <input type="range" formControlName="habitoSuenoHoras" min="3" max="12" step="0.5" class="custom-range-slider">
-        </div>
-
-        <div class="habit-field-box" style="margin-top: 20px;">
-          <label class="habit-label">
-            <mat-icon>computer</mat-icon>
-            <span>Dispositivo tecnológico principal de uso diario:</span>
-          </label>
-          <select formControlName="dispositivoPrincipal" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
-            <option value="LAPTOP">Laptop / Portátil</option>
-            <option value="SMARTPHONE">Smartphone / Teléfono Móvil</option>
-            <option value="DESKTOP">Computadora de Escritorio (PC)</option>
-            <option value="TABLET">Tablet / iPad</option>
+          <select formControlName="tipoDispositivo" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
+            <option [ngValue]="1">1 — Teléfono móvil básico</option>
+            <option [ngValue]="2">2 — Smartphone (Teléfono inteligente)</option>
+            <option [ngValue]="3">3 — Tablet / iPad</option>
+            <option [ngValue]="4">4 — Laptop / Computadora portátil</option>
           </select>
+        </div>
+
+        <div class="habit-field-box" style="margin-top: 16px;">
+          <label class="habit-label">
+            <mat-icon>schedule</mat-icon>
+            <span>2. ¿Cuál es el tiempo promedio diario que dedicas al uso de tu dispositivo?</span>
+          </label>
+          <select formControlName="tiempoUsoDiario" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
+            <option [ngValue]="1">1 — Menos de 1 hora al día</option>
+            <option [ngValue]="2">2 — Entre 1 y 3 horas al día</option>
+            <option [ngValue]="3">3 — Entre 3 y 6 horas al día</option>
+            <option [ngValue]="4">4 — Más de 6 horas al día</option>
+          </select>
+        </div>
+
+        <div class="habit-field-box" style="margin-top: 16px;">
+          <label class="habit-label">
+            <mat-icon>place</mat-icon>
+            <span>3. ¿En qué lugar utilizas tu dispositivo con mayor frecuencia?</span>
+          </label>
+          <select formControlName="lugarUsoFrecuente" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
+            <option [ngValue]="1">1 — En el hogar</option>
+            <option [ngValue]="2">2 — En la universidad</option>
+            <option [ngValue]="3">3 — En centros comerciales / transporte</option>
+            <option [ngValue]="4">4 — En todos los lugares por igual</option>
+          </select>
+        </div>
+
+        <div class="habit-field-box" style="margin-top: 16px;">
+          <label class="habit-label">
+            <mat-icon>wifi</mat-icon>
+            <span>4. ¿Qué tipo de acceso a Internet utilizas con mayor frecuencia?</span>
+          </label>
+          <select formControlName="tipoAccesoRed" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
+            <option [ngValue]="1">1 — Plan de datos móviles</option>
+            <option [ngValue]="2">2 — Red Wi-Fi</option>
+            <option [ngValue]="3">3 — Ambos (Datos móviles y Wi-Fi)</option>
+          </select>
+        </div>
+
+        <h3 class="section-divider" style="margin-top: 24px;">Entorno Familiar y Social frente al Uso del Dispositivo</h3>
+
+        <div class="habit-field-box" style="margin-top: 12px;">
+          <label class="habit-label">
+            <mat-icon>rule</mat-icon>
+            <span>5. ¿Existe alguna regla o límite de horario en tu hogar respecto al uso de dispositivos móviles?</span>
+          </label>
+          <select formControlName="reglasHogarUso" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
+            <option [ngValue]="1">1 — Nunca</option>
+            <option [ngValue]="2">2 — A veces</option>
+            <option [ngValue]="3">3 — Frecuentemente</option>
+            <option [ngValue]="4">4 — Siempre</option>
+          </select>
+        </div>
+
+        <div class="habit-field-box" style="margin-top: 12px;">
+          <label class="habit-label">
+            <mat-icon>groups</mat-icon>
+            <span>6. ¿Sientes que podrías ser excluido(a) o discriminado(a) por no tener o no estar conectado al móvil?</span>
+          </label>
+          <select formControlName="percepcionDiscriminacion" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
+            <option [ngValue]="1">1 — Nunca</option>
+            <option [ngValue]="2">2 — A veces</option>
+            <option [ngValue]="3">3 — Frecuentemente</option>
+            <option [ngValue]="4">4 — Siempre</option>
+          </select>
+        </div>
+
+        <div class="habit-field-box" style="margin-top: 12px;">
+          <label class="habit-label">
+            <mat-icon>record_voice_over</mat-icon>
+            <span>7. ¿Has tenido discusiones familiares o personales por pasar mucho tiempo en el dispositivo móvil?</span>
+          </label>
+          <select formControlName="discusionesUsoCelular" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
+            <option [ngValue]="1">1 — Nunca</option>
+            <option [ngValue]="2">2 — A veces</option>
+            <option [ngValue]="3">3 — Frecuentemente</option>
+            <option [ngValue]="4">4 — Siempre</option>
+          </select>
+        </div>
+
+        <h3 class="section-divider" style="margin-top: 24px;">Aplicaciones de Uso Frecuente (1 = No, 2 = Sí)</h3>
+
+        <div class="question-row">
+          <div class="question-text">8. Mensajería instantánea (WhatsApp, Telegram)</div>
+          <div class="options-container">
+            <label class="radio-label"><input type="radio" formControlName="appMensajeria" [value]="1"><span>No (1)</span></label>
+            <label class="radio-label"><input type="radio" formControlName="appMensajeria" [value]="2"><span>Sí (2)</span></label>
+          </div>
+        </div>
+
+        <div class="question-row">
+          <div class="question-text">9. Redes sociales (Instagram, Facebook, TikTok, X)</div>
+          <div class="options-container">
+            <label class="radio-label"><input type="radio" formControlName="appRedesSociales" [value]="1"><span>No (1)</span></label>
+            <label class="radio-label"><input type="radio" formControlName="appRedesSociales" [value]="2"><span>Sí (2)</span></label>
+          </div>
+        </div>
+
+        <div class="question-row">
+          <div class="question-text">10. Videojuegos móviles</div>
+          <div class="options-container">
+            <label class="radio-label"><input type="radio" formControlName="appVideojuegos" [value]="1"><span>No (1)</span></label>
+            <label class="radio-label"><input type="radio" formControlName="appVideojuegos" [value]="2"><span>Sí (2)</span></label>
+          </div>
+        </div>
+
+        <div class="question-row">
+          <div class="question-text">11. Aplicaciones de Música (Spotify, YouTube Music)</div>
+          <div class="options-container">
+            <label class="radio-label"><input type="radio" formControlName="appMusica" [value]="1"><span>No (1)</span></label>
+            <label class="radio-label"><input type="radio" formControlName="appMusica" [value]="2"><span>Sí (2)</span></label>
+          </div>
+        </div>
+
+        <div class="question-row">
+          <div class="question-text">12. Aplicaciones de Video / Streaming (YouTube, Netflix)</div>
+          <div class="options-container">
+            <label class="radio-label"><input type="radio" formControlName="appVideos" [value]="1"><span>No (1)</span></label>
+            <label class="radio-label"><input type="radio" formControlName="appVideos" [value]="2"><span>Sí (2)</span></label>
+          </div>
+        </div>
+
+        <div class="question-row">
+          <div class="question-text">13. Gestión del tiempo (Calendario, alarmas, calculadora, listas de tareas, recordatorios)</div>
+          <div class="options-container">
+            <label class="radio-label"><input type="radio" formControlName="appGestionTiempo" [value]="1"><span>No (1)</span></label>
+            <label class="radio-label"><input type="radio" formControlName="appGestionTiempo" [value]="2"><span>Sí (2)</span></label>
+          </div>
+        </div>
+
+        <div class="question-row">
+          <div class="question-text">14. Cámara y fotografía</div>
+          <div class="options-container">
+            <label class="radio-label"><input type="radio" formControlName="appCamara" [value]="1"><span>No (1)</span></label>
+            <label class="radio-label"><input type="radio" formControlName="appCamara" [value]="2"><span>Sí (2)</span></label>
+          </div>
+        </div>
+
+        <div class="question-row">
+          <div class="question-text">15. Correo electrónico y plataformas académicas</div>
+          <div class="options-container">
+            <label class="radio-label"><input type="radio" formControlName="appCorreo" [value]="1"><span>No (1)</span></label>
+            <label class="radio-label"><input type="radio" formControlName="appCorreo" [value]="2"><span>Sí (2)</span></label>
+          </div>
         </div>
 
         <div class="action-footer">
@@ -190,13 +307,13 @@
         
         <div class="textarea-box">
           <label class="textarea-label">
-            Cuéntanos con tus propias palabras cómo te has sentido en estos últimos días con tus cursos, tareas virtuales, exámenes o el uso continuo de pantallas:
+            Cuéntanos con tus propias palabras cómo te has sentido en estos últimos días respecto a tus estudios, descanso y el uso continuo del teléfono móvil o pantallas:
           </label>
           <textarea 
             formControlName="textoLibre" 
             rows="5" 
             class="custom-textarea"
-            placeholder="Describe aquí tu experiencia reciente con las clases virtuales, entregas y descanso..."></textarea>
+            placeholder="Describe aquí tu experiencia reciente..."></textarea>
           <div class="char-counter">
             {{ formPaso3.get('textoLibre')?.value?.length || 0 }} caracteres ingresados
           </div>
@@ -208,7 +325,7 @@
           </button>
           <button mat-raised-button color="accent" class="btn-primary btn-ia-trigger" type="submit" [disabled]="formPaso3.invalid || cargando">
             <mat-icon>smart_toy</mat-icon>
-            {{ cargando ? 'Ejecutando Modelo Random Forest & PLN...' : 'Finalizar y Generar Orientación Preventiva' }}
+            {{ cargando ? 'Ejecutando Modelo Random Forest (STAI-Estado) & PLN...' : 'Finalizar y Generar Orientación Preventiva' }}
           </button>
         </div>
       </form>
@@ -227,9 +344,9 @@
         </div>
         
         <div class="score-display">
-          <h1 class="ansiedad-level">NIVEL DE ORIENTACIÓN PREVENTIVA: {{ resultadoFinal.nivelAnsiedadPredicho }}</h1>
+          <h1 class="ansiedad-level">NIVEL DE ORIENTACIÓN PREVENTIVA (STAI-Estado): {{ resultadoFinal.nivelAnsiedadPredicho }}</h1>
           <p class="probabilidad-text" style="font-size: 0.92rem; opacity: 0.95;">
-            <em>Resultado experimental de orientación psicopedagógica (no constituye un diagnóstico clínico).</em>
+            <em>Resultado experimental de orientación psicopedagógica entrenado con 1,220 universitarios reales (no constituye un diagnóstico clínico).</em>
           </p>
         </div>
       </div>
@@ -237,7 +354,7 @@
       <!-- Separación explícita: Predicción Random Forest vs. Reglas Clínicas Expertas -->
       <div class="nlp-summary-box" style="margin-bottom: 14px;">
         <div class="summary-col">
-          <span class="col-label">Predicción del Modelo Random Forest:</span>
+          <span class="col-label">Predicción del Modelo Random Forest (Desenlace STAI-Estado):</span>
           <strong class="col-val">
             Clase RF: {{ resultadoFinal.prediccionRandomForest || resultadoFinal.nivelAnsiedadPredicho }}
             ({{ (resultadoFinal.scoreProbabilidad * 100) | number:'1.1-1' }}% para {{ resultadoFinal.prediccionRandomForest || resultadoFinal.nivelAnsiedadPredicho }})
@@ -309,7 +426,7 @@
 
   <!-- Footer -->
   <footer class="eval-footer">
-    <p>SERANA © 2026 - Plataforma Experimental de Orientación Preventiva para Ansiedad Digital (TP1 / Grupo 4).</p>
+    <p>SERANA © 2026 - Plataforma Experimental de Orientación Preventiva (TMD + STAI-Rasgo + SocioDemo -> STAI-Estado).</p>
   </footer>
 
 </div>

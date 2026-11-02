@@ -27,28 +27,38 @@ public class InferenciaMLClientServiceImpl implements InferenciaMLClientService 
         String endpoint = mlServiceUrl.endsWith("/predict") ? mlServiceUrl : (mlServiceUrl + "/predict");
 
         Map<String, Object> payload = new HashMap<>();
-        payload.put("ts4us_respuestas", requestDTO.getTs4usRespuestas());
-        payload.put("asaidas_respuestas", requestDTO.getAsaidasRespuestas());
-        payload.put("habito_sueno_horas", requestDTO.getHabitoSuenoHoras() != null ? requestDTO.getHabitoSuenoHoras() : 6.5);
-        payload.put("tiempo_pantalla_horas", requestDTO.getTiempoPantallaHoras() != null ? requestDTO.getTiempoPantallaHoras() : 8.0);
-        payload.put("horas_redes_sociales", requestDTO.getHorasRedesSociales() != null ? requestDTO.getHorasRedesSociales() : 3.0);
-        payload.put("horas_estudio_virtual", requestDTO.getHorasEstudioVirtual() != null ? requestDTO.getHorasEstudioVirtual() : 5.0);
-        payload.put("dispositivo_principal", requestDTO.getDispositivoPrincipal() != null ? requestDTO.getDispositivoPrincipal() : "LAPTOP");
-        payload.put("texto_libre", requestDTO.getTextoLibre() != null ? requestDTO.getTextoLibre() : "");
+        payload.put("tmdRespuestas", requestDTO.getTmdRespuestas());
+        payload.put("staiRasgoRespuestas", requestDTO.getStaiRasgoRespuestas());
+        payload.put("tipoDispositivo", requestDTO.getTipoDispositivo() != null ? requestDTO.getTipoDispositivo() : 2);
+        payload.put("tiempoUsoDiario", requestDTO.getTiempoUsoDiario() != null ? requestDTO.getTiempoUsoDiario() : 3);
+        payload.put("lugarUsoFrecuente", requestDTO.getLugarUsoFrecuente() != null ? requestDTO.getLugarUsoFrecuente() : 2);
+        payload.put("tipoAccesoRed", requestDTO.getTipoAccesoRed() != null ? requestDTO.getTipoAccesoRed() : 3);
+        payload.put("reglasHogarUso", requestDTO.getReglasHogarUso() != null ? requestDTO.getReglasHogarUso() : 2);
+        payload.put("percepcionDiscriminacion", requestDTO.getPercepcionDiscriminacion() != null ? requestDTO.getPercepcionDiscriminacion() : 1);
+        payload.put("discusionesUsoCelular", requestDTO.getDiscusionesUsoCelular() != null ? requestDTO.getDiscusionesUsoCelular() : 2);
+        payload.put("appMensajeria", requestDTO.getAppMensajeria() != null ? requestDTO.getAppMensajeria() : 2);
+        payload.put("appVideojuegos", requestDTO.getAppVideojuegos() != null ? requestDTO.getAppVideojuegos() : 1);
+        payload.put("appRedesSociales", requestDTO.getAppRedesSociales() != null ? requestDTO.getAppRedesSociales() : 2);
+        payload.put("appMusica", requestDTO.getAppMusica() != null ? requestDTO.getAppMusica() : 2);
+        payload.put("appVideos", requestDTO.getAppVideos() != null ? requestDTO.getAppVideos() : 2);
+        payload.put("appGestionTiempo", requestDTO.getAppGestionTiempo() != null ? requestDTO.getAppGestionTiempo() : 2);
+        payload.put("appCamara", requestDTO.getAppCamara() != null ? requestDTO.getAppCamara() : 2);
+        payload.put("appCorreo", requestDTO.getAppCorreo() != null ? requestDTO.getAppCorreo() : 2);
+        payload.put("textoLibre", requestDTO.getTextoLibre() != null ? requestDTO.getTextoLibre() : "");
 
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(endpoint, payload, Map.class);
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 Map<String, Object> body = response.getBody();
 
-                String nivelFinal = String.valueOf(body.getOrDefault("nivel_ansiedad_predicho", body.getOrDefault("nivelAnsiedad", "MODERADO")));
-                String predRF = String.valueOf(body.getOrDefault("prediccion_random_forest", body.getOrDefault("prediccionRandomForest", nivelFinal)));
-                Boolean modRegla = Boolean.TRUE.equals(body.getOrDefault("modificado_por_regla", body.get("modificadoPorRegla")));
-                Object reglaObj = body.getOrDefault("regla_clinica_disparada", body.get("reglaClinicaDisparada"));
+                String nivelFinal = String.valueOf(body.getOrDefault("nivelAnsiedadPredicho", body.getOrDefault("nivelAnsiedad", "MODERADO")));
+                String predRF = String.valueOf(body.getOrDefault("prediccionRandomForest", nivelFinal));
+                Boolean modRegla = Boolean.TRUE.equals(body.get("modificadoPorRegla"));
+                Object reglaObj = body.get("reglaClinicaDisparada");
                 String reglaDisparada = reglaObj != null ? reglaObj.toString() : null;
 
                 Map<String, Double> probsRF = new LinkedHashMap<>();
-                Object probsRaw = body.getOrDefault("probabilidades_random_forest", body.get("probabilidadesRandomForest"));
+                Object probsRaw = body.get("probabilidadesRandomForest");
                 if (probsRaw instanceof Map<?, ?> mapRaw) {
                     for (Map.Entry<?, ?> entry : mapRaw.entrySet()) {
                         if (entry.getKey() != null && entry.getValue() != null) {
@@ -58,10 +68,19 @@ public class InferenciaMLClientServiceImpl implements InferenciaMLClientService 
                 }
 
                 List<String> estresores = Collections.emptyList();
-                Object estRaw = body.get("estresores_detectados");
+                Object estRaw = body.get("estresoresDetectados");
                 if (estRaw instanceof List<?> listRaw) {
                     estresores = listRaw.stream().filter(Objects::nonNull).map(Object::toString).toList();
                 }
+
+                Object scoreObj = body.getOrDefault("scoreProbabilidad", body.get("probabilidadPrediccionRF"));
+                double scoreProb = scoreObj != null ? Double.parseDouble(scoreObj.toString()) : 0.0;
+
+                Object justObj = body.getOrDefault("justificacionExclusion", body.get("justificacionCli"));
+                String justificacion = justObj != null ? justObj.toString() : "Resultado experimental de orientación preventiva.";
+
+                Object polObj = body.get("polaridadSentimiento");
+                double polaridad = polObj != null ? Double.parseDouble(polObj.toString()) : 0.0;
 
                 return MLInferenceResponseDTO.builder()
                         .nivelAnsiedadPredicho(nivelFinal)
@@ -69,11 +88,11 @@ public class InferenciaMLClientServiceImpl implements InferenciaMLClientService 
                         .probabilidadesRandomForest(probsRF)
                         .modificadoPorRegla(modRegla)
                         .reglaClinicaDisparada(reglaDisparada)
-                        .scoreProbabilidad(body.get("score_probabilidad") != null ? Double.parseDouble(body.get("score_probabilidad").toString()) : 0.0)
-                        .esCasoCritico(Boolean.TRUE.equals(body.get("es_caso_critico")))
-                        .justificacionCli(String.valueOf(body.getOrDefault("justificacion_cli", "Resultado experimental de orientación preventiva.")))
+                        .scoreProbabilidad(scoreProb)
+                        .esCasoCritico(Boolean.TRUE.equals(body.getOrDefault("esCasoCritico", body.get("alertaCritica"))))
+                        .justificacionCli(justificacion)
                         .estresoresDetectados(estresores)
-                        .polaridadSentimiento(body.get("polaridad_sentimiento") != null ? Double.parseDouble(body.get("polaridad_sentimiento").toString()) : 0.0)
+                        .polaridadSentimiento(polaridad)
                         .build();
             }
         } catch (Exception e) {
