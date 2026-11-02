@@ -105,6 +105,13 @@ def cargar_dataset_real(excel_path: str = EXCEL_PATH):
     El desenlace independiente (y) es Result_Level_State_Anxiety (STAI-Estado).
     """
     if not os.path.exists(excel_path):
+        csv_fallback = CLEAN_CSV_PATH if os.path.exists(CLEAN_CSV_PATH) else os.path.join(BASE_DIR, "mentalhealth_dataset.csv")
+        if os.path.exists(csv_fallback):
+            df_csv = pd.read_csv(csv_fallback)
+            feature_cols = TMD_FEATURES + STAI_TRAIT_FEATURES + HABITOS_SOCIODEMO_FEATURES
+            X = df_csv[feature_cols].values.astype(float)
+            y = df_csv["STAI_Estado_Nivel"].astype(str).str.strip().map(MAPA_CLASES).values.astype(int)
+            return X, y, len(df_csv)
         raise FileNotFoundError(
             f"No se encontró el archivo Excel empírico en {excel_path}."
         )
