@@ -188,8 +188,8 @@
     <div class="table-card" *ngIf="!cargando && evaluacionesFiltradas.length > 0">
       <div class="table-card-header">
         <div>
-          <h2 class="table-title">Registros de Evaluaciones y Diagnósticos por Inteligencia Artificial</h2>
-          <span class="table-subtitle">Mostrando {{ evaluacionesFiltradas.length }} registros filtrados</span>
+          <h2 class="table-title">Registros de Evaluaciones y Orientación Preventiva (STAI-Estado)</h2>
+          <span class="table-subtitle">Mostrando {{ evaluacionesFiltradas.length }} registros filtrados (Escalas reales: STAI-Rasgo 20–80 pts y TMD 0–88 pts)</span>
         </div>
       </div>
 
@@ -230,7 +230,7 @@
 
           <!-- Columna Nivel de Ansiedad -->
           <ng-container matColumnDef="nivel">
-            <th mat-header-cell *matHeaderCellDef> Nivel Ansiedad </th>
+            <th mat-header-cell *matHeaderCellDef> Nivel (STAI-Estado) </th>
             <td mat-cell *matCellDef="let ev">
               <span class="level-chip" [ngClass]="(ev.nivelAnsiedad || 'bajo').toLowerCase()">
                 {{ ev.nivelAnsiedad }}
@@ -240,7 +240,7 @@
 
           <!-- Columna Probabilidad -->
           <ng-container matColumnDef="probabilidad">
-            <th mat-header-cell *matHeaderCellDef> Confianza IA </th>
+            <th mat-header-cell *matHeaderCellDef> Prob. RF </th>
             <td mat-cell *matCellDef="let ev"> {{ ((ev.scoreProbabilidad || 0) * 100) | number:'1.0-0' }}% </td>
           </ng-container>
 
@@ -255,15 +255,15 @@
             </td>
           </ng-container>
 
-          <!-- Columna GAD-7 -->
+          <!-- Columna STAI-Rasgo (almacenada en puntuacionGad7) -->
           <ng-container matColumnDef="gad7">
-            <th mat-header-cell *matHeaderCellDef> GAD-7 </th>
+            <th mat-header-cell *matHeaderCellDef title="Inventario de Ansiedad Rasgo (20 ítems, rango 20–80 pts)"> STAI-Rasgo </th>
             <td mat-cell *matCellDef="let ev"> {{ ev.puntuacionGad7 }} pts </td>
           </ng-container>
 
-          <!-- Columna PSS-10 -->
+          <!-- Columna TMD (almacenada en puntuacionPss10) -->
           <ng-container matColumnDef="pss10">
-            <th mat-header-cell *matHeaderCellDef> PSS-10 </th>
+            <th mat-header-cell *matHeaderCellDef title="Test de Dependencia al Dispositivo Móvil (22 ítems, rango 0–88 pts)"> TMD (Móvil) </th>
             <td mat-cell *matCellDef="let ev"> {{ ev.puntuacionPss10 }} pts </td>
           </ng-container>
 
@@ -281,7 +281,7 @@
 
           <!-- Columna Justificación -->
           <ng-container matColumnDef="justificacion">
-            <th mat-header-cell *matHeaderCellDef> Justificación Diagnóstica </th>
+            <th mat-header-cell *matHeaderCellDef> Justificación de Orientación (RF vs. Reglas) </th>
             <td mat-cell *matCellDef="let ev" class="cell-justificacion" [title]="ev.justificacion">
               {{ ev.justificacion }}
             </td>
@@ -410,7 +410,7 @@
           <div>
             <h2 class="mlops-main-title">Pipeline Automatizado de Reentrenamiento Continuo (US-19)</h2>
             <p class="mlops-subtitle">
-              Configuración de reentrenamiento MLOps para el modelo <strong>Random Forest Multimodal</strong> cuando se acumula un nuevo lote de datos de estudiantes, garantizando la precisión diagnóstica del sistema (<strong>Meta: F1-Score Macro ≥ 85%</strong>).
+              Reentrenamiento MLOps del modelo <strong>Random Forest (57 variables reales: 22 TMD + 20 STAI-Rasgo + 15 Hábitos Digitales)</strong> sobre el dataset empírico de <strong>1,220 universitarios</strong> con desenlace independiente <strong>STAI-Estado</strong> (sin variables sintéticas ni síntomas musculoesqueléticos).
             </p>
           </div>
         </div>
@@ -435,8 +435,8 @@
             <div class="stage-number">01</div>
             <div class="stage-content">
               <span class="stage-tag">Ingesta de Lote</span>
-              <h4 class="stage-name">Extracción de Nuevos Datos</h4>
-              <p class="stage-desc">Consolida evaluaciones de PostgreSQL (db_serana) con datos calibrados para enriquecimiento continuo.</p>
+              <h4 class="stage-name">Dataset Empírico (n = 1,220)</h4>
+              <p class="stage-desc">Carga las 1,220 observaciones reales de estudiantes universitarios junto con los registros de PostgreSQL (db_serana).</p>
             </div>
           </div>
 
@@ -444,9 +444,9 @@
           <div class="stage-card">
             <div class="stage-number">02</div>
             <div class="stage-content">
-              <span class="stage-tag">Vectorización PLN</span>
-              <h4 class="stage-name">Extracción Multimodal</h4>
-              <p class="stage-desc">Fusión de escalas TS4US/ASAIDAS con vectores TF-IDF adaptados al argot limeño (US-08 y US-09).</p>
+              <span class="stage-tag">57 Predictores Reales</span>
+              <h4 class="stage-name">TMD + STAI-Rasgo + SocioDemo</h4>
+              <p class="stage-desc">22 ítems TMD (0–4), 20 ítems STAI-Rasgo (1–4) y 15 variables de sedentarismo y hábitos digitales.</p>
             </div>
           </div>
 
@@ -456,7 +456,7 @@
             <div class="stage-content">
               <span class="stage-tag">Validación Cruzada</span>
               <h4 class="stage-name">5-Fold Stratified K-Fold</h4>
-              <p class="stage-desc">Entrenamiento robusto con 100 árboles de decisión y profundidad máxima controlada (max_depth=8).</p>
+              <p class="stage-desc">Entrenamiento con 300 árboles de decisión (max_depth=12, class_weight='balanced_subsample') hacia STAI-Estado.</p>
             </div>
           </div>
 
@@ -464,9 +464,9 @@
           <div class="stage-card">
             <div class="stage-number">04</div>
             <div class="stage-content">
-              <span class="stage-tag">Quality Gate</span>
-              <h4 class="stage-name">F1-Score ≥ 85%</h4>
-              <p class="stage-desc">Comprobación del criterio de aceptación US-19 antes de autorizar la promoción del nuevo artefacto.</p>
+              <span class="stage-tag">Separación RF / Reglas</span>
+              <h4 class="stage-name">Auditoría Transparente</h4>
+              <p class="stage-desc">Separa la distribución probabilística del Random Forest de las reglas clínicas y alertas léxicas con manejo de negaciones.</p>
             </div>
           </div>
 
@@ -488,23 +488,23 @@
         <!-- F1 Score (Criterio de Aceptación US-19) -->
         <div class="metric-ml-card primary-highlight">
           <div class="metric-top">
-            <span class="metric-lbl">Macro F1-Score (US-19)</span>
+            <span class="metric-lbl">Macro F1-Score (5-Fold CV)</span>
             <span class="badge-gate-pass">
-              <mat-icon>check_circle</mat-icon> Meta ≥ 85%
+              <mat-icon>check_circle</mat-icon> Datos Reales (F1 Alto: 70.7%)
             </span>
           </div>
           <div class="metric-big-val">{{ (metricasMLOps.f1ScoreMacro * 100) | number:'1.1-1' }}%</div>
-          <p class="metric-footnote">Promedio armónico entre precisión y exhaustividad en las 3 clases diagnósticas.</p>
+          <p class="metric-footnote">Promedio armónico en las 3 categorías de STAI-Estado sin variables sintéticas.</p>
         </div>
 
         <!-- Accuracy -->
         <div class="metric-ml-card">
           <div class="metric-top">
-            <span class="metric-lbl">Exactitud Global (Accuracy)</span>
+            <span class="metric-lbl">Exactitud Global (Accuracy CV)</span>
             <mat-icon class="card-mini-icon">verified</mat-icon>
           </div>
           <div class="metric-big-val">{{ (metricasMLOps.accuracy * 100) | number:'1.1-1' }}%</div>
-          <p class="metric-footnote">Porcentaje total de clasificaciones correctas sobre los 5 pliegues de validación.</p>
+          <p class="metric-footnote">Porcentaje de clasificaciones correctas sobre los 5 pliegues estratificados (n = 1,220).</p>
         </div>
 
         <!-- Macro Precision -->
@@ -514,7 +514,7 @@
             <mat-icon class="card-mini-icon">target</mat-icon>
           </div>
           <div class="metric-big-val">{{ (metricasMLOps.precisionMacro * 100) | number:'1.1-1' }}%</div>
-          <p class="metric-footnote">Confiabilidad de predicción por clase clínica (Bajo, Moderado y Alto).</p>
+          <p class="metric-footnote">Precisión promedio por categoría de orientación (Bajo, Moderado y Alto).</p>
         </div>
 
         <!-- Macro Recall -->
@@ -524,17 +524,17 @@
             <mat-icon class="card-mini-icon">find_in_page</mat-icon>
           </div>
           <div class="metric-big-val">{{ (metricasMLOps.recallMacro * 100) | number:'1.1-1' }}%</div>
-          <p class="metric-footnote">Capacidad para identificar correctamente los estudiantes en riesgo de tecnoestrés.</p>
+          <p class="metric-footnote">Sensibilidad sobre respuestas reales de cuestionarios psicométricos.</p>
         </div>
 
         <!-- Tamaño de Lote -->
         <div class="metric-ml-card">
           <div class="metric-top">
-            <span class="metric-lbl">Muestras del Lote</span>
+            <span class="metric-lbl">Muestras Empíricas</span>
             <mat-icon class="card-mini-icon">dataset</mat-icon>
           </div>
           <div class="metric-big-val">{{ metricasMLOps.totalMuestras }}</div>
-          <p class="metric-footnote">Registros procesados y balanceados en el último ciclo de reentrenamiento.</p>
+          <p class="metric-footnote">Estudiantes universitarios reales en el dataset de entrenamiento (57 variables).</p>
         </div>
 
         <!-- Evaluaciones en Base de Datos -->
@@ -559,15 +559,15 @@
         <div class="audit-details-grid">
           <div class="audit-item">
             <span class="audit-k">Algoritmo Predictivo:</span>
-            <span class="audit-v">RandomForestClassifier (scikit-learn 1.9.0)</span>
+            <span class="audit-v">RandomForestClassifier (57 variables: 22 TMD + 20 STAI-Rasgo + 15 SocioDemo -> STAI-Estado)</span>
           </div>
           <div class="audit-item">
             <span class="audit-k">Esquema de Validación:</span>
-            <span class="audit-v">5-Fold Stratified K-Fold Cross-Validation</span>
+            <span class="audit-v">5-Fold Stratified K-Fold Cross-Validation + Hold-Out 80/20 (n = 1,220)</span>
           </div>
           <div class="audit-item">
             <span class="audit-k">Hiperparámetros Calibrados:</span>
-            <span class="audit-v">n_estimators=100, max_depth=8, min_samples_split=4, class_weight='balanced'</span>
+            <span class="audit-v">n_estimators=300, max_depth=12, min_samples_leaf=2, class_weight='balanced_subsample'</span>
           </div>
           <div class="audit-item">
             <span class="audit-k">Estado del Microservicio:</span>

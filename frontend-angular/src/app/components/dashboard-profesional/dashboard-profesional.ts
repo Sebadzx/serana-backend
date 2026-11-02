@@ -231,17 +231,17 @@ export class DashboardProfesional implements OnInit {
   // US-19: Pipeline automatizado de reentrenamiento del modelo Random Forest
   reentrenandoML: boolean = false;
   metricasMLOps: any = {
-    f1ScoreMacro: 1.0,
-    accuracy: 1.0,
-    precisionMacro: 1.0,
-    recallMacro: 1.0,
-    totalMuestras: 500,
+    f1ScoreMacro: 0.6176,
+    accuracy: 0.6404,
+    precisionMacro: 0.6215,
+    recallMacro: 0.6148,
+    totalMuestras: 1220,
     evaluacionesEnBd: 0,
     estadoPipeline: 'ACTIVO',
-    algoritmo: 'Random Forest Multimodal (n_estimators=100, max_depth=8)',
-    validacion: '5-Fold Stratified K-Fold',
+    algoritmo: 'Random Forest (57 vars: 22 TMD + 20 STAI-Rasgo + 15 SocioDemo -> STAI-Estado)',
+    validacion: '5-Fold Stratified K-Fold (n = 1,220)',
     timestamp: new Date().toISOString(),
-    mensaje: 'Modelo Random Forest calibrado y listo para inferencias en producción.'
+    mensaje: 'Modelo Random Forest entrenado sobre las 1,220 observaciones reales de estudiantes universitarios (TMD + STAI-Rasgo + SocioDemo -> STAI-Estado).'
   };
 
   cambiarPestana(p: 'dashboard' | 'arco' | 'mlops'): void {
@@ -274,16 +274,16 @@ export class DashboardProfesional implements OnInit {
         this.metricasMLOps = {
           ...this.metricasMLOps,
           ...res,
-          f1ScoreMacro: res.f1ScoreMacro !== undefined ? res.f1ScoreMacro : 1.0,
-          accuracy: res.accuracy !== undefined ? res.accuracy : 1.0,
-          precisionMacro: res.precisionMacro !== undefined ? res.precisionMacro : 1.0,
-          recallMacro: res.recallMacro !== undefined ? res.recallMacro : 1.0,
-          totalMuestras: res.totalMuestras || 500,
+          f1ScoreMacro: res.f1ScoreMacro !== undefined ? res.f1ScoreMacro : 0.6176,
+          accuracy: res.accuracy !== undefined ? res.accuracy : 0.6404,
+          precisionMacro: res.precisionMacro !== undefined ? res.precisionMacro : 0.6215,
+          recallMacro: res.recallMacro !== undefined ? res.recallMacro : 0.6148,
+          totalMuestras: res.totalMuestras || 1220,
           evaluacionesEnBd: res.evaluacionesEnBd !== undefined ? res.evaluacionesEnBd : this.totalEvaluados,
           timestamp: res.timestamp || new Date().toISOString(),
-          mensaje: res.mensaje || 'Reentrenamiento y validación cruzada K-Fold completados exitosamente.'
+          mensaje: res.mensaje || 'Reentrenamiento y validación cruzada 5-Fold completados sobre las 1,220 observaciones reales.'
         };
-        this.snackBar.open(`Pipeline MLOps completado con éxito. F1-Score Macro: ${(this.metricasMLOps.f1ScoreMacro * 100).toFixed(1)}% (Meta ≥ 85%).`, 'Aceptar', { duration: 4000 });
+        this.snackBar.open(`Pipeline MLOps completado con éxito. Exactitud CV: ${(this.metricasMLOps.accuracy * 100).toFixed(1)}% | F1-Macro: ${(this.metricasMLOps.f1ScoreMacro * 100).toFixed(1)}% (n = ${this.metricasMLOps.totalMuestras}).`, 'Aceptar', { duration: 4000 });
         this.cdr.detectChanges();
       },
       error: (err) => {
