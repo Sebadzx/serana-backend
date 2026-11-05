@@ -9,7 +9,7 @@ class HabitosSocioDemo(BaseModel):
     """
     age: int = Field(default=20, ge=15, le=60, description="Edad del estudiante universitario")
     semester: int = Field(default=5, ge=1, le=14, description="Semestre académico en curso")
-    sex: str = Field(default="Female", description="Sexo biológico del estudiante ('Female' o 'Male')")
+    sex: int = Field(default=2, ge=1, le=2, description="Sexo según el diccionario del dataset (1=masculino, 2=femenino)")
 
     familyExpression: int = Field(default=3, ge=1, le=4, description="Expresión y comunicación familiar (1=Nunca .. 4=Siempre)")
     familyActivities: int = Field(default=2, ge=1, le=4, description="Actividades compartidas en familia (1=Nunca .. 4=Siempre)")

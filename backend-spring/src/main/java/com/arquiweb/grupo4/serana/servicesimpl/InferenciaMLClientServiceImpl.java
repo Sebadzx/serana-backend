@@ -46,6 +46,14 @@ public class InferenciaMLClientServiceImpl implements InferenciaMLClientService 
         payload.put("appCorreo", requestDTO.getAppCorreo() != null ? requestDTO.getAppCorreo() : 2);
         payload.put("textoLibre", requestDTO.getTextoLibre() != null ? requestDTO.getTextoLibre() : "");
 
+        if (requestDTO.getHabitosSocioDemo() != null) {
+            Map<String, Object> escalas = new HashMap<>();
+            escalas.put("tmdRespuestas", requestDTO.getTmdRespuestas());
+            escalas.put("staiRasgoRespuestas", requestDTO.getStaiRasgoRespuestas());
+            payload.put("escalas", escalas);
+            payload.put("habitosSocioDemo", requestDTO.getHabitosSocioDemo());
+        }
+
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(endpoint, payload, Map.class);
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {

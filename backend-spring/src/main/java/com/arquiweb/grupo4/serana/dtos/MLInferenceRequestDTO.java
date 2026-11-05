@@ -1,6 +1,7 @@
 package com.arquiweb.grupo4.serana.dtos;
 
 import java.util.List;
+import java.util.Map;
 
 public class MLInferenceRequestDTO {
 
@@ -22,6 +23,16 @@ public class MLInferenceRequestDTO {
     private Integer appCamara;
     private Integer appCorreo;
     private String textoLibre;
+
+    private Map<String, Integer> habitosSocioDemo;
+
+    public Map<String, Integer> getHabitosSocioDemo() {
+        return habitosSocioDemo;
+    }
+
+    public void setHabitosSocioDemo(Map<String, Integer> habitosSocioDemo) {
+        this.habitosSocioDemo = habitosSocioDemo;
+    }
 
     public MLInferenceRequestDTO() {
     }

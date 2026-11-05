@@ -56,6 +56,11 @@ export class EvaluacionService {
   }
 
   paso2Habitos(evaluacionId: number, datos: {
+    age: number;
+    semester: number;
+    sex: number;
+    familyExpression: number;
+    familyActivities: number;
     tipoDispositivo: number;
     tiempoUsoDiario: number;
     lugarUsoFrecuente: number;

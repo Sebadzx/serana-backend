@@ -100,7 +100,7 @@ class HybridInferenceEngine:
         hab = req.habitosSocioDemo
         age = getattr(hab, "age", 20) if hab else 20
         semester = getattr(hab, "semester", 5) if hab else 5
-        sex = getattr(hab, "sex", "Female") if hab else "Female"
+        sex = hab.sex if hab else 2
 
         fam_exp = getattr(hab, "familyExpression", 3) if hab else 3
         fam_act = getattr(hab, "familyActivities", 2) if hab else 2
@@ -128,7 +128,7 @@ class HybridInferenceEngine:
 
         fila_dict["Age"] = int(age)
         fila_dict["Semester"] = int(semester)
-        fila_dict["Sex"] = str(sex)
+        fila_dict["Sex"] = sex
         fila_dict["Family_Expression"] = int(fam_exp)
         fila_dict["Family_Activities"] = int(fam_act)
         fila_dict["Mobile_Use_Rules"] = int(reglas_uso)
@@ -162,7 +162,7 @@ class HybridInferenceEngine:
                 tmd_respuestas=tmd_respuestas,
                 habitos_dict=fila_dict,
                 rf_class_idx=rf_class_idx,
-                probas_rf=probabilidades_rf_dict,
+                probas_rf={clase: float(probas[i]) for i, clase in enumerate(CLASES)},
             )
         )
 

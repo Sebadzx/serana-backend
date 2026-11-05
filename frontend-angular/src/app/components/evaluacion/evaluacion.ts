@@ -99,6 +99,11 @@ export class EvaluacionComponent implements OnInit {
 
     // Paso 2: 15 variables de Hábitos Digitales y Contexto Sociofamiliar (SocioDemo, SIN molestias musculoesqueléticas)
     this.formPaso2 = this.fb.group({
+      age: [null, [Validators.required, Validators.min(15), Validators.max(60), Validators.pattern(/^\d+$/)]],
+      semester: [null, [Validators.required, Validators.min(1), Validators.max(14), Validators.pattern(/^\d+$/)]],
+      sex: [null, [Validators.required, Validators.min(1), Validators.max(2), Validators.pattern(/^\d+$/)]],
+      familyExpression: [null, [Validators.required, Validators.min(1), Validators.max(4), Validators.pattern(/^\d+$/)]],
+      familyActivities: [null, [Validators.required, Validators.min(1), Validators.max(4), Validators.pattern(/^\d+$/)]],
       tipoDispositivo: [2, [Validators.required, Validators.min(1), Validators.max(4)]],
       tiempoUsoDiario: [3, [Validators.required, Validators.min(1), Validators.max(4)]],
       lugarUsoFrecuente: [2, [Validators.required, Validators.min(1), Validators.max(4)]],
@@ -139,7 +144,7 @@ export class EvaluacionComponent implements OnInit {
         if (p.formPaso2) this.formPaso2.patchValue(p.formPaso2);
         if (p.textoLibre) this.formPaso3.patchValue({ textoLibre: p.textoLibre });
         this.evaluacionId = p.evaluacionId || null;
-        this.pasoActual = p.pasoActual;
+        this.pasoActual = p.pasoActual === 3 && this.formPaso2.invalid ? 2 : p.pasoActual;
         this.progresoRecuperado = true;
         this.fechaProgreso = p.fechaGuardado;
         this.snackBar.open(`Progreso previo recuperado (Paso ${this.pasoActual}). Retomando evaluación (US-06).`, 'Continuar', { duration: 4000 });
@@ -223,6 +228,11 @@ export class EvaluacionComponent implements OnInit {
     this.cargando = true;
     const v = this.formPaso2.value;
     const bodyPaso2 = {
+      age: Number(v.age),
+      semester: Number(v.semester),
+      sex: Number(v.sex),
+      familyExpression: Number(v.familyExpression),
+      familyActivities: Number(v.familyActivities),
       tipoDispositivo: Number(v.tipoDispositivo),
       tiempoUsoDiario: Number(v.tiempoUsoDiario),
       lugarUsoFrecuente: Number(v.lugarUsoFrecuente),

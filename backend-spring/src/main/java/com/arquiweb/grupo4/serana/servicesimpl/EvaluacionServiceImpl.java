@@ -70,7 +70,12 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         if (map == null || map.get(key) == null) {
             return defaultVal;
         }
-        int val = Integer.parseInt(map.get(key).toString());
+        int val;
+        try {
+            val = Integer.parseInt(map.get(key).toString());
+        } catch (NumberFormatException ex) {
+            throw new BadRequestException("El campo " + key + " debe ser un número entero.");
+        }
         if (val < minVal || val > maxVal) {
             throw new BadRequestException("El campo " + key + " debe estar entre " + minVal + " y " + maxVal + ".");
         }
@@ -215,6 +220,14 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         }
 
         Map<String, Integer> habitosMap = new LinkedHashMap<>();
+        habitosMap.put("age", extraerEnteroEnRango(datos, "age", 15, 60, 0));
+        habitosMap.put("semester", extraerEnteroEnRango(datos, "semester", 1, 14, 0));
+        habitosMap.put("sex", extraerEnteroEnRango(datos, "sex", 1, 2, 0));
+        habitosMap.put("familyExpression", extraerEnteroEnRango(datos, "familyExpression", 1, 4, 0));
+        habitosMap.put("familyActivities", extraerEnteroEnRango(datos, "familyActivities", 1, 4, 0));
+        if (habitosMap.containsValue(0)) {
+            throw new BadRequestException("Completa edad, semestre, sexo y las dos preguntas familiares del paso 2.");
+        }
         habitosMap.put("tipoDispositivo", extraerEnteroEnRango(datos, "tipoDispositivo", 1, 4, 2));
         habitosMap.put("tiempoUsoDiario", extraerEnteroEnRango(datos, "tiempoUsoDiario", 1, 4, 3));
         habitosMap.put("lugarUsoFrecuente", extraerEnteroEnRango(datos, "lugarUsoFrecuente", 1, 4, 2));
@@ -263,6 +276,9 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         List<Integer> tmd = deserializarListaEnteros(evaluacion.getTs4usRespuestasJson(), 22, 2);
         List<Integer> staiRasgo = deserializarListaEnteros(evaluacion.getAsaidasRespuestasJson(), 20, 2);
         Map<String, Integer> hab = deserializarMapaHabitos(evaluacion.getHabitosSocioDemoJson());
+        if (!hab.keySet().containsAll(List.of("age", "semester", "sex", "familyExpression", "familyActivities"))) {
+            throw new BadRequestException("Vuelve al paso 2 y completa los datos sociodemográficos y familiares.");
+        }
 
         MLInferenceRequestDTO mlRequest = MLInferenceRequestDTO.builder()
                 .tmdRespuestas(tmd)
@@ -284,6 +300,7 @@ public class EvaluacionServiceImpl implements EvaluacionService {
                 .appCorreo(hab.getOrDefault("appCorreo", 2))
                 .textoLibre(textoLibre)
                 .build();
+        mlRequest.setHabitosSocioDemo(hab);
 
         MLInferenceResponseDTO mlResponse = mlClientService.realizarInferencia(mlRequest);
         return persistirResultadoEIntervenciones(evaluacion, textoLibre, mlResponse);

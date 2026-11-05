@@ -117,11 +117,51 @@
         <mat-icon class="header-icon">devices</mat-icon>
         <div>
           <h2 class="card-title">Paso 2: Hábitos de Uso Digital y Contexto Sociofamiliar</h2>
-          <p class="card-subtitle">Cuestionario de Caracterización de Uso de Dispositivos Móviles en Universitarios (15 indicadores reales)</p>
+          <p class="card-subtitle">Cuestionario de Caracterización de Uso de Dispositivos Móviles en Universitarios</p>
         </div>
       </div>
 
       <form [formGroup]="formPaso2" (ngSubmit)="guardarPaso2()">
+        <label class="habit-field-box">
+          <span class="habit-label">Edad en años</span>
+          <input type="number" formControlName="age" min="15" max="60" step="1" class="custom-textarea">
+        </label>
+
+        <label class="habit-field-box">
+          <span class="habit-label">Semestre académico</span>
+          <input type="number" formControlName="semester" min="1" max="14" step="1" class="custom-textarea">
+        </label>
+
+        <label class="habit-field-box">
+          <span class="habit-label">Sexo biológico</span>
+          <select formControlName="sex" class="custom-textarea">
+            <option [ngValue]="null" disabled>Selecciona una opción</option>
+            <option [ngValue]="1">Masculino</option>
+            <option [ngValue]="2">Femenino</option>
+          </select>
+        </label>
+
+        <label class="habit-field-box">
+          <span class="habit-label">¿Con qué frecuencia puedes expresar tus opiniones y sentimientos en tu familia?</span>
+          <select formControlName="familyExpression" class="custom-textarea">
+            <option [ngValue]="null" disabled>Selecciona una opción</option>
+            <option [ngValue]="1">Nunca</option>
+            <option [ngValue]="2">A veces</option>
+            <option [ngValue]="3">A menudo</option>
+            <option [ngValue]="4">Siempre</option>
+          </select>
+        </label>
+
+        <label class="habit-field-box">
+          <span class="habit-label">¿Con qué frecuencia participa tu familia en actividades compartidas?</span>
+          <select formControlName="familyActivities" class="custom-textarea">
+            <option [ngValue]="null" disabled>Selecciona una opción</option>
+            <option [ngValue]="1">Nunca</option>
+            <option [ngValue]="2">A veces</option>
+            <option [ngValue]="3">A menudo</option>
+            <option [ngValue]="4">Siempre</option>
+          </select>
+        </label>
         
         <div class="habit-field-box">
           <label class="habit-label">
