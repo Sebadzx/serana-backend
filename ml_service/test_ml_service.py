@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from app.nlp_preprocessor import NLPPreprocessor
 from app.expert_rules import ExpertRulesEngine
 from app.schemas import InferenciaRequest, HabitosSocioDemo, EscalasPsicometricas
-from app.hybrid_model import HybridTriajeModel
+from app.hybrid_model import HybridInferenceEngine
 
 
 def test_nlp_tildes_y_negaciones():
@@ -37,89 +37,55 @@ def test_nlp_tildes_y_negaciones():
 
     r_neutro = nlp.analizar_discurso("Hoy asistí a la clase de matemáticas por la mañana.")
     assert r_neutro["terminosDetectados"] == []
-    print("   [OK] Todos los casos de tildes, negaciones y diccionario vacío pasaron.\n")
+    print("   [OK] Todos los casos de tildes, negaciones y diccionario pasaron.\n")
 
 
 def test_validacion_rango_cuestionario():
-    print(">>> 2. Probando Validación Estricta de Rango (22 TMD [0..4] + 20 STAI-Rasgo [1..4])...")
+    print(">>> 2. Probando Validación de Rango (22 TMD [0..4])...")
     # TMD fuera de rango (5 no es valido en escala 0..4)
     try:
         EscalasPsicometricas(
-            tmdRespuestas=[2] * 21 + [5],
-            staiRasgoRespuestas=[2] * 20,
+            tmdRespuestas=[2] * 21 + [5]
         )
         assert False, "Debió rechazar valor 5 fuera de rango 0..4 en TMD"
     except ValidationError:
         pass
 
-    # STAI-Rasgo fuera de rango (0 no es valido en escala 1..4)
-    try:
-        EscalasPsicometricas(
-            tmdRespuestas=[2] * 22,
-            staiRasgoRespuestas=[0] + [2] * 19,
-        )
-        assert False, "Debió rechazar valor 0 fuera de rango 1..4 en STAI-Rasgo"
-    except ValidationError:
-        pass
-
     escalas_ok = EscalasPsicometricas(
-        tmdRespuestas=[0, 1, 2, 3, 4] * 4 + [2, 3],
-        staiRasgoRespuestas=[1, 2, 3, 4] * 5,
+        tmdRespuestas=[0, 1, 2, 3, 4] * 4 + [2, 3]
     )
     assert len(escalas_ok.tmdRespuestas) == 22
-    assert len(escalas_ok.staiRasgoRespuestas) == 20
-    print("   [OK] Validación de rango y estructura completada.\n")
+    print("   [OK] Validación de rango TMD (0 a 4) completada.\n")
 
 
 def test_expert_rules_y_modelo_hibrido():
-    print(">>> 3. Probando Separación RF vs. Regla Clínica y Modelo Híbrido (57 variables -> STAI-Estado)...")
-    rules = ExpertRulesEngine()
-    nlp = NLPPreprocessor()
+    print(">>> 3. Probando Modelo Híbrido SERANA (40 predictores -> STAI-Estado corregido)...")
+    motor = HybridInferenceEngine()
+    assert len(motor.feature_names) == 40, f"Se esperaban 40 características, se encontraron {len(motor.feature_names)}"
 
-    # Mismas respuestas con TMD = 44 (Dependencia Media >= 39) y STAI-Rasgo = 36 (Bajo), RF fijo en BAJO
     tmd_prueba = [2] * 22  # suma = 44
-    stai_bajo = [1] * 4 + [2] * 16  # suma = 36
-
-    ind_con_panico = nlp.analizar_discurso("Tengo pánico")
-    nivel_1, mod_1, alerta_1, regla_1, _ = rules.evaluar_reglas_clinicas(
-        tmd_respuestas=tmd_prueba,
-        stai_rasgo_respuestas=stai_bajo,
-        tiempo_uso_diario=2,
-        indicadores_pln=ind_con_panico,
-        prediccion_rf="BAJO",
-    )
-    assert nivel_1 == "ALTO" and alerta_1 is True and mod_1 is True
-
-    ind_sin_panico = nlp.analizar_discurso("Sin panico")
-    nivel_2, mod_2, alerta_2, regla_2, _ = rules.evaluar_reglas_clinicas(
-        tmd_respuestas=tmd_prueba,
-        stai_rasgo_respuestas=stai_bajo,
-        tiempo_uso_diario=2,
-        indicadores_pln=ind_sin_panico,
-        prediccion_rf="BAJO",
-    )
-    assert nivel_2 == "BAJO" and alerta_2 is False and mod_2 is False
-
-    # Prueba integral con HybridTriajeModel (57 caracteristicas reales)
-    motor = HybridTriajeModel()
     req = InferenciaRequest(
         evaluacionId=100,
-        habitosSocioDemo=HabitosSocioDemo(),
+        habitosSocioDemo=HabitosSocioDemo(
+            tipoDispositivo=2,
+            tiempoUsoDiario=3,
+            appRedesSociales=2
+        ),
         escalas=EscalasPsicometricas(
             tmdRespuestas=tmd_prueba,
-            staiRasgoRespuestas=stai_bajo,
         ),
-        textoLibre="Hoy avancé mis trabajos sin panico y tranquilo.",
+        textoLibre="Hoy avancé mis trabajos de tesis con calma y sin angustia.",
     )
     res = motor.predecir(req)
-    assert res.indicadoresPLN.terminosDetectados == []
+    assert res.nivelAnsiedad in ["BAJO", "MODERADO", "ALTO"]
     assert sum(res.probabilidadesRandomForest.values()) > 0.99
-    print("   [OK] Separación entre predicción RF, regla clínica y modelo de 57 variables verificada.\n")
+    assert len(res.featureImportance) == 5
+    print(f"   [OK] Inferencia completada: RF={res.prediccionRandomForest}, Final={res.nivelAnsiedad}, Regla={res.reglaClinicaDisparada}\n")
 
 
 if __name__ == "__main__":
     print("==================================================")
-    print("SUITE DE PRUEBAS UNITARIAS - ML SERVICE (57 VARS)")
+    print("SUITE DE PRUEBAS UNITARIAS - ML SERVICE (40 VARS)")
     print("==================================================")
     test_nlp_tildes_y_negaciones()
     test_validacion_rango_cuestionario()

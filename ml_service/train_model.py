@@ -3,8 +3,12 @@ import json
 import joblib
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
+from sklearn.dummy import DummyClassifier
 from sklearn.metrics import (
     classification_report,
     confusion_matrix,
@@ -14,245 +18,272 @@ from sklearn.metrics import (
     recall_score,
 )
 
-# Nombres canónicos de las 57 características reales del dataset empírico (1,220 universitarios)
-# CERO variables sintéticas y CERO variables musculoesqueléticas.
-TMD_FEATURES = [
-    "TMD_Q1_LlamadasAtencionUso",
-    "TMD_Q2_ExcesoLimiteGasto",
-    "TMD_Q3_DiscusionesCosto",
-    "TMD_Q4_MasTiempoMensajes",
-    "TMD_Q5_MasCincoMensajesDia",
-    "TMD_Q6_DormirMenosPorCelular",
-    "TMD_Q7_GastoMayorPrevisto",
-    "TMD_Q8_UsoPorAburrimiento",
-    "TMD_Q9_UsoSituacionesInapropiadas",
-    "TMD_Q10_CriticasPorTiempoUso",
-    "TMD_Q11_NecesidadUsarTrasPausa",
-    "TMD_Q12_IncrementoLlamadas",
-    "TMD_Q13_MalestarSiSeAveria",
-    "TMD_Q14_NecesidadCrecienteUso",
-    "TMD_Q15_MalestarSinCelular",
-    "TMD_Q16_NoPoderDejarDeUsarlo",
-    "TMD_Q17_IncrementoMensajesWhatsApp",
-    "TMD_Q18_RevisarAlDespertar",
-    "TMD_Q19_MayorGastoActual",
-    "TMD_Q20_IncapazSemanaSinCelular",
-    "TMD_Q21_LlamarMensajearPorSoledad",
-    "TMD_Q22_ImpulsoUsarAhoraMismo",
-]
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_FILE = os.path.join(BASE_DIR, "model.joblib")
+FEATURE_NAMES_FILE = os.path.join(BASE_DIR, "feature_names.json")
+METRICS_FILE = os.path.join(BASE_DIR, "metrics_summary.json")
 
-STAI_TRAIT_FEATURES = [
-    "STAI_R21_MalestarEmocional",
-    "STAI_R22_NerviosismoInquietud",
-    "STAI_R23_InsatisfaccionPersonal",
-    "STAI_R24_DeseoFelicidadAjena",
-    "STAI_R25_SentimientoFracaso",
-    "STAI_R26_FaltaDescanso",
-    "STAI_R27_FaltaCalmaSerenidad",
-    "STAI_R28_AcumulacionDificultades",
-    "STAI_R29_PreocupacionExcesiva",
-    "STAI_R30_FaltaFelicidad",
-    "STAI_R31_PensamientosPerturbadores",
-    "STAI_R32_FaltaAutoconfianza",
-    "STAI_R33_InseguridadPersonal",
-    "STAI_R34_DificultadDecisiones",
-    "STAI_R35_SentimientoIncompetencia",
-    "STAI_R36_InsatisfaccionCotidiana",
-    "STAI_R37_PensamientosIntrusivos",
-    "STAI_R38_RumiacionDecepciones",
-    "STAI_R39_InestabilidadEmocional",
-    "STAI_R40_TensionPreocupacionesRecientes",
+# Lista canónica de los 40 predictores validados (22 TMD + 18 SocioDemo / Uso Digital)
+TMD_COLS = [f"TMD_Q{i}" for i in range(1, 23)]
+SOCIO_18_COLS = [
+    "Age", "Semester", "Sex",
+    "Family_Expression", "Family_Activities", "Mobile_Use_Rules",
+    "Phone_Discrimination", "Phone_Related_Arguments",
+    "Type_MD", "Average_Time_Use",
+    "Using_Text Messaging_Apps", "Using_Games_Apps", "Using_social media_Apps",
+    "Using_Music_Apps", "Using_Videos_Apps", "Using_Ttime-management_Apps",
+    "Using_Camara_Apps", "Using_Mail_Apps"
 ]
+FEATURE_COLS = TMD_COLS + SOCIO_18_COLS  # 40 predictores
 
-HABITOS_SOCIODEMO_FEATURES = [
-    "Habito_TipoDispositivo",
-    "Habito_TiempoUsoDiario",
-    "Habito_LugarUsoFrecuente",
-    "Habito_TipoAccesoRed",
-    "Habito_ReglasHogarUso",
-    "Habito_PercepcionDiscriminacion",
-    "Habito_DiscusionesUsoCelular",
-    "App_MensajeriaInstantanea",
-    "App_Videojuegos",
-    "App_RedesSociales",
-    "App_Musica",
-    "App_VideosStreaming",
-    "App_GestionTiempoAcademico",
-    "App_Camara",
-    "App_CorreoElectronico",
-]
-
-FEATURE_NAMES = TMD_FEATURES + STAI_TRAIT_FEATURES + HABITOS_SOCIODEMO_FEATURES
+NOMINAL_COLS = ["Sex", "Type_MD"]
+NUMERIC_ORDINAL_COLS = [c for c in FEATURE_COLS if c not in NOMINAL_COLS]
 
 CLASES = ["BAJO", "MODERADO", "ALTO"]
-MAPA_CLASES = {"BAJO": 0, "MODERADO": 1, "ALTO": 2}
-MAPA_STAI_INGLES = {"Low": "BAJO", "Moderate": "MODERADO", "High": "ALTO"}
+MAPA_ETIQUETAS = {0: "BAJO", 1: "MODERADO", 2: "ALTO"}
 
-ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
-EXCEL_PATH = os.path.join(
-    ROOT_DIR,
-    "Digital Sedentary Behavior, Mobile Device Dependen",
-    "Dataset_MobileDependence_MusculoskeletalSymptoms_Depression_Anxiety-zTaMsO.xlsx",
-)
-CLEAN_CSV_PATH = os.path.join(ROOT_DIR, "mentalhealth_dataset.csv")
-
-
-def cargar_dataset_real(excel_path: str = EXCEL_PATH):
+def aplicar_capa_reglas_experimentales(X_df: pd.DataFrame, y_pred_rf: np.ndarray, proba_rf: np.ndarray):
     """
-    Carga directamente el dataset empírico real de 1,220 estudiantes universitarios
-    (Hojas: TMD_data, Anxiety_data, SocioDemo_data), excluyendo por completo el
-    Cuestionario Nórdico y cualquier variable de postura/molestia musculoesquelética.
-    El desenlace independiente (y) es Result_Level_State_Anxiety (STAI-Estado).
+    Capa de Reglas Clínicas Experimentales (R1, R2, R3) de SERANA:
+    Conserva la predicción del Random Forest y registra de manera auditable
+    cualquier modificación con su justificación clínica correspondiente.
     """
-    if not os.path.exists(excel_path):
-        csv_fallback = CLEAN_CSV_PATH if os.path.exists(CLEAN_CSV_PATH) else os.path.join(BASE_DIR, "mentalhealth_dataset.csv")
-        if os.path.exists(csv_fallback):
-            df_csv = pd.read_csv(csv_fallback)
-            feature_cols = TMD_FEATURES + STAI_TRAIT_FEATURES + HABITOS_SOCIODEMO_FEATURES
-            X = df_csv[feature_cols].values.astype(float)
-            y = df_csv["STAI_Estado_Nivel"].astype(str).str.strip().map(MAPA_CLASES).values.astype(int)
-            return X, y, len(df_csv)
-        raise FileNotFoundError(
-            f"No se encontró el archivo Excel empírico en {excel_path}."
-        )
+    y_hibrido = np.array(y_pred_rf, copy=True)
+    reglas_activadas = []
 
-    xl = pd.ExcelFile(excel_path)
-    df_socio = xl.parse("SocioDemo_data")
-    df_tmd = xl.parse("TMD_data")
-    df_anx = xl.parse("Anxiety_data")
+    tmd_sum      = X_df[TMD_COLS].sum(axis=1).values
+    q3_conflicto = X_df["TMD_Q3"].values
+    q16_control  = X_df["TMD_Q16"].values
+    fam_exp      = X_df["Family_Expression"].values
+    fam_act      = X_df["Family_Activities"].values
+    avg_time     = X_df["Average_Time_Use"].values
+    soc_apps     = X_df["Using_social media_Apps"].values
 
-    # Verificar alineación exacta por código de participante (1..1220)
-    if not (
-        (df_socio["Code"] == df_tmd["Code"]).all()
-        and (df_socio["Code"] == df_anx["Code"]).all()
-    ):
-        raise ValueError("Los códigos de estudiante entre las hojas del Excel no coinciden.")
+    for idx in range(len(X_df)):
+        rf_c = int(y_pred_rf[idx])
+        p_bajo, p_mod, p_alto = proba_rf[idx]
+        p_max = proba_rf[idx, rf_c]
+        regla = "NINGUNA"
 
-    # 1. Extraer las 22 respuestas reales de TMD (escala 0..4)
-    tmd_raw_cols = [c for c in df_tmd.columns if "Q" in c]
-    if len(tmd_raw_cols) != 22:
-        raise ValueError(f"Se esperaban 22 columnas en TMD_data, se hallaron {len(tmd_raw_cols)}")
-    df_tmd_clean = df_tmd[tmd_raw_cols].copy()
-    df_tmd_clean.columns = TMD_FEATURES
+        # Regla 1: Sensibilización de Clase Moderada (1) en frontera de incertidumbre con alta exposición (>=3h/día)
+        if rf_c != 1 and p_mod >= 0.32 and (p_max - p_mod) <= 0.045 and avg_time[idx] >= 3 and fam_act[idx] <= 3:
+            y_hibrido[idx] = 1
+            regla = "R1_TRANSICION_MODERADA_ALTA_EXPOSICION"
 
-    # 2. Extraer las 20 respuestas reales de STAI-Rasgo (item_21..item_40, escala 1..4)
-    trait_raw_cols = [
-        c
-        for c in df_anx.columns
-        if c.startswith("Trait_Anxiety")
-        or (c.startswith("item_") and int(c.split("_")[1]) >= 21)
+        # Regla 2: Escalamiento a Clase Alta (2) por hiperconectividad, pérdida de control y baja cohesión familiar
+        elif rf_c == 1 and p_alto >= 0.37 and avg_time[idx] >= 3 and soc_apps[idx] == 2 and (q3_conflicto[idx] >= 2 or q16_control[idx] >= 3) and fam_act[idx] <= 2:
+            y_hibrido[idx] = 2
+            regla = "R2_ESCALAMIENTO_ALTO_HIPERCONECTIVIDAD"
+
+        # Regla 3: Atenuación a Clase Baja (0) por ausencia de dependencia TMD (<=29) y entorno familiar protector
+        elif rf_c == 1 and p_bajo >= 0.37 and fam_exp[idx] >= 3 and fam_act[idx] >= 3 and tmd_sum[idx] <= 29:
+            y_hibrido[idx] = 0
+            regla = "R3_FACTOR_PROTECTOR_FAMILIAR_BAJA_DEPENDENCIA"
+
+        reglas_activadas.append(regla)
+
+    return y_hibrido, reglas_activadas
+
+
+def cargar_datos(csv_path: str = None) -> tuple[pd.DataFrame, pd.Series]:
+    """Carga y preprocesa el dataset real de 1,220 estudiantes universitarios."""
+    if csv_path is None:
+        posibles_rutas = [
+            os.path.join(BASE_DIR, "dataset_tmd_stai.csv"),
+            os.path.join(BASE_DIR, "..", "..", "..", "dataset_tmd_stai.csv"),
+            r"D:\COSASDARWIN\20262\Taller de Proyectos 1\dataset_tmd_stai.csv",
+        ]
+        for p in posibles_rutas:
+            if os.path.exists(p):
+                csv_path = p
+                break
+
+    if not csv_path or not os.path.exists(csv_path):
+        raise FileNotFoundError(f"No se encontró el dataset en ninguna de las rutas esperadas: {posibles_rutas}")
+
+    df = pd.read_csv(csv_path)
+
+    # 1. Inversión psicométrica de los 10 ítems positivos de STAI-Estado (Spielberger)
+    col_item1 = [c for c in df.columns if "State_Anxiety" in c and "item_1" in c][0]
+    state_raw_cols = [col_item1] + [f"item_{i}" for i in range(2, 21)]
+    df_stai_state = df[state_raw_cols].copy()
+    df_stai_state.columns = [f"STAI_S_{i}" for i in range(1, 21)]
+
+    items_positivos = [1, 2, 5, 8, 10, 11, 15, 16, 19, 20]
+    for i in items_positivos:
+        df_stai_state[f"STAI_S_{i}"] = 5 - df_stai_state[f"STAI_S_{i}"]
+
+    df["STAI_Estado_Puntaje_Corregido"] = df_stai_state.sum(axis=1)
+    df["risk_level"] = pd.cut(df["STAI_Estado_Puntaje_Corregido"], bins=[19, 37, 44, 80], labels=[0, 1, 2]).astype(int)
+
+    # 2. 22 ítems TMD (0 a 4)
+    col_q1 = [c for c in df.columns if "Q1" in c and "Q10" not in c and "Q11" not in c and "Q12" not in c and "Q13" not in c and "Q14" not in c and "Q15" not in c and "Q16" not in c and "Q17" not in c and "Q18" not in c and "Q19" not in c][0]
+    tmd_raw_cols = [col_q1] + [f"Q{i}" for i in range(2, 23)]
+    df_tmd_22 = df[tmd_raw_cols].copy()
+    df_tmd_22.columns = TMD_COLS
+
+    X = pd.concat([df_tmd_22, df[SOCIO_18_COLS].copy()], axis=1)
+    y = df["risk_level"].copy()
+
+    return X, y
+
+
+def construir_pipeline() -> Pipeline:
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("nominal", OneHotEncoder(handle_unknown="ignore", sparse_output=False), NOMINAL_COLS),
+            ("num_ord", "passthrough", NUMERIC_ORDINAL_COLS)
+        ]
+    )
+
+    rf_pipe = Pipeline([
+        ("preprocessor", preprocessor),
+        ("classifier", RandomForestClassifier(
+            n_estimators=120,
+            max_depth=12,
+            min_samples_split=4,
+            min_samples_leaf=2,
+            class_weight="balanced",
+            random_state=42,
+            n_jobs=-1
+        ))
+    ])
+    return rf_pipe
+
+
+def entrenar_y_guardar(csv_path: str = None) -> Pipeline:
+    print("=== Entrenando Modelo Híbrido SERANA (40 predictores reales, 1,220 estudiantes) ===")
+    X, y = cargar_datos(csv_path)
+
+    X_dev, X_test, y_dev, y_test = train_test_split(X, y, test_size=0.20, random_state=42, stratify=y)
+    rf_pipe = construir_pipeline()
+
+    # 1. 5-Fold Cross Validation en Desarrollo (n=976)
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    cv_records = {"Dummy": [], "RF": [], "Hybrid": []}
+
+    dummy_pipe = Pipeline([
+        ("preprocessor", rf_pipe.named_steps["preprocessor"]),
+        ("classifier", DummyClassifier(strategy="most_frequent"))
+    ])
+
+    for tr_idx, va_idx in skf.split(X_dev, y_dev):
+        X_tr, y_tr = X_dev.iloc[tr_idx], y_dev.iloc[tr_idx]
+        X_va, y_va = X_dev.iloc[va_idx], y_dev.iloc[va_idx]
+
+        dummy_pipe.fit(X_tr, y_tr)
+        p_dum = dummy_pipe.predict(X_va)
+
+        rf_pipe.fit(X_tr, y_tr)
+        p_rf = rf_pipe.predict(X_va)
+        prob_rf = rf_pipe.predict_proba(X_va)
+        p_hyb, _ = aplicar_capa_reglas_experimentales(X_va, p_rf, prob_rf)
+
+        for name, p in [("Dummy", p_dum), ("RF", p_rf), ("Hybrid", p_hyb)]:
+            cv_records[name].append({
+                "accuracy": accuracy_score(y_va, p),
+                "f1_macro": f1_score(y_va, p, average="macro"),
+                "precision_macro": precision_score(y_va, p, average="macro", zero_division=0),
+                "recall_macro": recall_score(y_va, p, average="macro", zero_division=0)
+            })
+
+    # 2. Ajuste Final en Desarrollo y Evaluación en Hold-Out Test (n=244)
+    rf_pipe.fit(X_dev, y_dev)
+    test_pred_rf = rf_pipe.predict(X_test)
+    test_proba_rf = rf_pipe.predict_proba(X_test)
+    test_pred_hyb, test_reglas = aplicar_capa_reglas_experimentales(X_test, test_pred_rf, test_proba_rf)
+
+    # Métricas Test
+    acc_rf = accuracy_score(y_test, test_pred_rf)
+    f1_rf = f1_score(y_test, test_pred_rf, average="macro")
+    prec_rf = precision_score(y_test, test_pred_rf, average="macro", zero_division=0)
+    rec_rf = recall_score(y_test, test_pred_rf, average="macro", zero_division=0)
+
+    acc_hyb = accuracy_score(y_test, test_pred_hyb)
+    f1_hyb = f1_score(y_test, test_pred_hyb, average="macro")
+    prec_hyb = precision_score(y_test, test_pred_hyb, average="macro", zero_division=0)
+    rec_hyb = recall_score(y_test, test_pred_hyb, average="macro", zero_division=0)
+
+    cm_rf = confusion_matrix(y_test, test_pred_rf).tolist()
+    cm_hyb = confusion_matrix(y_test, test_pred_hyb).tolist()
+
+    # Bootstrap Delta F1 (B=2000)
+    y_test_np = y_test.values
+    rng = np.random.default_rng(42)
+    boot_deltas = [
+        f1_score(y_test_np[b], test_pred_hyb[b], average="macro") - f1_score(y_test_np[b], test_pred_rf[b], average="macro")
+        for b in (rng.integers(0, len(y_test_np), size=len(y_test_np)) for _ in range(2000))
     ]
-    if len(trait_raw_cols) != 20:
-        raise ValueError(f"Se esperaban 20 columnas de STAI-Rasgo, se hallaron {len(trait_raw_cols)}")
-    df_trait_clean = df_anx[trait_raw_cols].copy()
-    df_trait_clean.columns = STAI_TRAIT_FEATURES
+    delta_obs = f1_hyb - f1_rf
+    ci_lower = float(np.percentile(boot_deltas, 2.5))
+    ci_upper = float(np.percentile(boot_deltas, 97.5))
 
-    # 3. Extraer las 15 variables de Hábitos Digitales y Contexto Sociofamiliar (SIN posturas/ergonomía)
-    socio_raw_cols = [
-        "Type_MD",
-        "Average_Time_Use",
-        "Areas_Use",
-        "Network _Access",
-        "Mobile_Use_Rules",
-        "Phone_Discrimination",
-        "Phone_Related_Arguments",
-        "Using_Text Messaging_Apps",
-        "Using_Games_Apps",
-        "Using_social media_Apps",
-        "Using_Music_Apps",
-        "Using_Videos_Apps",
-        "Using_Ttime-management_Apps",
-        "Using_Camara_Apps",
-        "Using_Mail_Apps",
-    ]
-    df_socio_clean = df_socio[socio_raw_cols].copy()
-    df_socio_clean.columns = HABITOS_SOCIODEMO_FEATURES
+    mod_test = (test_pred_rf != test_pred_hyb)
+    corr_test = mod_test & (test_pred_rf != y_test_np) & (test_pred_hyb == y_test_np)
+    err_test  = mod_test & (test_pred_rf == y_test_np) & (test_pred_hyb != y_test_np)
 
-    # Consolidar matriz X de 57 características reales
-    X_df = pd.concat([df_tmd_clean, df_trait_clean, df_socio_clean], axis=1)
-    X_df = X_df.apply(pd.to_numeric, errors="raise")
+    # Feature Importance Gini
+    ohe_names = list(rf_pipe.named_steps["preprocessor"].named_transformers_["nominal"].get_feature_names_out(NOMINAL_COLS))
+    encoded_feature_names = ohe_names + NUMERIC_ORDINAL_COLS
+    importances = rf_pipe.named_steps["classifier"].feature_importances_
+    feat_df = pd.DataFrame({"feature": encoded_feature_names, "gini": importances}).sort_values("gini", ascending=False)
+    top_15_features = feat_df.head(15).to_dict(orient="records")
 
-    # Desenlace independiente: Result_Level_State_Anxiety (STAI-Estado: 20..80 -> Low/Moderate/High)
-    niveles_es = df_anx["Result_Level_State_Anxiety"].astype(str).str.strip().map(MAPA_STAI_INGLES)
-    if niveles_es.isna().any():
-        raise ValueError("Valores no reconocidos en Result_Level_State_Anxiety.")
+    # Guardar modelo completo (pipeline) y metadatos
+    joblib.dump(rf_pipe, MODEL_FILE)
+    with open(FEATURE_NAMES_FILE, "w", encoding="utf-8") as f:
+        json.dump(FEATURE_COLS, f, indent=2, ensure_ascii=False)
 
-    # Guardar versión limpia auditable en CSV (con puntaje y nivel STAI-Estado)
-    df_export = X_df.copy()
-    df_export.insert(0, "Code", df_socio["Code"])
-    df_export["TMD_Puntaje_Total"] = df_tmd["sum"]
-    df_export["STAI_Rasgo_Puntaje"] = df_anx["SUM_Trait_Anxiety"]
-    df_export["STAI_Estado_Puntaje"] = df_anx["SUM_State_Anxiety"]
-    df_export["STAI_Estado_Nivel"] = niveles_es
-    df_export.to_csv(CLEAN_CSV_PATH, index=False)
+    summary = {
+        "dataset_size": len(X),
+        "n_dev": len(X_dev),
+        "n_test": len(X_test),
+        "num_features": len(FEATURE_COLS),
+        "cv_results": {
+            k: {
+                "accuracy_mean": float(pd.DataFrame(v)["accuracy"].mean()),
+                "accuracy_std": float(pd.DataFrame(v)["accuracy"].std()),
+                "f1_macro_mean": float(pd.DataFrame(v)["f1_macro"].mean()),
+                "f1_macro_std": float(pd.DataFrame(v)["f1_macro"].std()),
+                "precision_macro": float(pd.DataFrame(v)["precision_macro"].mean()),
+                "recall_macro": float(pd.DataFrame(v)["recall_macro"].mean())
+            }
+            for k, v in cv_records.items()
+        },
+        "test_results": {
+            "random_forest": {
+                "accuracy": round(acc_rf, 4),
+                "f1_macro": round(f1_rf, 4),
+                "precision_macro": round(prec_rf, 4),
+                "recall_macro": round(rec_rf, 4),
+                "confusion_matrix": cm_rf
+            },
+            "hybrid": {
+                "accuracy": round(acc_hyb, 4),
+                "f1_macro": round(f1_hyb, 4),
+                "precision_macro": round(prec_hyb, 4),
+                "recall_macro": round(rec_hyb, 4),
+                "confusion_matrix": cm_hyb
+            },
+            "delta_f1_macro": round(delta_obs, 4),
+            "ci_95": [round(ci_lower, 4), round(ci_upper, 4)],
+            "rules_audit": {
+                "modified": int(mod_test.sum()),
+                "corrected": int(corr_test.sum()),
+                "errors_introduced": int(err_test.sum())
+            }
+        },
+        "top_15_features": top_15_features
+    }
 
-    X = X_df.values.astype(float)
-    y = niveles_es.map(MAPA_CLASES).values.astype(int)
-    return X, y, len(df_export)
+    with open(METRICS_FILE, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2, ensure_ascii=False)
 
-
-def entrenar_y_guardar():
-    X, y, n_rows = cargar_dataset_real(EXCEL_PATH)
-
-    # Partición estratificada 80% Entrenamiento / 20% Prueba Independiente (Hold-Out)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.20, stratify=y, random_state=42
-    )
-
-    clf = RandomForestClassifier(
-        n_estimators=300,
-        max_depth=12,
-        min_samples_split=4,
-        min_samples_leaf=2,
-        class_weight="balanced",
-        random_state=42,
-        n_jobs=-1,
-    )
-
-    # Validación Cruzada Estratificada de 5 Pliegues sobre el conjunto de entrenamiento
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_results = cross_validate(
-        clf,
-        X_train,
-        y_train,
-        cv=cv,
-        scoring=["accuracy", "f1_macro", "precision_macro", "recall_macro"],
-    )
-
-    # Ajustar en entrenamiento y evaluar en conjunto Hold-Out (20%)
-    clf.fit(X_train, y_train)
-    y_pred_test = clf.predict(X_test)
-
-    acc_test = accuracy_score(y_test, y_pred_test)
-    f1_test = f1_score(y_test, y_pred_test, average="macro")
-    prec_test = precision_score(y_test, y_pred_test, average="macro")
-    rec_test = recall_score(y_test, y_pred_test, average="macro")
-    cm_test = confusion_matrix(y_test, y_pred_test)
-
-    print("========================================================================")
-    print("=== ENTRENAMIENTO EMPÍRICO REAL (1,220 UNIVERSITARIOS) -> STAI-ESTADO ===")
-    print(f"Total Muestras Reales: {n_rows} (Train: {len(X_train)}, Hold-Out Test: {len(X_test)})")
-    print(f"Total Características: {X.shape[1]} (22 TMD + 20 STAI-Rasgo + 15 Hábitos SocioDemo)")
-    print(f"5-Fold CV Accuracy (Train): {cv_results['test_accuracy'].mean():.4f} | F1-Macro: {cv_results['test_f1_macro'].mean():.4f}")
-    print(f"Hold-Out Test Accuracy:     {acc_test:.4f} | F1-Macro: {f1_test:.4f}")
-    print(f"Hold-Out Precision (Macro): {prec_test:.4f} | Recall:   {rec_test:.4f}")
-    print("Matriz de Confusión (Hold-Out Test):", cm_test.tolist())
-    print("\nReporte por Clase (Hold-Out Test):")
-    print(classification_report(y_test, y_pred_test, target_names=CLASES, digits=4))
-    print("========================================================================")
-
-    # Entrenar modelo final con las 1,220 observaciones reales para producción
-    clf.fit(X, y)
-
-    model_path = os.path.join(os.path.dirname(__file__), "model.joblib")
-    features_path = os.path.join(os.path.dirname(__file__), "feature_names.json")
-
-    joblib.dump(clf, model_path)
-    with open(features_path, "w", encoding="utf-8") as f:
-        json.dump(FEATURE_NAMES, f, indent=2, ensure_ascii=False)
-
-    print(f"Modelo guardado exitosamente en: {model_path}")
-    return clf
+    print(f"Modelo guardado en: {MODEL_FILE}")
+    print(f"Nombres de características (40) guardados en: {FEATURE_NAMES_FILE}")
+    print(f"Resumen de métricas guardado en: {METRICS_FILE}")
+    print(f"Hold-Out Test -> RF Acc: {acc_rf:.4f}, F1: {f1_rf:.4f} | Híbrido Acc: {acc_hyb:.4f}, F1: {f1_hyb:.4f}")
+    return rf_pipe
 
 
 if __name__ == "__main__":

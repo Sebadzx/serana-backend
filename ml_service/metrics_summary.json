@@ -1,0 +1,152 @@
+{
+  "dataset_size": 1220,
+  "n_dev": 976,
+  "n_test": 244,
+  "num_features": 40,
+  "cv_results": {
+    "Dummy": {
+      "accuracy_mean": 0.4323757195185767,
+      "accuracy_std": 0.002336078941378192,
+      "f1_macro_mean": 0.20123844509678515,
+      "f1_macro_std": 0.0007582626997219317,
+      "precision_macro": 0.14412523983952558,
+      "recall_macro": 0.3333333333333333
+    },
+    "RF": {
+      "accuracy_mean": 0.5410099424385139,
+      "accuracy_std": 0.029919160054588872,
+      "f1_macro_mean": 0.4740109615068877,
+      "f1_macro_std": 0.03593369760307574,
+      "precision_macro": 0.4882410938745574,
+      "recall_macro": 0.4798458298047902
+    },
+    "Hybrid": {
+      "accuracy_mean": 0.524610151753009,
+      "accuracy_std": 0.02389418877670706,
+      "f1_macro_mean": 0.4732262366030858,
+      "f1_macro_std": 0.027477666293145134,
+      "precision_macro": 0.48703800194319713,
+      "recall_macro": 0.4733973899637374
+    }
+  },
+  "test_results": {
+    "random_forest": {
+      "accuracy": 0.5492,
+      "f1_macro": 0.4787,
+      "precision_macro": 0.4955,
+      "recall_macro": 0.486,
+      "confusion_matrix": [
+        [
+          83,
+          11,
+          11
+        ],
+        [
+          29,
+          10,
+          15
+        ],
+        [
+          31,
+          13,
+          41
+        ]
+      ]
+    },
+    "hybrid": {
+      "accuracy": 0.5451,
+      "f1_macro": 0.4889,
+      "precision_macro": 0.501,
+      "recall_macro": 0.4911,
+      "confusion_matrix": [
+        [
+          80,
+          16,
+          9
+        ],
+        [
+          26,
+          13,
+          15
+        ],
+        [
+          27,
+          18,
+          40
+        ]
+      ]
+    },
+    "delta_f1_macro": 0.0102,
+    "ci_95": [
+      -0.0222,
+      0.0441
+    ],
+    "rules_audit": {
+      "modified": 15,
+      "corrected": 4,
+      "errors_introduced": 5
+    }
+  },
+  "top_15_features": [
+    {
+      "feature": "Age",
+      "gini": 0.05024967886733865
+    },
+    {
+      "feature": "Semester",
+      "gini": 0.04364815631248197
+    },
+    {
+      "feature": "Family_Activities",
+      "gini": 0.03954398256253654
+    },
+    {
+      "feature": "TMD_Q5",
+      "gini": 0.03650759647839451
+    },
+    {
+      "feature": "TMD_Q8",
+      "gini": 0.03381141481056137
+    },
+    {
+      "feature": "TMD_Q6",
+      "gini": 0.03035110561169431
+    },
+    {
+      "feature": "TMD_Q17",
+      "gini": 0.03000836384920407
+    },
+    {
+      "feature": "TMD_Q16",
+      "gini": 0.02988968262149609
+    },
+    {
+      "feature": "TMD_Q18",
+      "gini": 0.029877134566911212
+    },
+    {
+      "feature": "TMD_Q4",
+      "gini": 0.029180695182498915
+    },
+    {
+      "feature": "TMD_Q12",
+      "gini": 0.02888143130940794
+    },
+    {
+      "feature": "TMD_Q1",
+      "gini": 0.0288716850801994
+    },
+    {
+      "feature": "TMD_Q7",
+      "gini": 0.028253637450585425
+    },
+    {
+      "feature": "TMD_Q3",
+      "gini": 0.02789761478931091
+    },
+    {
+      "feature": "TMD_Q2",
+      "gini": 0.02769794380840137
+    }
+  ]
+}
