@@ -97,29 +97,29 @@
       </form>
     </div>
 
-    <!-- PASO 2: Hábitos Digitales y Contexto Sociofamiliar (15 variables SocioDemo, sin molestias musculoesqueléticas) -->
+    <!-- PASO 2: Hábitos Digitales y Contexto Sociofamiliar (18 variables SocioDemo/Hábitos) -->
     <div class="eval-card animate-fade-in" *ngIf="pasoActual === 2">
       <div class="card-header">
         <mat-icon class="header-icon">devices</mat-icon>
         <div>
-          <h2 class="card-title">Paso 2: Hábitos de Uso Digital y Contexto Sociofamiliar</h2>
+          <h2 class="card-title">Paso 2: Hábitos de Uso Digital y Contexto Sociofamiliar (18 variables)</h2>
           <p class="card-subtitle">Cuestionario de Caracterización de Uso de Dispositivos Móviles en Universitarios</p>
         </div>
       </div>
 
       <form [formGroup]="formPaso2" (ngSubmit)="guardarPaso2()">
         <label class="habit-field-box">
-          <span class="habit-label">Edad en años</span>
+          <span class="habit-label">1. Edad en años</span>
           <input type="number" formControlName="age" min="15" max="60" step="1" class="custom-textarea">
         </label>
 
         <label class="habit-field-box">
-          <span class="habit-label">Semestre académico</span>
+          <span class="habit-label">2. Semestre académico</span>
           <input type="number" formControlName="semester" min="1" max="14" step="1" class="custom-textarea">
         </label>
 
         <label class="habit-field-box">
-          <span class="habit-label">Sexo biológico</span>
+          <span class="habit-label">3. Sexo biológico</span>
           <select formControlName="sex" class="custom-textarea">
             <option [ngValue]="null" disabled>Selecciona una opción</option>
             <option [ngValue]="1">Masculino</option>
@@ -128,7 +128,7 @@
         </label>
 
         <label class="habit-field-box">
-          <span class="habit-label">¿Con qué frecuencia puedes expresar tus opiniones y sentimientos en tu familia?</span>
+          <span class="habit-label">4. ¿Con qué frecuencia puedes expresar tus opiniones y sentimientos en tu familia?</span>
           <select formControlName="familyExpression" class="custom-textarea">
             <option [ngValue]="null" disabled>Selecciona una opción</option>
             <option [ngValue]="1">Nunca</option>
@@ -139,7 +139,7 @@
         </label>
 
         <label class="habit-field-box">
-          <span class="habit-label">¿Con qué frecuencia participa tu familia en actividades compartidas?</span>
+          <span class="habit-label">5. ¿Con qué frecuencia participa tu familia en actividades compartidas?</span>
           <select formControlName="familyActivities" class="custom-textarea">
             <option [ngValue]="null" disabled>Selecciona una opción</option>
             <option [ngValue]="1">Nunca</option>
@@ -152,7 +152,7 @@
         <div class="habit-field-box">
           <label class="habit-label">
             <mat-icon>smartphone</mat-icon>
-            <span>1. ¿Qué tipo de dispositivo tecnológico utilizas con mayor frecuencia?</span>
+            <span>6. ¿Qué tipo de dispositivo tecnológico utilizas con mayor frecuencia?</span>
           </label>
           <select formControlName="tipoDispositivo" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
             <option [ngValue]="1">1 — Teléfono móvil básico</option>
@@ -165,7 +165,7 @@
         <div class="habit-field-box" style="margin-top: 16px;">
           <label class="habit-label">
             <mat-icon>schedule</mat-icon>
-            <span>2. ¿Cuál es el tiempo promedio diario que dedicas al uso de tu dispositivo?</span>
+            <span>7. ¿Cuál es el tiempo promedio diario que dedicas al uso de tu dispositivo?</span>
           </label>
           <select formControlName="tiempoUsoDiario" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
             <option [ngValue]="1">1 — Menos de 1 hora al día</option>
@@ -175,37 +175,12 @@
           </select>
         </div>
 
-        <div class="habit-field-box" style="margin-top: 16px;">
-          <label class="habit-label">
-            <mat-icon>place</mat-icon>
-            <span>3. ¿En qué lugar utilizas tu dispositivo con mayor frecuencia?</span>
-          </label>
-          <select formControlName="lugarUsoFrecuente" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
-            <option [ngValue]="1">1 — En el hogar</option>
-            <option [ngValue]="2">2 — En la universidad</option>
-            <option [ngValue]="3">3 — En centros comerciales / transporte</option>
-            <option [ngValue]="4">4 — En todos los lugares por igual</option>
-          </select>
-        </div>
-
-        <div class="habit-field-box" style="margin-top: 16px;">
-          <label class="habit-label">
-            <mat-icon>wifi</mat-icon>
-            <span>4. ¿Qué tipo de acceso a Internet utilizas con mayor frecuencia?</span>
-          </label>
-          <select formControlName="tipoAccesoRed" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
-            <option [ngValue]="1">1 — Plan de datos móviles</option>
-            <option [ngValue]="2">2 — Red Wi-Fi</option>
-            <option [ngValue]="3">3 — Ambos (Datos móviles y Wi-Fi)</option>
-          </select>
-        </div>
-
         <h3 class="section-divider" style="margin-top: 24px;">Entorno Familiar y Social frente al Uso del Dispositivo</h3>
 
         <div class="habit-field-box" style="margin-top: 12px;">
           <label class="habit-label">
             <mat-icon>rule</mat-icon>
-            <span>5. ¿Existe alguna regla o límite de horario en tu hogar respecto al uso de dispositivos móviles?</span>
+            <span>8. ¿Existe alguna regla o límite de horario en tu hogar respecto al uso de dispositivos móviles?</span>
           </label>
           <select formControlName="reglasHogarUso" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
             <option [ngValue]="1">1 — Nunca</option>
@@ -218,7 +193,7 @@
         <div class="habit-field-box" style="margin-top: 12px;">
           <label class="habit-label">
             <mat-icon>groups</mat-icon>
-            <span>6. ¿Sientes que podrías ser excluido(a) o discriminado(a) por no tener o no estar conectado al móvil?</span>
+            <span>9. ¿Sientes que podrías ser excluido(a) o discriminado(a) por no tener o no estar conectado al móvil?</span>
           </label>
           <select formControlName="percepcionDiscriminacion" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
             <option [ngValue]="1">1 — Nunca</option>
@@ -231,7 +206,7 @@
         <div class="habit-field-box" style="margin-top: 12px;">
           <label class="habit-label">
             <mat-icon>record_voice_over</mat-icon>
-            <span>7. ¿Has tenido discusiones familiares o personales por pasar mucho tiempo en el dispositivo móvil?</span>
+            <span>10. ¿Has tenido discusiones familiares o personales por pasar mucho tiempo en el dispositivo móvil?</span>
           </label>
           <select formControlName="discusionesUsoCelular" class="custom-textarea" style="padding: 10px; margin-top: 8px;">
             <option [ngValue]="1">1 — Nunca</option>
@@ -244,7 +219,7 @@
         <h3 class="section-divider" style="margin-top: 24px;">Aplicaciones de Uso Frecuente (1 = No, 2 = Sí)</h3>
 
         <div class="question-row">
-          <div class="question-text">8. Mensajería instantánea (WhatsApp, Telegram)</div>
+          <div class="question-text">11. Mensajería instantánea (WhatsApp, Telegram)</div>
           <div class="options-container">
             <label class="radio-label"><input type="radio" formControlName="appMensajeria" [value]="1"><span>No (1)</span></label>
             <label class="radio-label"><input type="radio" formControlName="appMensajeria" [value]="2"><span>Sí (2)</span></label>
@@ -252,7 +227,7 @@
         </div>
 
         <div class="question-row">
-          <div class="question-text">9. Redes sociales (Instagram, Facebook, TikTok, X)</div>
+          <div class="question-text">12. Redes sociales (Instagram, Facebook, TikTok, X)</div>
           <div class="options-container">
             <label class="radio-label"><input type="radio" formControlName="appRedesSociales" [value]="1"><span>No (1)</span></label>
             <label class="radio-label"><input type="radio" formControlName="appRedesSociales" [value]="2"><span>Sí (2)</span></label>
@@ -260,7 +235,7 @@
         </div>
 
         <div class="question-row">
-          <div class="question-text">10. Videojuegos móviles</div>
+          <div class="question-text">13. Videojuegos móviles</div>
           <div class="options-container">
             <label class="radio-label"><input type="radio" formControlName="appVideojuegos" [value]="1"><span>No (1)</span></label>
             <label class="radio-label"><input type="radio" formControlName="appVideojuegos" [value]="2"><span>Sí (2)</span></label>
@@ -268,7 +243,7 @@
         </div>
 
         <div class="question-row">
-          <div class="question-text">11. Aplicaciones de Música (Spotify, YouTube Music)</div>
+          <div class="question-text">14. Aplicaciones de Música (Spotify, YouTube Music)</div>
           <div class="options-container">
             <label class="radio-label"><input type="radio" formControlName="appMusica" [value]="1"><span>No (1)</span></label>
             <label class="radio-label"><input type="radio" formControlName="appMusica" [value]="2"><span>Sí (2)</span></label>
@@ -276,7 +251,7 @@
         </div>
 
         <div class="question-row">
-          <div class="question-text">12. Aplicaciones de Video / Streaming (YouTube, Netflix)</div>
+          <div class="question-text">15. Aplicaciones de Video / Streaming (YouTube, Netflix)</div>
           <div class="options-container">
             <label class="radio-label"><input type="radio" formControlName="appVideos" [value]="1"><span>No (1)</span></label>
             <label class="radio-label"><input type="radio" formControlName="appVideos" [value]="2"><span>Sí (2)</span></label>
@@ -284,7 +259,7 @@
         </div>
 
         <div class="question-row">
-          <div class="question-text">13. Gestión del tiempo (Calendario, alarmas, calculadora, listas de tareas, recordatorios)</div>
+          <div class="question-text">16. Gestión del tiempo (Calendario, alarmas, calculadora, listas de tareas, recordatorios)</div>
           <div class="options-container">
             <label class="radio-label"><input type="radio" formControlName="appGestionTiempo" [value]="1"><span>No (1)</span></label>
             <label class="radio-label"><input type="radio" formControlName="appGestionTiempo" [value]="2"><span>Sí (2)</span></label>
@@ -292,7 +267,7 @@
         </div>
 
         <div class="question-row">
-          <div class="question-text">14. Cámara y fotografía</div>
+          <div class="question-text">17. Cámara y fotografía</div>
           <div class="options-container">
             <label class="radio-label"><input type="radio" formControlName="appCamara" [value]="1"><span>No (1)</span></label>
             <label class="radio-label"><input type="radio" formControlName="appCamara" [value]="2"><span>Sí (2)</span></label>
@@ -300,7 +275,7 @@
         </div>
 
         <div class="question-row">
-          <div class="question-text">15. Correo electrónico y plataformas académicas</div>
+          <div class="question-text">18. Correo electrónico y plataformas académicas</div>
           <div class="options-container">
             <label class="radio-label"><input type="radio" formControlName="appCorreo" [value]="1"><span>No (1)</span></label>
             <label class="radio-label"><input type="radio" formControlName="appCorreo" [value]="2"><span>Sí (2)</span></label>

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -42,8 +42,8 @@ export interface SolicitudARCOAdminDTO {
   providedIn: 'root'
 })
 export class BienestarService {
-  private apiUrl = 'http://13.218.166.49:8080/api/bienestar';
-  private arcoUrl = 'http://13.218.166.49:8080/api/arco';
+  private apiUrl = 'http://54.166.85.57:8080/api/bienestar';
+  private arcoUrl = 'http://54.166.85.57:8080/api/arco';
 
   constructor(private http: HttpClient) {}
 

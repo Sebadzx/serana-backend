@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RecursoEducativo } from '../models/recurso-educativo';
 
@@ -6,7 +6,7 @@ import { RecursoEducativo } from '../models/recurso-educativo';
   providedIn: 'root',
 })
 export class RecursoEducativoService {
-  ruta_servidor: string = "http://13.218.166.49:8080/arqui_serana";
+  ruta_servidor: string = "http://54.166.85.57:8080/arqui_serana";
   recurso: string = "recursos_educativos";
   
   constructor(private http: HttpClient) {}

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Sesion } from '../models/sesion';
@@ -7,7 +7,7 @@ import { Sesion } from '../models/sesion';
   providedIn: 'root',
 })
 export class SesionService {
-  ruta_servidor: string = "http://13.218.166.49:8080/arqui_serana";
+  ruta_servidor: string = "http://54.166.85.57:8080/arqui_serana";
   recurso: string = "sesiones";
 
   constructor(private http: HttpClient) {}

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Profesional } from '../models/profesional';
@@ -8,7 +8,7 @@ import { Profesional } from '../models/profesional';
   providedIn: 'root',
 })
 export class ProfesionalService {
-  ruta_servidor: string = "http://13.218.166.49:8080/arqui_serana";
+  ruta_servidor: string = "http://54.166.85.57:8080/arqui_serana";
   recurso: string = "profesionales";
 
   constructor(private http: HttpClient) {}
