@@ -172,7 +172,9 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         Object rawStai = datos.get("staiRasgoRespuestas") != null ? datos.get("staiRasgoRespuestas") : datos.get("asaidasRespuestas");
 
         List<Integer> tmd = extraerYValidarListaRango(rawTmd, 22, 0, 4, "TMD (Test de Dependencia al Móvil)");
-        List<Integer> staiRasgo = extraerYValidarListaRango(rawStai, 20, 1, 4, "STAI-Rasgo");
+        List<Integer> staiRasgo = (rawStai instanceof List<?> l && l.size() == 20)
+                ? extraerYValidarListaRango(rawStai, 20, 1, 4, "STAI-Rasgo")
+                : Collections.nCopies(20, 2);
 
         int sumaTmd = tmd.stream().mapToInt(Integer::intValue).sum();             // Rango oficial TMD: 0..88
         int sumaStaiRasgo = staiRasgo.stream().mapToInt(Integer::intValue).sum(); // Rango oficial STAI-Rasgo: 20..80
@@ -204,7 +206,7 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         resp.put("puntajeStaiRasgoTotal", sumaStaiRasgo);
         resp.put("puntajeTs4usTotal", sumaTmd);
         resp.put("puntajeAsaidasTotal", sumaStaiRasgo);
-        resp.put("mensaje", "Respuestas reales de TMD (22 ítems) y STAI-Rasgo (20 ítems) guardadas exitosamente.");
+        resp.put("mensaje", "Respuestas reales de TMD (22 ítems) guardadas exitosamente.");
         resp.put("siguientePaso", "PUT /api/evaluaciones/" + guardada.getId() + "/paso2-habitos");
         return resp;
     }
@@ -257,7 +259,7 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         Map<String, Object> resp = new HashMap<>(habitosMap);
         resp.put("evaluacionId", evaluacion.getId());
         resp.put("estado", "HABITOS_DIGITALES_GUARDADOS");
-        resp.put("mensaje", "Hábitos de uso digital y contexto sociofamiliar (15 variables SocioDemo) registrados correctamente.");
+        resp.put("mensaje", "Hábitos de uso digital y contexto sociofamiliar (18 variables SocioDemo/Hábitos) registrados correctamente.");
         resp.put("siguientePaso", "POST /api/evaluaciones/" + evaluacion.getId() + "/paso3-texto-libre");
         return resp;
     }

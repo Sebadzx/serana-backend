@@ -92,9 +92,7 @@ export class EvaluacionComponent implements OnInit {
     for (let i = 1; i <= 22; i++) {
       controlesPaso1[`tmd_${i}`] = [null, [Validators.required, Validators.min(0), Validators.max(4)]];
     }
-    for (let j = 21; j <= 40; j++) {
-      controlesPaso1[`stai_${j}`] = [null, [Validators.required, Validators.min(1), Validators.max(4)]];
-    }
+// 22 ítems TMD (sin STAI-Rasgo como predictor, alineado a los 40 predictores reales del modelo)
     this.formPaso1 = this.fb.group(controlesPaso1);
 
     // Paso 2: 15 variables de Hábitos Digitales y Contexto Sociofamiliar (SocioDemo, SIN molestias musculoesqueléticas)
@@ -184,7 +182,7 @@ export class EvaluacionComponent implements OnInit {
   // PASO 1 -> PASO 2: Enviar las 22 respuestas reales de TMD (0..4) y 20 de STAI-Rasgo (1..4) sin conversiones simuladas
   guardarPaso1(): void {
     if (this.formPaso1.invalid) {
-      this.snackBar.open('Por favor, responde las 42 preguntas antes de continuar.', 'Aceptar', { duration: 3000 });
+      this.snackBar.open('Por favor, responde las 22 preguntas de dependencia al móvil (TMD) antes de continuar.', 'Aceptar', { duration: 3000 });
       return;
     }
 
@@ -194,10 +192,7 @@ export class EvaluacionComponent implements OnInit {
     for (let i = 1; i <= 22; i++) {
       tmdRespuestas.push(Number(v[`tmd_${i}`]));
     }
-    const staiRasgoRespuestas: number[] = [];
-    for (let j = 21; j <= 40; j++) {
-      staiRasgoRespuestas.push(Number(v[`stai_${j}`]));
-    }
+const staiRasgoRespuestas: number[] = [];
 
     const bodyPaso1 = {
       tmdRespuestas,
@@ -210,7 +205,7 @@ export class EvaluacionComponent implements OnInit {
         this.evaluacionId = res.evaluacionId;
         this.pasoActual = 2;
         this.guardarProgresoLocal();
-        this.snackBar.open('Respuestas psicométricas reales guardadas (TMD y STAI-Rasgo). Paso 2 habilitado.', 'Aceptar', { duration: 2500 });
+        this.snackBar.open('Respuestas psicométricas reales guardadas (22 ítems TMD). Paso 2 habilitado.', 'Aceptar', { duration: 2500 });
       },
       error: (err) => {
         this.cargando = false;
@@ -305,7 +300,7 @@ export class EvaluacionComponent implements OnInit {
     localStorage.removeItem('serana_evaluacion_progreso_v2');
     const resetPaso1: { [key: string]: any } = {};
     for (let i = 1; i <= 22; i++) resetPaso1[`tmd_${i}`] = null;
-    for (let j = 21; j <= 40; j++) resetPaso1[`stai_${j}`] = null;
+    
     this.formPaso1.reset(resetPaso1);
     this.formPaso2.reset({
       tipoDispositivo: 2,

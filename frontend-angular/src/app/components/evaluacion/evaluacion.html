@@ -7,7 +7,7 @@
     <div class="stepper-indicator">
       <div class="step-item" [class.active]="pasoActual === 1" [class.completed]="pasoActual > 1">
         <div class="step-circle">1</div>
-        <span class="step-label">Psicometría (TMD + STAI)</span>
+        <span class="step-label">Psicometría (TMD-22)</span>
       </div>
       <div class="step-line" [class.completed]="pasoActual > 1"></div>
 
@@ -50,8 +50,8 @@
       <div class="card-header">
         <mat-icon class="header-icon">psychology</mat-icon>
         <div>
-          <h2 class="card-title">Paso 1: Cuestionario Psicométrico ({{ cantidadRespondidasPaso1 }}/42 respondidas)</h2>
-          <p class="card-subtitle">Test de Dependencia al Dispositivo Móvil (TMD de Chóliz, 2012: 22 ítems) y Escala de Ansiedad Rasgo (STAI-Rasgo: 20 ítems)</p>
+          <h2 class="card-title">Paso 1: Cuestionario Psicométrico TMD ({{ cantidadRespondidasPaso1 }}/22 respondidas)</h2>
+          <p class="card-subtitle">Test de Dependencia al Dispositivo Móvil (TMD de Chóliz, 2012: 22 ítems Likert 0–4)</p>
         </div>
       </div>
 
@@ -85,21 +85,7 @@
           </div>
         </div>
 
-        <h3 class="section-divider" style="margin-top: 28px;">2. Escala de Ansiedad Rasgo (STAI-Rasgo — Ítems 21 a 40)</h3>
-        <p class="likert-legend">
-          Indica cómo te sientes generalmente (1 a 4) — <strong>1: Casi nunca</strong> | <strong>2: A veces</strong> | <strong>3: A menudo</strong> | <strong>4: Casi siempre</strong>
-        </p>
-        <div class="question-row" *ngFor="let q of preguntasSTAIRasgo">
-          <div class="question-text">Ítem {{ q.id }}. {{ q.texto }}</div>
-          <div class="options-container">
-            <label class="radio-label" *ngFor="let val of [1, 2, 3, 4]">
-              <input type="radio" [formControlName]="q.control" [value]="val">
-              <span>{{ val }}</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="action-footer">
+                <div class="action-footer">
           <button type="button" mat-stroked-button class="btn-guardar-salir" (click)="guardarYSalir()">
             <mat-icon>bookmark_border</mat-icon> Guardar y salir (US-06)
           </button>
@@ -466,7 +452,7 @@
 
   <!-- Footer -->
   <footer class="eval-footer">
-    <p>SERANA © 2026 - Plataforma Experimental de Orientación Preventiva (TMD + STAI-Rasgo + SocioDemo -> STAI-Estado).</p>
+    <p>SERANA © 2026 - Plataforma Experimental de Orientación Preventiva (40 Predictores: 22 TMD + 18 SocioDemo/Hábitos -> STAI-Estado).</p>
   </footer>
 
 </div>
